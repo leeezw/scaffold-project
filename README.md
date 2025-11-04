@@ -7,17 +7,17 @@
 ```
 scaffold-project/
 ├── scaffold-common/          # 公共模块
-│   └── src/main/java/com/yourcompany/common/
+│   └── src/main/java/com/kite/common/
 │       └── config/
 │           └── RedisConfig.java
 ├── scaffold-user-center/     # 用户中台模块
-│   └── src/main/java/com/yourcompany/usercenter/
+│   └── src/main/java/com/kite/usercenter/
 │       ├── entity/          # 实体类
 │       ├── mapper/          # Mapper 接口
 │       ├── service/         # 服务层
 │       └── controller/      # 控制器
 └── scaffold-app/            # 启动模块
-    ├── src/main/java/com/yourcompany/app/
+    ├── src/main/java/com/kite/app/
     │   └── Application.java
     └── src/main/resources/
         ├── application.yml
@@ -138,7 +138,7 @@ springdoc:
     enabled: true              # 是否启用 Swagger UI
   group-configs:
     - group: 'default'
-      packages-to-scan: com.yourcompany.usercenter.controller
+      packages-to-scan: com.kite.usercenter.controller
 
 knife4j:
   enable: true                 # 是否启用 Knife4j

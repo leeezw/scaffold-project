@@ -67,7 +67,7 @@ mybatis:
   # Mapper XML 文件位置
   mapper-locations: classpath:mapper/**/*.xml
   # 实体类包路径（别名）
-  type-aliases-package: com.yourcompany.usercenter.entity
+  type-aliases-package: com.kite.usercenter.entity
 
 # Springdoc OpenAPI (Swagger) 配置
 springdoc:
@@ -83,7 +83,7 @@ springdoc:
     - group: 'default'
       display-name: '默认接口组'
       paths-to-match: '/**'
-      packages-to-scan: com.yourcompany.usercenter.controller
+      packages-to-scan: com.kite.usercenter.controller
 
 # Knife4j 配置
 knife4j:
@@ -96,7 +96,7 @@ knife4j:
 logging:
   level:
     root: INFO
-    com.yourcompany: DEBUG
+    com.kite: DEBUG
     org.springframework: INFO
     org.mybatis: DEBUG
   pattern:

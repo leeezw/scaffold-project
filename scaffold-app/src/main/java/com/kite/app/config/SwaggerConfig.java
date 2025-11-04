@@ -1,4 +1,4 @@
-package com.yourcompany.app.config;
+package com.kite.app.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;

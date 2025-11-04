@@ -1,4 +1,4 @@
-package com.yourcompany.app;
+package com.kite.app;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author yourname
  */
 @SpringBootApplication
-@MapperScan("com.yourcompany.usercenter.mapper")
+@MapperScan("com.kite.usercenter.mapper")
 public class Application {
 
     public static void main(String[] args) {

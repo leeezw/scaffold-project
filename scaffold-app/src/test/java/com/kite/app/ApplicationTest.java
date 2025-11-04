@@ -1,4 +1,4 @@
-package com.yourcompany.app;
+package com.kite.app;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
