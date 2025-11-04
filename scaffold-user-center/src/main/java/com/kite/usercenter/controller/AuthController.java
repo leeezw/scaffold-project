@@ -4,6 +4,8 @@ import com.kite.authenticator.annotation.AllowAnonymous;
 import com.kite.authenticator.context.LoginUser;
 import com.kite.authenticator.context.LoginUserContext;
 import com.kite.authenticator.service.AuthenticationService;
+import com.kite.authenticator.session.Session;
+import com.kite.authenticator.session.SessionManager;
 import com.kite.authenticator.util.JwtUtils;
 import com.kite.common.response.Result;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +33,9 @@ public class AuthController {
     @Autowired(required = false)
     private AuthenticationService authenticationService;
     
+    @Autowired(required = false)
+    private SessionManager sessionManager;
+    
     @Value("${kite.auth.secret}")
     private String jwtSecret;
     
@@ -40,7 +46,8 @@ public class AuthController {
     @PostMapping("/login")
     public Result<Map<String, Object>> login(
             @Parameter(description = "用户名", required = true) @RequestParam String username,
-            @Parameter(description = "密码", required = true) @RequestParam String password) {
+            @Parameter(description = "密码", required = true) @RequestParam String password,
+            HttpServletRequest request) {
         
         if (authenticationService == null) {
             // 如果没有实现 AuthenticationService，返回错误提示
@@ -56,13 +63,27 @@ public class AuthController {
         // 设置过期时间
         loginUser.setExpireAt(System.currentTimeMillis() + expireTime);
         
-        // 生成 Token
-        String token = JwtUtils.generateToken(loginUser, jwtSecret, expireTime);
+        // 提取设备ID
+        String deviceId = extractDeviceId(request);
+        
+        String sessionKey = null;
+        
+        // 如果启用了 Session，创建 Session
+        if (sessionManager != null) {
+            Session session = sessionManager.createSession(loginUser, deviceId, expireTime);
+            sessionKey = session.getSessionKey();
+        }
+        
+        // 生成 Token（包含 sessionKey）
+        String token = JwtUtils.generateToken(loginUser, jwtSecret, expireTime, sessionKey);
         
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);
         result.put("expireTime", loginUser.getExpireAt());
         result.put("user", loginUser);
+        if (sessionKey != null) {
+            result.put("sessionKey", sessionKey);
+        }
         
         return Result.success(result);
     }
@@ -79,9 +100,49 @@ public class AuthController {
     
     @Operation(summary = "用户登出", description = "退出登录")
     @PostMapping("/logout")
-    public Result<String> logout() {
-        // 登出逻辑（可以在这里实现 Token 黑名单等）
+    public Result<String> logout(HttpServletRequest request) {
+        LoginUser loginUser = LoginUserContext.getLoginUser();
+        if (loginUser != null && sessionManager != null) {
+            // 从 Token 中提取 sessionKey
+            String token = extractToken(request);
+            if (token != null) {
+                String sessionKey = JwtUtils.extractSessionKey(token, jwtSecret);
+                if (sessionKey != null) {
+                    Session session = sessionManager.getSession(sessionKey);
+                    if (session != null) {
+                        sessionManager.deleteSession(session);
+                    }
+                }
+            }
+        }
         return Result.success("登出成功");
+    }
+    
+    /**
+     * 提取设备ID
+     */
+    private String extractDeviceId(HttpServletRequest request) {
+        String deviceId = request.getHeader("X-Device-Id");
+        if (deviceId == null || deviceId.isEmpty()) {
+            String userAgent = request.getHeader("User-Agent");
+            if (userAgent != null && !userAgent.isEmpty()) {
+                deviceId = userAgent.hashCode() + "";
+            } else {
+                deviceId = request.getRemoteAddr();
+            }
+        }
+        return deviceId;
+    }
+    
+    /**
+     * 提取 Token
+     */
+    private String extractToken(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            return token.substring(7);
+        }
+        return null;
     }
 }
 

@@ -112,6 +112,13 @@ kite:
       - /swagger-ui/**
       - /v3/api-docs/**
       - /druid/**
+    session:                          # Session 配置
+      enabled: true                   # 是否启用 Session 管理（默认：true）
+      validate-device: true           # 是否验证设备（默认：true）
+      validate-status: true            # 是否验证用户状态（默认：true）
+      renewal: true                   # 是否启用 Session 续期（默认：true）
+      timeout: 1800000               # Session 超时时间（毫秒，默认：30分钟）
+      renewal-interval: 604800000     # Session 续期间隔（毫秒，默认：7天）
 
 # 日志配置
 logging:

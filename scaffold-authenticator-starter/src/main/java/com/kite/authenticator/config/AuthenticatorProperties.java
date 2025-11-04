@@ -64,5 +64,45 @@ public class AuthenticatorProperties {
      * 是否验证权限（默认：true）
      */
     private Boolean checkPermission = true;
+    
+    /**
+     * Session 配置
+     */
+    private Session session = new Session();
+    
+    @Data
+    public static class Session {
+        /**
+         * 是否启用 Session 管理（默认：true）
+         */
+        private Boolean enabled = true;
+        
+        /**
+         * 是否验证设备（默认：true）
+         */
+        private Boolean validateDevice = true;
+        
+        /**
+         * 是否验证用户状态（默认：true）
+         */
+        private Boolean validateStatus = true;
+        
+        /**
+         * 是否启用 Session 续期（默认：true）
+         */
+        private Boolean renewal = true;
+        
+        /**
+         * Session 超时时间（毫秒，默认：30分钟）
+         * 超过此时间未访问，需要重新登录
+         */
+        private Long timeout = 30 * 60 * 1000L;
+        
+        /**
+         * Session 续期间隔（毫秒，默认：7天）
+         * 每次访问时，如果未超过超时时间，则续期
+         */
+        private Long renewalInterval = 7 * 24 * 60 * 60 * 1000L;
+    }
 }
 

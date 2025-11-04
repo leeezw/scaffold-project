@@ -30,9 +30,10 @@ public class JwtUtils {
      * @param loginUser 登录用户信息
      * @param secret JWT 密钥
      * @param expireTime 过期时间（毫秒）
+     * @param sessionKey Session Key（可选）
      * @return Token
      */
-    public static String generateToken(LoginUser loginUser, String secret, long expireTime) {
+    public static String generateToken(LoginUser loginUser, String secret, long expireTime, String sessionKey) {
         if (loginUser == null) {
             throw new BusinessException(ResultCode.PARAM_ERROR.getCode(), "登录用户信息不能为空");
         }
@@ -45,14 +46,45 @@ public class JwtUtils {
         // 将用户信息转为 JSON 存入 claims
         String userJson = JsonUtils.toJsonString(loginUser);
         
-        return Jwts.builder()
+        io.jsonwebtoken.JwtBuilder builder = Jwts.builder()
                 .setId(UUID.randomUUID().toString())
                 .setSubject(String.valueOf(loginUser.getUserId()))
                 .setIssuedAt(now)
                 .setExpiration(expireDate)
-                .claim("user", userJson)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .claim("user", userJson);
+        
+        // 如果提供了 sessionKey，则存入 claims
+        if (sessionKey != null && !sessionKey.isEmpty()) {
+            builder.claim("sessionKey", sessionKey);
+        }
+        
+        return builder.signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+    
+    /**
+     * 生成 Token（无 SessionKey）
+     */
+    public static String generateToken(LoginUser loginUser, String secret, long expireTime) {
+        return generateToken(loginUser, secret, expireTime, null);
+    }
+    
+    /**
+     * 从 Token 中提取 SessionKey
+     */
+    public static String extractSessionKey(String token, String secret) {
+        try {
+            SecretKey key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.get("sessionKey", String.class);
+        } catch (Exception e) {
+            logger.warn("提取 SessionKey 失败", e);
+            return null;
+        }
     }
     
     /**

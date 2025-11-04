@@ -2,12 +2,13 @@
 
 ## 概述
 
-`scaffold-authenticator-starter` 是一个基于 JWT 的认证框架 Starter，提供了：
+`scaffold-authenticator-starter` 是一个基于 JWT + Session 的认证框架 Starter，提供了：
 
 1. **JWT Token 认证**：自动拦截请求，验证 Token
-2. **登录用户上下文**：通过 `LoginUserContext` 获取当前登录用户
-3. **权限控制**：通过 `@RequiresRoles` 和 `@RequiresPermissions` 注解控制访问权限
-4. **自动配置**：通过 Spring Boot 自动配置，开箱即用
+2. **Session 管理**：支持 Session 存储、续期、超时、状态管理（可选）
+3. **登录用户上下文**：通过 `LoginUserContext` 获取当前登录用户
+4. **权限控制**：通过 `@RequiresRoles` 和 `@RequiresPermissions` 注解控制访问权限
+5. **自动配置**：通过 Spring Boot 自动配置，开箱即用
 
 ## 快速开始
 
@@ -41,7 +42,18 @@ kite:
       - /api/hello
       - /api/auth/login
       - /doc.html
+    session:                          # Session 配置（可选）
+      enabled: true                   # 是否启用 Session 管理（默认：true）
+      validate-device: true           # 是否验证设备（默认：true）
+      validate-status: true            # 是否验证用户状态（默认：true）
+      renewal: true                   # 是否启用 Session 续期（默认：true）
+      timeout: 1800000               # Session 超时时间（毫秒，默认：30分钟）
+      renewal-interval: 604800000     # Session 续期间隔（毫秒，默认：7天）
 ```
+
+**注意：**
+- 如果启用 Session 管理，需要配置 Redis（会自动检测 RedisTemplate）
+- 如果不需要 Session 管理，设置 `session.enabled: false` 即可使用纯 JWT 模式
 
 ### 3. 实现 AuthenticationService
 
@@ -246,9 +258,28 @@ curl -X GET "http://localhost:8080/api/user/profile" \
 ### JwtUtils
 
 JWT 工具类，提供：
-- `generateToken()`: 生成 Token
+- `generateToken()`: 生成 Token（支持 SessionKey）
 - `parseToken()`: 解析 Token
+- `extractSessionKey()`: 从 Token 中提取 SessionKey
 - `validateToken()`: 验证 Token
+
+### SessionManager
+
+Session 管理器（如果启用 Session），提供：
+- `createSession()`: 创建 Session
+- `getSession()`: 获取 Session
+- `updateSession()`: 更新 Session
+- `deleteSession()`: 删除 Session
+- `kickOutUser()`: 强制用户下线
+- `kickOutDevice()`: 踢出指定设备
+
+### SessionManagementService
+
+Session 管理服务接口，提供：
+- `kickOutUser()`: 强制用户下线
+- `kickOutDevice()`: 踢出指定设备
+- `getUserSessionKeys()`: 获取用户的 Session 列表
+- `disableUser()`: 禁用用户
 
 ### 注解
 
@@ -262,6 +293,87 @@ JWT 工具类，提供：
 2. **Token 过期时间**：根据业务需求设置合理的过期时间
 3. **排除路径**：将不需要认证的路径（如登录、注册、Swagger 文档）添加到 `exclude-paths`
 4. **权限检查**：默认启用权限检查，可以通过 `check-permission: false` 关闭
+5. **Session 管理**：
+   - 如果启用 Session，需要配置 Redis（会自动检测 RedisTemplate）
+   - Session 管理提供强制下线、设备管理等功能
+   - 如果不需要这些功能，可以设置 `session.enabled: false` 使用纯 JWT 模式
+6. **设备ID**：建议客户端在请求 Header 中传递 `X-Device-Id`，以便进行设备管理
+
+## Session 管理功能
+
+### Session 管理服务使用
+
+```java
+@Autowired
+private SessionManagementService sessionManagementService;
+
+// 强制用户下线（踢出所有设备）
+sessionManagementService.kickOutUser(userId);
+
+// 踢出指定设备
+sessionManagementService.kickOutDevice(userId, deviceId);
+
+// 禁用用户（禁用所有 Session）
+sessionManagementService.disableUser(userId);
+
+// 获取用户的所有 Session Key
+Set<String> sessionKeys = sessionManagementService.getUserSessionKeys(userId);
+```
+
+### Session 状态
+
+Session 支持以下状态：
+
+- `NORMAL(1)`: 正常状态
+- `DISABLED(0)`: 用户被禁用
+- `KICK_OUT(-1)`: 用户被踢出（所有设备）
+- `DEVICE_KICK_OUT(-2)`: 设备被踢出
+- `REPLACED(-3)`: 用户在其他地方登录，当前 Session 被替换
+
+### Session 超时和续期
+
+- **超时时间**：如果用户在指定时间内（默认 30 分钟）没有访问，Session 会超时，需要重新登录
+- **续期机制**：如果用户在超时时间内访问，Session 会自动续期（延长过期时间）
+
+### 设备验证
+
+如果启用了设备验证（`validate-device: true`），系统会验证请求的设备ID是否与 Session 中存储的设备ID匹配。
+
+设备ID的提取顺序：
+1. 从 Header `X-Device-Id` 中获取
+2. 从 User-Agent 中提取（hashCode）
+3. 使用 IP 地址作为设备ID
+
+### Session vs 纯 JWT 模式
+
+#### Session 模式（`session.enabled: true`）
+
+**优点：**
+- ✅ 支持强制下线
+- ✅ 支持设备管理
+- ✅ 支持用户状态控制
+- ✅ 支持会话超时和续期
+- ✅ 支持多设备登录管理
+
+**缺点：**
+- ⚠️ 需要 Redis 存储
+- ⚠️ 性能稍差（需要访问 Redis）
+
+#### 纯 JWT 模式（`session.enabled: false`）
+
+**优点：**
+- ✅ 无状态，性能好
+- ✅ 不需要 Redis
+- ✅ 配置简单
+
+**缺点：**
+- ❌ 无法强制下线
+- ❌ 无法管理设备
+- ❌ 无法控制用户状态
+
+**选择建议：**
+- 中小型应用：使用纯 JWT 模式
+- 企业级应用：使用 Session 模式
 
 ## 在其他项目中使用
 
