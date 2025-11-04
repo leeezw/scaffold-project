@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kite.usercenter.mapper.OperationLogMapper">
+    
+    <resultMap id="BaseResultMap" type="com.kite.usercenter.entity.OperationLog">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="username" property="username"/>
+        <result column="module" property="module"/>
+        <result column="operation_type" property="operationType"/>
+        <result column="description" property="description"/>
+        <result column="method" property="method"/>
+        <result column="request_url" property="requestUrl"/>
+        <result column="request_params" property="requestParams"/>
+        <result column="response_result" property="responseResult"/>
+        <result column="status" property="status"/>
+        <result column="error_msg" property="errorMsg"/>
+        <result column="execution_time" property="executionTime"/>
+        <result column="ip_address" property="ipAddress"/>
+        <result column="user_agent" property="userAgent"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, user_id, username, module, operation_type, description, method, request_url,
+        request_params, response_result, status, error_msg, execution_time, ip_address,
+        user_agent, create_time
+    </sql>
+    
+    <insert id="insert" parameterType="com.kite.usercenter.entity.OperationLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_operation_log (
+            user_id, username, module, operation_type, description, method, request_url,
+            request_params, response_result, status, error_msg, execution_time, ip_address,
+            user_agent, create_time
+        ) VALUES (
+            #{userId}, #{username}, #{module}, #{operationType}, #{description}, #{method}, #{requestUrl},
+            #{requestParams}, #{responseResult}, #{status}, #{errorMsg}, #{executionTime}, #{ipAddress},
+            #{userAgent}, #{createTime}
+        )
+    </insert>
+    
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_operation_log
+        WHERE id = #{id}
+    </select>
+    
+    <select id="selectPage" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM sys_operation_log
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="module != null and module != ''">
+                AND module = #{module}
+            </if>
+            <if test="operationType != null and operationType != ''">
+                AND operation_type = #{operationType}
+            </if>
+            <if test="startTime != null">
+                AND create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND create_time &lt;= #{endTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+    
+    <select id="count" resultType="long">
+        SELECT COUNT(*)
+        FROM sys_operation_log
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="module != null and module != ''">
+                AND module = #{module}
+            </if>
+            <if test="operationType != null and operationType != ''">
+                AND operation_type = #{operationType}
+            </if>
+            <if test="startTime != null">
+                AND create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND create_time &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
+    
+    <delete id="deleteBeforeTime">
+        DELETE FROM sys_operation_log
+        WHERE create_time &lt; #{time}
+    </delete>
+</mapper>
+

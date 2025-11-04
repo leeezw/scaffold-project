@@ -1,5 +1,6 @@
 package com.kite.usercenter.controller;
 
+import com.kite.common.annotation.OperationLog;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class HelloController {
 
     @Operation(summary = "Hello 接口", description = "返回一个简单的 Hello 消息")
+    @OperationLog(module = "Hello", operationType = "查询", description = "Hello 接口测试")
     @GetMapping
     public Map<String, Object> hello() {
         Map<String, Object> result = new HashMap<>();
