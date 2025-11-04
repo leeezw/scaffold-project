@@ -22,6 +22,7 @@
 
     <modules>
         <module>scaffold-common</module>
+        <module>scaffold-authenticator-starter</module>
         <module>scaffold-user-center</module>
         <module>scaffold-app</module>
     </modules>

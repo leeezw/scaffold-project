@@ -1,7 +1,6 @@
 package com.kite.usercenter.aspect;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kite.common.util.JsonUtils;
 import com.kite.common.annotation.OperationLog;
 import com.kite.common.log.OperationLogContext;
 import com.kite.usercenter.entity.OperationLogEntity;
@@ -35,9 +34,6 @@ public class OperationLogAspect {
     
     @Autowired(required = false)
     private OperationLogService operationLogService;
-    
-    @Autowired
-    private ObjectMapper objectMapper;
     
     @Pointcut("@annotation(com.kite.common.annotation.OperationLog)")
     public void operationLogPointcut() {
@@ -75,17 +71,13 @@ public class OperationLogAspect {
         logEntity.setDescription(operationLog.description());
         
         if (operationLog.recordParams()) {
-            try {
-                Object[] args = joinPoint.getArgs();
-                if (args != null && args.length > 0) {
-                    String params = objectMapper.writeValueAsString(filterSensitiveParams(args));
-                    if (params.length() > 2000) {
-                        params = params.substring(0, 2000) + "...";
-                    }
-                    logEntity.setRequestParams(params);
+            Object[] args = joinPoint.getArgs();
+            if (args != null && args.length > 0) {
+                String params = JsonUtils.toJsonString(filterSensitiveParams(args));
+                if (params != null && params.length() > 2000) {
+                    params = params.substring(0, 2000) + "...";
                 }
-            } catch (JsonProcessingException e) {
-                logger.warn("序列化请求参数失败", e);
+                logEntity.setRequestParams(params);
             }
         }
         
@@ -96,15 +88,11 @@ public class OperationLogAspect {
             result = joinPoint.proceed();
             
             if (operationLog.recordResult() && result != null) {
-                try {
-                    String resultStr = objectMapper.writeValueAsString(result);
-                    if (resultStr.length() > 2000) {
-                        resultStr = resultStr.substring(0, 2000) + "...";
-                    }
-                    logEntity.setResponseResult(resultStr);
-                } catch (JsonProcessingException e) {
-                    logger.warn("序列化响应结果失败", e);
+                String resultStr = JsonUtils.toJsonString(result);
+                if (resultStr != null && resultStr.length() > 2000) {
+                    resultStr = resultStr.substring(0, 2000) + "...";
                 }
+                logEntity.setResponseResult(resultStr);
             }
             
             logEntity.setStatus(1);

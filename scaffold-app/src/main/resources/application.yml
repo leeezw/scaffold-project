@@ -92,6 +92,27 @@ knife4j:
   setting:
     language: zh_cn         # 语言设置
 
+# 认证配置
+kite:
+  auth:
+    enabled: true                    # 是否启用认证
+    token-header: Authorization      # Token Header 名称
+    token-prefix: Bearer             # Token 前缀
+    secret: kite-scaffold-secret-key-2024-spring-boot-authenticator  # JWT 密钥（请修改为安全的密钥）
+    expire-time: 604800000           # Token 过期时间（毫秒），默认 7 天
+    mock-enabled: false              # 是否启用 Mock 用户（开发环境使用）
+    mock-user-id: 1                  # Mock 用户ID
+    mock-username: mock-user         # Mock 用户名
+    check-permission: true           # 是否验证权限
+    exclude-paths:                   # 排除路径（不需要认证的路径）
+      - /api/hello
+      - /api/auth/login
+      - /api/auth/register
+      - /doc.html
+      - /swagger-ui/**
+      - /v3/api-docs/**
+      - /druid/**
+
 # 日志配置
 logging:
   level:

@@ -21,7 +21,14 @@
             <artifactId>scaffold-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
+        <!-- 认证框架 Starter -->
+        <dependency>
+            <groupId>com.kite</groupId>
+            <artifactId>scaffold-authenticator-starter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- MyBatis -->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
@@ -58,6 +65,8 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
+
+
     </dependencies>
 </project>
 

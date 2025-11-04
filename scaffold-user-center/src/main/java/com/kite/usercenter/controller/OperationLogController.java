@@ -1,6 +1,8 @@
 package com.kite.usercenter.controller;
 
 import com.kite.common.annotation.OperationLog;
+import com.kite.common.response.Result;
+import com.kite.common.util.PageResult;
 import com.kite.usercenter.service.OperationLogService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,9 +12,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 操作日志查询接口
@@ -30,7 +30,7 @@ public class OperationLogController {
     @Operation(summary = "查询操作日志", description = "分页查询操作日志")
     @GetMapping("/page")
     @OperationLog(module = "操作日志", operationType = "查询", description = "分页查询操作日志")
-    public Map<String, Object> getPage(
+    public Result<PageResult<com.kite.usercenter.entity.OperationLog>> getPage(
             @Parameter(description = "用户ID") @RequestParam(required = false) Long userId,
             @Parameter(description = "操作模块") @RequestParam(required = false) String module,
             @Parameter(description = "操作类型") @RequestParam(required = false) String operationType,
@@ -44,46 +44,27 @@ public class OperationLogController {
         List<com.kite.usercenter.entity.OperationLog> list = operationLogService.getPage(userId, module, operationType, startTime, endTime, pageNum, pageSize);
         long total = operationLogService.getCount(userId, module, operationType, startTime, endTime);
         
-        Map<String, Object> result = new HashMap<>();
-        result.put("code", 200);
-        result.put("message", "success");
-        result.put("data", list);
-        result.put("total", total);
-        result.put("pageNum", pageNum);
-        result.put("pageSize", pageSize);
-        
-        return result;
+        PageResult<com.kite.usercenter.entity.OperationLog> pageResult = PageResult.<com.kite.usercenter.entity.OperationLog>of(list, total, pageNum, pageSize);
+        return Result.success(pageResult);
     }
     
     @Operation(summary = "查询操作日志详情", description = "根据ID查询操作日志详情")
     @GetMapping("/{id}")
     @OperationLog(module = "操作日志", operationType = "查询", description = "查询操作日志详情")
-    public Map<String, Object> getById(@Parameter(description = "日志ID") @PathVariable Long id) {
+    public Result<com.kite.usercenter.entity.OperationLog> getById(@Parameter(description = "日志ID") @PathVariable Long id) {
         com.kite.usercenter.entity.OperationLog log = operationLogService.getById(id);
-        
-        Map<String, Object> result = new HashMap<>();
-        result.put("code", 200);
-        result.put("message", "success");
-        result.put("data", log);
-        
-        return result;
+        return Result.success(log);
     }
     
     @Operation(summary = "删除过期日志", description = "删除指定时间之前的日志")
     @DeleteMapping("/clean")
     @OperationLog(module = "操作日志", operationType = "删除", description = "删除过期日志")
-    public Map<String, Object> clean(
+    public Result<Integer> clean(
             @Parameter(description = "删除此时间之前的日志", required = true)
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime time) {
         
         int count = operationLogService.deleteBeforeTime(time);
-        
-        Map<String, Object> result = new HashMap<>();
-        result.put("code", 200);
-        result.put("message", "success");
-        result.put("data", count);
-        
-        return result;
+        return Result.success(count);
     }
 }
 
