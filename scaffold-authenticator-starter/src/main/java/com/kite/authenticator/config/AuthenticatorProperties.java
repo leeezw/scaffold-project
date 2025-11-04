@@ -1,5 +1,6 @@
 package com.kite.authenticator.config;
 
+import com.kite.authenticator.AuthenticatorConfigReader;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -13,7 +14,7 @@ import java.util.List;
  */
 @Data
 @ConfigurationProperties(prefix = "kite.auth")
-public class AuthenticatorProperties {
+public class AuthenticatorProperties implements AuthenticatorConfigReader {
     
     /**
      * Token 在 Header 中的 Key（默认：Authorization）
@@ -103,6 +104,33 @@ public class AuthenticatorProperties {
          * 每次访问时，如果未超过超时时间，则续期
          */
         private Long renewalInterval = 7 * 24 * 60 * 60 * 1000L;
+    }
+    
+    // AuthenticatorConfigReader 接口实现
+    
+    @Override
+    public Boolean getValidateHost() {
+        return session != null && session.getValidateDevice() != null ? session.getValidateDevice() : true;
+    }
+    
+    @Override
+    public Boolean getRenewal() {
+        return session != null && session.getRenewal() != null ? session.getRenewal() : true;
+    }
+    
+    @Override
+    public Boolean getValidateStatus() {
+        return session != null && session.getValidateStatus() != null ? session.getValidateStatus() : true;
+    }
+    
+    @Override
+    public Long getSessionTimeout() {
+        return session != null ? session.getTimeout() : null;
+    }
+    
+    @Override
+    public Long getRenewalInterval() {
+        return session != null ? session.getRenewalInterval() : null;
     }
 }
 

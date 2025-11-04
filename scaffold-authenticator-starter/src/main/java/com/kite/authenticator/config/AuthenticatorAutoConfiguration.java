@@ -1,13 +1,19 @@
 package com.kite.authenticator.config;
 
+import com.kite.authenticator.*;
 import com.kite.authenticator.filter.AuthenticationFilter;
+import com.kite.authenticator.realm.EmptyRealm;
+import com.kite.authenticator.realm.UserRealm;
+import com.kite.authenticator.service.AuthenticationService;
 import com.kite.authenticator.session.SessionManager;
 import com.kite.authenticator.session.SessionParser;
 import com.kite.authenticator.session.dao.RedisSessionDao;
 import com.kite.authenticator.session.dao.SessionDao;
+import com.kite.authenticator.signature.JwtHmacSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -41,7 +47,7 @@ public class AuthenticatorAutoConfiguration {
     }
     
     /**
-     * Session Manager
+     * Session Manager（当存在 SessionDao 时自动配置）
      */
     @Bean
     @ConditionalOnBean(SessionDao.class)
@@ -50,18 +56,62 @@ public class AuthenticatorAutoConfiguration {
     }
     
     /**
-     * Authentication Filter（支持 Session 和纯 JWT 两种模式）
+     * Realm（优先使用 UserRealm，如果没有 AuthenticationService 则使用 EmptyRealm）
      */
     @Bean
-    public AuthenticationFilter authenticationFilter(AuthenticatorProperties properties,
-                                                     @Autowired(required = false) SessionManager sessionManager) {
-        // 如果 Session 被禁用或 SessionManager 不存在，则传入 null
-        if (properties.getSession() != null 
-            && properties.getSession().getEnabled() != null 
-            && !properties.getSession().getEnabled()) {
-            return new AuthenticationFilter(properties, null);
+    @ConditionalOnMissingBean(Realm.class)
+    public Realm realm(@Autowired(required = false) AuthenticationService authenticationService,
+                       AuthenticatorProperties properties,
+                       org.springframework.beans.factory.config.AutowireCapableBeanFactory beanFactory) {
+        if (authenticationService != null) {
+            // 创建 UserRealm 并通过 AutowireCapableBeanFactory 注入依赖
+            UserRealm userRealm = new UserRealm();
+            userRealm.setJwtSecret(properties.getSecret());
+            // 使用 AutowireCapableBeanFactory 注入 AuthenticationService
+            beanFactory.autowireBean(userRealm);
+            return userRealm;
         }
-        return new AuthenticationFilter(properties, sessionManager);
+        return new EmptyRealm();
+    }
+    
+    /**
+     * Signature（JWT HMAC 实现）
+     */
+    @Bean
+    @ConditionalOnMissingBean(Signature.class)
+    public Signature signature(AuthenticatorProperties properties) {
+        return new JwtHmacSignature(properties.getSecret());
+    }
+    
+    /**
+     * Authenticator（默认安全管理器）
+     */
+    @Bean
+    @ConditionalOnMissingBean(Authenticator.class)
+    public Authenticator authenticator(
+            Realm realm,
+            Signature signature,
+            AuthenticatorProperties properties,
+            SessionParser sessionParser,
+            @Autowired(required = false) SessionManager sessionManager,
+            @Autowired(required = false) SessionDao sessionDao) {
+        return new DefaultSecurityManager(
+            realm, 
+            signature, 
+            sessionManager, 
+            sessionDao, 
+            sessionParser, 
+            properties);
+    }
+    
+    /**
+     * Authentication Filter（使用 Authenticator）
+     */
+    @Bean
+    public AuthenticationFilter authenticationFilter(
+            AuthenticatorProperties properties,
+            Authenticator authenticator) {
+        return new AuthenticationFilter(properties, authenticator);
     }
     
     @Bean

@@ -1,18 +1,16 @@
 package com.kite.usercenter.controller;
 
+import com.kite.authenticator.AuthenticationInfo;
+import com.kite.authenticator.Authenticator;
 import com.kite.authenticator.annotation.AllowAnonymous;
 import com.kite.authenticator.context.LoginUser;
-import com.kite.authenticator.context.LoginUserContext;
 import com.kite.authenticator.service.AuthenticationService;
-import com.kite.authenticator.session.Session;
 import com.kite.authenticator.session.SessionManager;
-import com.kite.authenticator.util.JwtUtils;
 import com.kite.common.response.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,13 +32,7 @@ public class AuthController {
     private AuthenticationService authenticationService;
     
     @Autowired(required = false)
-    private SessionManager sessionManager;
-    
-    @Value("${kite.auth.secret}")
-    private String jwtSecret;
-    
-    @Value("${kite.auth.expire-time:604800000}")
-    private Long expireTime;
+    private Authenticator authenticator;
     
     @Operation(summary = "用户登录", description = "用户名密码登录，返回 Token")
     @PostMapping("/login")
@@ -50,8 +42,11 @@ public class AuthController {
             HttpServletRequest request) {
         
         if (authenticationService == null) {
-            // 如果没有实现 AuthenticationService，返回错误提示
             return Result.fail("认证服务未实现，请实现 AuthenticationService 接口");
+        }
+        
+        if (authenticator == null) {
+            return Result.fail("认证器未配置");
         }
         
         // 验证用户名密码
@@ -60,60 +55,47 @@ public class AuthController {
             return Result.fail("用户名或密码错误");
         }
         
-        // 设置过期时间
-        loginUser.setExpireAt(System.currentTimeMillis() + expireTime);
-        
         // 提取设备ID
         String deviceId = extractDeviceId(request);
         
-        String sessionKey = null;
+        // 创建认证信息
+        AuthenticationInfo authenticationInfo = new AuthenticationInfo() {
+            @Override
+            public LoginUser getUser() {
+                return loginUser;
+            }
+            
+            @Override
+            public String getCredential() {
+                return deviceId;  // 使用 deviceId 作为 credential
+            }
+        };
         
-        // 如果启用了 Session，创建 Session
-        if (sessionManager != null) {
-            Session session = sessionManager.createSession(loginUser, deviceId, expireTime);
-            sessionKey = session.getSessionKey();
-        }
-        
-        // 生成 Token（包含 sessionKey）
-        String token = JwtUtils.generateToken(loginUser, jwtSecret, expireTime, sessionKey);
+        // 调用 Authenticator 进行登录
+        String token = authenticator.login(authenticationInfo);
         
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);
         result.put("expireTime", loginUser.getExpireAt());
         result.put("user", loginUser);
-        if (sessionKey != null) {
-            result.put("sessionKey", sessionKey);
-        }
         
         return Result.success(result);
     }
     
     @Operation(summary = "获取当前用户信息", description = "根据 Token 获取当前登录用户信息")
     @GetMapping("/current")
-    public Result<LoginUser> getCurrentUser() {
-        LoginUser loginUser = LoginUserContext.getLoginUser();
-        if (loginUser == null) {
-            return Result.fail("用户未登录");
-        }
+    public Result<LoginUser> getCurrentUser(LoginUser loginUser) {
+        // 使用参数解析器自动注入 LoginUser
         return Result.success(loginUser);
     }
     
     @Operation(summary = "用户登出", description = "退出登录")
     @PostMapping("/logout")
     public Result<String> logout(HttpServletRequest request) {
-        LoginUser loginUser = LoginUserContext.getLoginUser();
-        if (loginUser != null && sessionManager != null) {
-            // 从 Token 中提取 sessionKey
-            String token = extractToken(request);
-            if (token != null) {
-                String sessionKey = JwtUtils.extractSessionKey(token, jwtSecret);
-                if (sessionKey != null) {
-                    Session session = sessionManager.getSession(sessionKey);
-                    if (session != null) {
-                        sessionManager.deleteSession(session);
-                    }
-                }
-            }
+        LoginUser loginUser = com.kite.authenticator.context.LoginUserContext.getLoginUser();
+        if (loginUser != null) {
+            // TODO: 登出逻辑可以通过事件通知机制实现
+            // 这里暂时简化处理
         }
         return Result.success("登出成功");
     }

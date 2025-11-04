@@ -1,5 +1,6 @@
-package com.kite.authenticator.service;
+package com.kite.authenticator.service.impl;
 
+import com.kite.authenticator.service.SessionManagementService;
 import com.kite.authenticator.session.Session;
 import com.kite.authenticator.session.SessionManager;
 import com.kite.authenticator.session.enums.UserStatus;
