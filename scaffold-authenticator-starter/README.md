@@ -314,6 +314,28 @@ public class AuthController {
 }
 ```
 
+### 5. （可选）同步自定义上下文
+
+若你的项目还需要将登录信息同步到其他上下文（例如审计、操作日志、租户信息等），可以实现 `LoginUserContextCustomizer` 接口：
+
+```java
+@Component
+public class AuditContextCustomizer implements LoginUserContextCustomizer {
+
+    @Override
+    public void onLoginUserSet(LoginUser loginUser) {
+        AuditContext.set(loginUser.getUserId(), loginUser.getUsername());
+    }
+
+    @Override
+    public void onLoginUserCleared() {
+        AuditContext.clear();
+    }
+}
+```
+
+`AuthenticationFilter` 会在每次请求认证成功/结束后调用这些自定义器，第三方系统无需修改框架源码即可扩展。
+
 ### 5. 使用认证功能
 
 在 Controller 中使用：

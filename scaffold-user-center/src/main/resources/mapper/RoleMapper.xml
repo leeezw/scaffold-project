@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kite.usercenter.mapper.RoleMapper">
+
+    <resultMap id="BaseResultMap" type="com.kite.usercenter.entity.Role">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="status" property="status"/>
+        <result column="description" property="description"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        id, code, name, status, description, create_time, update_time
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_role (code, name, status, description)
+        VALUES (#{code}, #{name}, #{status}, #{description})
+    </insert>
+
+    <update id="update">
+        UPDATE sys_role
+        <set>
+            <if test="name != null"> name = #{name},</if>
+            <if test="status != null"> status = #{status},</if>
+            <if test="description != null"> description = #{description},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM sys_role WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/> FROM sys_role WHERE id = #{id}
+    </select>
+
+    <select id="selectByCode" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/> FROM sys_role WHERE code = #{code}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/> FROM sys_role
+        <if test="status != null">
+            WHERE status = #{status}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByIds" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/> FROM sys_role
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

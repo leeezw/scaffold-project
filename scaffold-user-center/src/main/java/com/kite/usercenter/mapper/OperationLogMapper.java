@@ -48,6 +48,5 @@ public interface OperationLogMapper {
     /**
      * 删除指定时间之前的日志
      */
-    int deleteBeforeTime(LocalDateTime time);
+    int deleteBeforeTime(@Param("time") LocalDateTime time);
 }
-

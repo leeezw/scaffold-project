@@ -1,6 +1,5 @@
 package com.kite.authenticator.context;
 
-import com.kite.common.constant.Constants;
 import lombok.Data;
 
 import java.io.Serializable;

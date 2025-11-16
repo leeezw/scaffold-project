@@ -1,9 +1,11 @@
 package com.kite.authenticator.filter;
 
 import com.kite.authenticator.Authenticator;
+import com.kite.authenticator.config.AllowAnonymousRegistry;
 import com.kite.authenticator.config.AuthenticatorProperties;
 import com.kite.authenticator.context.LoginUser;
 import com.kite.authenticator.context.LoginUserContext;
+import com.kite.authenticator.context.LoginUserContextCustomizer;
 import com.kite.authenticator.token.HostAuthenticationToken;
 import com.kite.common.exception.BusinessException;
 import com.kite.common.response.ResultCode;
@@ -16,6 +18,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,10 +34,17 @@ public class AuthenticationFilter implements Filter {
     private final AuthenticatorProperties properties;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final Authenticator authenticator;
+    private final AllowAnonymousRegistry allowAnonymousRegistry;
+    private final List<LoginUserContextCustomizer> contextCustomizers;
     
-    public AuthenticationFilter(AuthenticatorProperties properties, Authenticator authenticator) {
+    public AuthenticationFilter(AuthenticatorProperties properties,
+                                Authenticator authenticator,
+                                AllowAnonymousRegistry allowAnonymousRegistry,
+                                List<LoginUserContextCustomizer> contextCustomizers) {
         this.properties = properties;
         this.authenticator = authenticator;
+        this.allowAnonymousRegistry = allowAnonymousRegistry;
+        this.contextCustomizers = contextCustomizers != null ? contextCustomizers : Collections.emptyList();
     }
     
     @Override
@@ -51,7 +61,9 @@ public class AuthenticationFilter implements Filter {
         }
         
         // 检查是否需要排除的路径
-        if (isExcludePath(requestPath)) {
+        if (isExcludePath(requestPath) ||
+                (allowAnonymousRegistry != null &&
+                        allowAnonymousRegistry.isAllowAnonymous(requestPath, httpRequest.getMethod()))) {
             chain.doFilter(request, response);
             return;
         }
@@ -60,10 +72,12 @@ public class AuthenticationFilter implements Filter {
         if (properties.getMockEnabled() != null && properties.getMockEnabled()) {
             LoginUser mockUser = createMockUser();
             LoginUserContext.setLoginUser(mockUser);
+            notifyLoginUserSet(mockUser);
             try {
                 chain.doFilter(request, response);
             } finally {
                 LoginUserContext.clear();
+                notifyLoginUserCleared();
             }
             return;
         }
@@ -88,12 +102,14 @@ public class AuthenticationFilter implements Filter {
             
             // 设置登录用户上下文
             LoginUserContext.setLoginUser(loginUser);
+            notifyLoginUserSet(loginUser);
             
             try {
                 chain.doFilter(request, response);
             } finally {
                 // 清除上下文
                 LoginUserContext.clear();
+                notifyLoginUserCleared();
             }
             
         } catch (BusinessException e) {
@@ -201,5 +217,24 @@ public class AuthenticationFilter implements Filter {
             System.currentTimeMillis()
         ));
     }
-}
 
+    private void notifyLoginUserSet(LoginUser loginUser) {
+        for (LoginUserContextCustomizer customizer : contextCustomizers) {
+            try {
+                customizer.onLoginUserSet(loginUser);
+            } catch (Exception ex) {
+                logger.warn("LoginUserContextCustomizer 执行失败: {}", ex.getMessage());
+            }
+        }
+    }
+
+    private void notifyLoginUserCleared() {
+        for (LoginUserContextCustomizer customizer : contextCustomizers) {
+            try {
+                customizer.onLoginUserCleared();
+            } catch (Exception ex) {
+                logger.warn("LoginUserContextCustomizer 清理失败: {}", ex.getMessage());
+            }
+        }
+    }
+}

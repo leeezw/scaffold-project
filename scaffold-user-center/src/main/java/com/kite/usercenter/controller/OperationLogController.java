@@ -1,5 +1,6 @@
 package com.kite.usercenter.controller;
 
+import com.kite.authenticator.annotation.RequiresRoles;
 import com.kite.common.annotation.OperationLog;
 import com.kite.common.response.Result;
 import com.kite.common.util.PageResult;
@@ -22,6 +23,7 @@ import java.util.List;
 @Tag(name = "操作日志", description = "操作日志查询和管理接口")
 @RestController
 @RequestMapping("/api/operation-log")
+@RequiresRoles("admin")
 public class OperationLogController {
     
     @Autowired
@@ -67,4 +69,3 @@ public class OperationLogController {
         return Result.success(count);
     }
 }
-

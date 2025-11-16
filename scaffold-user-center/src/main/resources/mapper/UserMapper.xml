@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kite.usercenter.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="com.kite.usercenter.entity.User">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="nickname" property="nickname"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="status" property="status"/>
+        <result column="avatar" property="avatar"/>
+        <result column="last_login_time" property="lastLoginTime"/>
+        <result column="pwd_updated_at" property="pwdUpdatedAt"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        id, username, password, nickname, email, phone, status, avatar,
+        last_login_time, pwd_updated_at, remark, create_time, update_time
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_user (username, password, nickname, email, phone, status, avatar, remark)
+        VALUES (#{username}, #{password}, #{nickname}, #{email}, #{phone}, #{status}, #{avatar}, #{remark})
+    </insert>
+
+    <update id="update">
+        UPDATE sys_user
+        <set>
+            <if test="nickname != null"> nickname = #{nickname},</if>
+            <if test="email != null"> email = #{email},</if>
+            <if test="phone != null"> phone = #{phone},</if>
+            <if test="status != null"> status = #{status},</if>
+            <if test="avatar != null"> avatar = #{avatar},</if>
+            <if test="password != null"> password = #{password},</if>
+            <if test="remark != null"> remark = #{remark},</if>
+            <if test="pwdUpdatedAt != null"> pwd_updated_at = #{pwdUpdatedAt},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM sys_user WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/> FROM sys_user WHERE id = #{id}
+    </select>
+
+    <select id="selectByUsername" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/> FROM sys_user WHERE username = #{username}
+    </select>
+
+    <select id="selectPage" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM sys_user
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (username LIKE CONCAT('%', #{keyword}, '%')
+                 OR nickname LIKE CONCAT('%', #{keyword}, '%')
+                 OR phone LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(1)
+        FROM sys_user
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (username LIKE CONCAT('%', #{keyword}, '%')
+                 OR nickname LIKE CONCAT('%', #{keyword}, '%')
+                 OR phone LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+</mapper>

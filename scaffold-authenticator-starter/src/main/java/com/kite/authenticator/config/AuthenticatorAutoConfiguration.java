@@ -2,6 +2,7 @@ package com.kite.authenticator.config;
 
 import com.kite.authenticator.*;
 import com.kite.authenticator.filter.AuthenticationFilter;
+import com.kite.authenticator.context.LoginUserContextCustomizer;
 import com.kite.authenticator.realm.EmptyRealm;
 import com.kite.authenticator.realm.UserRealm;
 import com.kite.authenticator.service.AuthenticationService;
@@ -10,6 +11,7 @@ import com.kite.authenticator.session.SessionParser;
 import com.kite.authenticator.session.dao.RedisSessionDao;
 import com.kite.authenticator.session.dao.SessionDao;
 import com.kite.authenticator.signature.JwtHmacSignature;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -20,6 +22,9 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
+import java.util.List;
 
 /**
  * 认证自动配置类
@@ -34,6 +39,13 @@ public class AuthenticatorAutoConfiguration {
     @Bean
     public SessionParser sessionParser() {
         return new SessionParser();
+    }
+
+    @Bean
+    @ConditionalOnClass(RequestMappingHandlerMapping.class)
+    public AllowAnonymousRegistry allowAnonymousRegistry(
+            ObjectProvider<List<RequestMappingHandlerMapping>> handlerMappingsProvider) {
+        return new AllowAnonymousRegistry(handlerMappingsProvider);
     }
     
     /**
@@ -110,8 +122,10 @@ public class AuthenticatorAutoConfiguration {
     @Bean
     public AuthenticationFilter authenticationFilter(
             AuthenticatorProperties properties,
-            Authenticator authenticator) {
-        return new AuthenticationFilter(properties, authenticator);
+            Authenticator authenticator,
+            @Autowired(required = false) AllowAnonymousRegistry allowAnonymousRegistry,
+            @Autowired(required = false) List<LoginUserContextCustomizer> contextCustomizers) {
+        return new AuthenticationFilter(properties, authenticator, allowAnonymousRegistry, contextCustomizers);
     }
     
     @Bean
@@ -125,4 +139,3 @@ public class AuthenticatorAutoConfiguration {
         return registration;
     }
 }
-
