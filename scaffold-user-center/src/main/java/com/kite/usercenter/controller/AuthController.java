@@ -5,6 +5,9 @@ import com.kite.authenticator.Authenticator;
 import com.kite.authenticator.annotation.AllowAnonymous;
 import com.kite.authenticator.context.LoginUser;
 import com.kite.authenticator.service.AuthenticationService;
+import com.kite.authenticator.service.SessionManagementService;
+import com.kite.authenticator.service.TokenBlacklistService;
+import com.kite.authenticator.util.JwtUtils;
 import com.kite.common.response.Result;
 import com.kite.usercenter.dto.LoginRequest;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,6 +40,15 @@ public class AuthController {
     
     @Autowired(required = false)
     private Authenticator authenticator;
+    
+    @Autowired(required = false)
+    private TokenBlacklistService tokenBlacklistService;
+    
+    @Autowired(required = false)
+    private SessionManagementService sessionManagementService;
+    
+    @Autowired(required = false)
+    private com.kite.authenticator.config.AuthenticatorProperties authenticatorProperties;
     
     @Operation(summary = "用户登录", description = "用户名密码登录，返回 Token")
     @PostMapping("/login")
@@ -92,13 +104,21 @@ public class AuthController {
         return Result.success(loginUser);
     }
     
-    @Operation(summary = "用户登出", description = "退出登录")
+    @Operation(summary = "用户登出", description = "退出登录，删除当前 Session（正常退出）")
     @PostMapping("/logout")
     public Result<String> logout(HttpServletRequest request) {
         LoginUser loginUser = com.kite.authenticator.context.LoginUserContext.getLoginUser();
         if (loginUser != null) {
-            // TODO: 登出逻辑可以通过事件通知机制实现
-            // 这里暂时简化处理
+            // 提取当前 Token
+            String token = extractToken(request);
+            if (token != null && sessionManagementService != null && authenticatorProperties != null) {
+                // 从 Token 中提取 sessionKey
+                String sessionKey = JwtUtils.extractSessionKey(token, authenticatorProperties.getSecret());
+                if (sessionKey != null && !sessionKey.isEmpty()) {
+                    // 正常退出：删除 Session（不加入黑名单）
+                    sessionManagementService.deleteSession(sessionKey);
+                }
+            }
         }
         return Result.success("登出成功");
     }

@@ -2,12 +2,12 @@ package com.kite.authenticator;
 
 import com.kite.authenticator.context.LoginUser;
 import com.kite.authenticator.notifier.AuthcEventType;
-import com.kite.authenticator.notifier.Event;
 import com.kite.authenticator.notifier.Notifier;
 import com.kite.authenticator.notifier.NotifyRegistry;
 import com.kite.authenticator.notifier.impl.LoginEvent;
 import com.kite.authenticator.session.Session;
 import com.kite.authenticator.session.dao.SessionDao;
+import com.kite.authenticator.service.TokenBlacklistService;
 import com.kite.authenticator.session.SessionManager;
 import com.kite.authenticator.session.SessionParser;
 import com.kite.authenticator.session.enums.UserStatus;
@@ -32,6 +32,7 @@ public class DefaultSecurityManager implements Authenticator {
     private final SessionDao sessionDao;
     private final AuthenticatorConfigReader config;
     private final SessionParser sessionParser;
+    private final TokenBlacklistService tokenBlacklistService;
     
     public DefaultSecurityManager(
             Realm realm,
@@ -39,13 +40,15 @@ public class DefaultSecurityManager implements Authenticator {
             SessionManager sessionManager,
             SessionDao sessionDao,
             SessionParser sessionParser,
-            AuthenticatorConfigReader config) {
+            AuthenticatorConfigReader config,
+            TokenBlacklistService tokenBlacklistService) {
         this.realm = realm;
         this.signature = signature;
         this.sessionManager = sessionManager;
         this.sessionDao = sessionDao;
         this.sessionParser = sessionParser;
         this.config = config;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
     
     @Override
@@ -63,6 +66,14 @@ public class DefaultSecurityManager implements Authenticator {
         }
         if (validateStatus == null) {
             validateStatus = true;
+        }
+        
+        // 0. 检查 Token 黑名单（优先检查，避免无效验证）
+        if (tokenBlacklistService != null) {
+            if (tokenBlacklistService.isBlacklisted(token.getCredential())) {
+                log.warn("Token 已被撤销（黑名单）");
+                throw new BusinessException(ResultCode.UNAUTHORIZED.getCode(), "Token 已被撤销");
+            }
         }
         
         // 1. 从 Realm 获取认证信息

@@ -1,9 +1,5 @@
 package com.kite.authenticator.service;
 
-import com.kite.authenticator.context.LoginUser;
-import com.kite.authenticator.session.Session;
-import com.kite.authenticator.session.SessionManager;
-
 import java.util.Set;
 
 /**
@@ -43,5 +39,12 @@ public interface SessionManagementService {
      * @param userId 用户ID
      */
     void disableUser(Long userId);
+    
+    /**
+     * 删除指定 Session（正常退出）
+     * 
+     * @param sessionKey Session Key
+     */
+    void deleteSession(String sessionKey);
 }
 

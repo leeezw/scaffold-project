@@ -58,5 +58,16 @@ public class SessionManagementServiceImpl implements SessionManagementService {
             }
         }
     }
+    
+    @Override
+    public void deleteSession(String sessionKey) {
+        if (sessionManager == null) {
+            return;
+        }
+        Session session = sessionManager.getSession(sessionKey);
+        if (session != null) {
+            sessionManager.deleteSession(session);
+        }
+    }
 }
 

@@ -11,6 +11,7 @@ import com.kite.authenticator.session.SessionParser;
 import com.kite.authenticator.session.dao.RedisSessionDao;
 import com.kite.authenticator.session.dao.SessionDao;
 import com.kite.authenticator.resolvers.LoginUserArgumentResolver;
+import com.kite.authenticator.service.TokenBlacklistService;
 import com.kite.authenticator.signature.JwtHmacSignature;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,6 +100,19 @@ public class AuthenticatorAutoConfiguration implements WebMvcConfigurer {
     }
     
     /**
+     * Token 黑名单服务（当存在 RedisTemplate 时自动配置）
+     */
+    @Bean
+    @ConditionalOnClass(RedisTemplate.class)
+    @ConditionalOnBean(RedisTemplate.class)
+    @ConditionalOnMissingBean(TokenBlacklistService.class)
+    public TokenBlacklistService tokenBlacklistService(
+            RedisTemplate<String, Object> redisTemplate,
+            AuthenticatorProperties properties) {
+        return new TokenBlacklistService(redisTemplate, properties.getSecret());
+    }
+    
+    /**
      * Authenticator（默认安全管理器）
      */
     @Bean
@@ -109,14 +123,16 @@ public class AuthenticatorAutoConfiguration implements WebMvcConfigurer {
             AuthenticatorProperties properties,
             SessionParser sessionParser,
             @Autowired(required = false) SessionManager sessionManager,
-            @Autowired(required = false) SessionDao sessionDao) {
+            @Autowired(required = false) SessionDao sessionDao,
+            @Autowired(required = false) TokenBlacklistService tokenBlacklistService) {
         return new DefaultSecurityManager(
             realm, 
             signature, 
             sessionManager, 
             sessionDao, 
             sessionParser, 
-            properties);
+            properties,
+            tokenBlacklistService);
     }
     
     /**
