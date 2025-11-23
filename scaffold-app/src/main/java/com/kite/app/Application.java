@@ -10,7 +10,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
  * 
  * @author yourname
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.kite")
 @MapperScan("com.kite.usercenter.mapper")
 @EnableAsync
 public class Application {
@@ -22,4 +22,3 @@ public class Application {
         System.out.println("=================================");
     }
 }
-

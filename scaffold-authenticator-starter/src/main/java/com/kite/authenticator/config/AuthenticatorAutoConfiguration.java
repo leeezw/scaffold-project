@@ -10,6 +10,7 @@ import com.kite.authenticator.session.SessionManager;
 import com.kite.authenticator.session.SessionParser;
 import com.kite.authenticator.session.dao.RedisSessionDao;
 import com.kite.authenticator.session.dao.SessionDao;
+import com.kite.authenticator.resolvers.LoginUserArgumentResolver;
 import com.kite.authenticator.signature.JwtHmacSignature;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.util.List;
@@ -34,7 +37,7 @@ import java.util.List;
 @Configuration
 @EnableConfigurationProperties(AuthenticatorProperties.class)
 @ConditionalOnProperty(prefix = "kite.auth", name = "enabled", havingValue = "true", matchIfMissing = true)
-public class AuthenticatorAutoConfiguration {
+public class AuthenticatorAutoConfiguration implements WebMvcConfigurer {
     
     @Bean
     public SessionParser sessionParser() {
@@ -137,5 +140,24 @@ public class AuthenticatorAutoConfiguration {
         registration.setName("authenticationFilter");
         registration.setOrder(1); // 设置优先级
         return registration;
+    }
+    
+    /**
+     * LoginUser 参数解析器
+     */
+    @Bean
+    @ConditionalOnMissingBean(LoginUserArgumentResolver.class)
+    public LoginUserArgumentResolver loginUserArgumentResolver() {
+        return new LoginUserArgumentResolver();
+    }
+    
+    /**
+     * 注册参数解析器到 Spring MVC
+     */
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        // LoginUserArgumentResolver 是无状态的，直接创建实例避免循环依赖
+        // 如果需要使用 Bean，可以通过 ApplicationContext 获取
+        resolvers.add(new LoginUserArgumentResolver());
     }
 }

@@ -5,15 +5,19 @@ import com.kite.authenticator.Authenticator;
 import com.kite.authenticator.annotation.AllowAnonymous;
 import com.kite.authenticator.context.LoginUser;
 import com.kite.authenticator.service.AuthenticationService;
-import com.kite.authenticator.session.SessionManager;
 import com.kite.common.response.Result;
+import com.kite.usercenter.dto.LoginRequest;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,10 +40,8 @@ public class AuthController {
     
     @Operation(summary = "用户登录", description = "用户名密码登录，返回 Token")
     @PostMapping("/login")
-    public Result<Map<String, Object>> login(
-            @Parameter(description = "用户名", required = true) @RequestParam String username,
-            @Parameter(description = "密码", required = true) @RequestParam String password,
-            HttpServletRequest request) {
+    public Result<Map<String, Object>> login(@Valid @RequestBody LoginRequest loginRequest,
+                                             HttpServletRequest request) {
         
         if (authenticationService == null) {
             return Result.fail("认证服务未实现，请实现 AuthenticationService 接口");
@@ -50,7 +52,8 @@ public class AuthController {
         }
         
         // 验证用户名密码
-        LoginUser loginUser = authenticationService.authenticate(username, password);
+        LoginUser loginUser = authenticationService.authenticate(
+                loginRequest.getUsername(), loginRequest.getPassword());
         if (loginUser == null) {
             return Result.fail("用户名或密码错误");
         }
@@ -127,4 +130,3 @@ public class AuthController {
         return null;
     }
 }
-
