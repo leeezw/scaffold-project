@@ -1,0 +1,204 @@
+/* 侧边栏菜单样式 */
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: flex-start;
+}
+
+.menu-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+  width: 10.75rem;
+  margin-bottom: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  min-height: 2.5rem;
+  color: inherit;
+}
+
+.menu-item:not(:first-child) {
+  margin-top: 0.75rem;
+}
+
+.menu-item-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  width: 100%;
+  padding: 0;
+  z-index: 2;
+}
+
+.menu-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.13rem;
+  height: 1.13rem;
+  flex-shrink: 0;
+  color: #7d8592;
+  transition: color 0.2s ease;
+  z-index: 2;
+  margin-left: 0.74rem;
+}
+
+.menu-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.menu-text {
+  margin-left: 3.08rem;
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: #7d8592;
+  line-height: 0.9rem;
+  font-family: 'PingFang SC', sans-serif;
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.menu-arrow {
+  margin-left: auto;
+  margin-right: 0.5rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  color: #7d8592;
+  transition: all 0.2s ease;
+  transform: rotate(-90deg);
+  flex-shrink: 0;
+}
+
+.menu-arrow.expanded {
+  transform: rotate(0deg);
+}
+
+/* 菜单项背景块（选中状态） */
+.menu-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 10.75rem;
+  height: 2.5rem;
+  background-color: rgba(63, 140, 255, 0.1);
+  border-radius: 0.63rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 0;
+}
+
+/* 菜单项右侧装饰竖线 */
+.menu-item-indicator {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.25rem;
+  height: 2.5rem;
+  background-color: transparent;
+  border-radius: 0.13rem;
+  transition: background-color 0.2s ease;
+  z-index: 1;
+}
+
+/* 菜单项悬停状态 */
+.menu-item:hover::before {
+  opacity: 1;
+}
+
+.menu-item:hover .menu-icon,
+.menu-item:hover .menu-text,
+.menu-item:hover .menu-arrow {
+  color: #3f8cff;
+}
+
+/* 菜单项激活状态 */
+.menu-item.active::before {
+  opacity: 1;
+  background-color: rgba(63, 140, 255, 0.1);
+}
+
+.menu-item.active .menu-item-indicator {
+  background-color: #3f8cff;
+}
+
+.menu-item.active .menu-icon {
+  color: #3f8cff;
+}
+
+.menu-item.active .menu-text {
+  color: #3f8cff;
+  font-weight: 700;
+}
+
+.menu-item.active .menu-arrow {
+  color: #3f8cff;
+}
+
+/* 激活状态的左侧装饰图标 */
+.menu-item.active .menu-item-content::before {
+  content: '';
+  position: absolute;
+  left: 0.74rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.06rem;
+  height: 1.19rem;
+  background-image: url('https://ide.code.fun/api/image?token=6922da31043f1900118e884b&name=ed0920f464443232cddac26751682cd6.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 1;
+}
+
+/* 激活状态时，图标隐藏 */
+.menu-item.active .menu-icon {
+  opacity: 0;
+}
+
+/* 多级菜单 */
+.menu-item-group {
+  width: 100%;
+}
+
+.menu-children {
+  margin-top: 0.5rem;
+  margin-left: 1.5rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid rgba(216, 224, 240, 0.3);
+}
+
+.menu-children .menu-item {
+  width: 9.25rem;
+  min-height: 2.25rem;
+}
+
+.menu-children .menu-item::before {
+  width: 9.25rem;
+  height: 2.25rem;
+}
+
+.menu-children .menu-item-indicator {
+  height: 2.25rem;
+}
+
+.menu-children .menu-text {
+  font-size: 0.88rem;
+  margin-left: 2.5rem;
+}
+
+.menu-children .menu-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.5rem;
+}
+

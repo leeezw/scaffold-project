@@ -31,61 +31,7 @@ body * {
   box-sizing: border-box;
 }
 
-.layout {
-  display: flex;
-  min-height: 100vh;
-}
-
-aside {
-  width: 220px;
-  background: #111827;
-  color: #f9fafb;
-  display: flex;
-  flex-direction: column;
-}
-
-.logo {
-  padding: 24px;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-nav {
-  display: flex;
-  flex-direction: column;
-}
-
-nav a {
-  padding: 12px 24px;
-  color: #d1d5db;
-  text-decoration: none;
-}
-
-nav a.active,
-nav a:hover {
-  background: #1f2937;
-  color: #fff;
-}
-
-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.content {
-  flex: 1;
-  padding: 24px;
-}
+/* 布局样式已移至 AppLayout.css */
 
 .card {
   background: #fff;
