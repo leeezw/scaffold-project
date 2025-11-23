@@ -71,6 +71,11 @@ public class AuthenticatorProperties implements AuthenticatorConfigReader {
      */
     private Session session = new Session();
     
+    /**
+     * 限流配置
+     */
+    private RateLimit rateLimit = new RateLimit();
+    
     @Data
     public static class Session {
         /**
@@ -131,6 +136,68 @@ public class AuthenticatorProperties implements AuthenticatorConfigReader {
     @Override
     public Long getRenewalInterval() {
         return session != null ? session.getRenewalInterval() : null;
+    }
+    
+    /**
+     * 限流配置
+     */
+    @Data
+    public static class RateLimit {
+        /**
+         * 是否启用限流（默认：true）
+         */
+        private Boolean enabled = true;
+        
+        /**
+         * 默认时间窗口（秒，默认：60）
+         */
+        private Integer defaultWindow = 60;
+        
+        /**
+         * 默认最大请求数（默认：100）
+         */
+        private Integer defaultMaxRequests = 100;
+        
+        /**
+         * 默认限流算法（默认：SLIDING_WINDOW）
+         */
+        private String defaultAlgorithm = "SLIDING_WINDOW";
+        
+        /**
+         * IP限流配置
+         */
+        private LimitConfig ip = new LimitConfig(true, 60, 100);
+        
+        /**
+         * 用户限流配置
+         */
+        private LimitConfig user = new LimitConfig(true, 60, 200);
+        
+        /**
+         * Token限流配置
+         */
+        private LimitConfig token = new LimitConfig(true, 60, 500);
+        
+        /**
+         * 全局限流配置
+         */
+        private LimitConfig global = new LimitConfig(false, 60, 1000);
+        
+        @Data
+        public static class LimitConfig {
+            private Boolean enabled;
+            private Integer window;
+            private Integer maxRequests;
+            
+            public LimitConfig() {
+            }
+            
+            public LimitConfig(Boolean enabled, Integer window, Integer maxRequests) {
+                this.enabled = enabled;
+                this.window = window;
+                this.maxRequests = maxRequests;
+            }
+        }
     }
 }
 

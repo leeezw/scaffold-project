@@ -11,6 +11,7 @@ import com.kite.authenticator.session.SessionParser;
 import com.kite.authenticator.session.dao.RedisSessionDao;
 import com.kite.authenticator.session.dao.SessionDao;
 import com.kite.authenticator.resolvers.LoginUserArgumentResolver;
+import com.kite.authenticator.service.RateLimitService;
 import com.kite.authenticator.service.TokenBlacklistService;
 import com.kite.authenticator.signature.JwtHmacSignature;
 import org.springframework.beans.factory.ObjectProvider;
@@ -110,6 +111,18 @@ public class AuthenticatorAutoConfiguration implements WebMvcConfigurer {
             RedisTemplate<String, Object> redisTemplate,
             AuthenticatorProperties properties) {
         return new TokenBlacklistService(redisTemplate, properties.getSecret());
+    }
+    
+    /**
+     * 限流服务（当存在 RedisTemplate 且限流功能启用时自动配置）
+     */
+    @Bean
+    @ConditionalOnClass(RedisTemplate.class)
+    @ConditionalOnBean(RedisTemplate.class)
+    @ConditionalOnMissingBean(RateLimitService.class)
+    @ConditionalOnProperty(prefix = "kite.auth.rate-limit", name = "enabled", havingValue = "true", matchIfMissing = true)
+    public RateLimitService rateLimitService(RedisTemplate<String, Object> redisTemplate) {
+        return new RateLimitService(redisTemplate);
     }
     
     /**

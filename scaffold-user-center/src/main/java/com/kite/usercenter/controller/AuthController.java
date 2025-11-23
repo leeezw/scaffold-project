@@ -3,7 +3,9 @@ package com.kite.usercenter.controller;
 import com.kite.authenticator.AuthenticationInfo;
 import com.kite.authenticator.Authenticator;
 import com.kite.authenticator.annotation.AllowAnonymous;
+import com.kite.authenticator.annotation.RateLimit;
 import com.kite.authenticator.context.LoginUser;
+import com.kite.authenticator.enums.RateLimitType;
 import com.kite.authenticator.service.AuthenticationService;
 import com.kite.authenticator.service.SessionManagementService;
 import com.kite.authenticator.service.TokenBlacklistService;
@@ -51,6 +53,12 @@ public class AuthController {
     private com.kite.authenticator.config.AuthenticatorProperties authenticatorProperties;
     
     @Operation(summary = "用户登录", description = "用户名密码登录，返回 Token")
+    @RateLimit(
+        type = RateLimitType.IP,
+        window = 60,
+        maxRequests = 5,
+        message = "登录尝试过于频繁，请60秒后再试"
+    )
     @PostMapping("/login")
     public Result<Map<String, Object>> login(@Valid @RequestBody LoginRequest loginRequest,
                                              HttpServletRequest request) {
