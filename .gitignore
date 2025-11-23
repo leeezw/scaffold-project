@@ -36,3 +36,4 @@ logs/
 application-local.yml
 application-local.properties
 
+/user-center-frontend/node_modules/
