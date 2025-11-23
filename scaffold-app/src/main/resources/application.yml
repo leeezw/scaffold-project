@@ -108,10 +108,13 @@ kite:
       - /api/hello
       - /api/auth/login
       - /api/auth/register
-      - /doc.html
-      - /swagger-ui/**
-      - /v3/api-docs/**
-      - /druid/**
+      - /doc.html                    # Knife4j 文档首页
+      - /swagger-ui.html             # Swagger UI 首页
+      - /swagger-ui/**               # Swagger UI 静态资源
+      - /v3/api-docs                 # OpenAPI JSON 文档
+      - /v3/api-docs/**              # OpenAPI JSON 文档（所有版本）
+      - /webjars/**                  # Swagger/Knife4j 静态资源（JS/CSS）
+      - /druid/**                    # Druid 监控页面
     session:                          # Session 配置
       enabled: true                   # 是否启用 Session 管理（默认：true）
       validate-device: true           # 是否验证设备（默认：true）
