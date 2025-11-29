@@ -1,14 +1,16 @@
 /* ==================== 全局基础样式 ==================== */
+/* 设计系统变量已移至 styles/design-system.css */
+
 html {
   font-size: 16px;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
-    'Droid Sans', 'Helvetica Neue', 'Microsoft Yahei', sans-serif;
+  font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-secondary);
 }
 
 body * {
@@ -21,73 +23,6 @@ body * {
   height: 100vh;
 }
 
-:root {
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  color: #1f2933;
-  background: #f3f4f6;
-  
-  /* ==================== 全局设计系统 ==================== */
-  /* 主色系统 */
-  --color-primary: #3f8cff;
-  --color-primary-hover: #2e6fd9;
-  --color-primary-light: #e8f2ff;
-  --color-primary-light-hover: #d6e8ff;
-  
-  /* 文本颜色 */
-  --color-text-primary: #0a1629;
-  --color-text-secondary: #64748b;
-  --color-text-tertiary: #94a3b8;
-  --color-text-disabled: #cbd5e1;
-  
-  /* 背景颜色 */
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f8fafc;
-  --color-bg-tertiary: #f1f5f9;
-  
-  /* 边框颜色 */
-  --color-border: #e2e8f0;
-  --color-border-light: #f1f5f9;
-  
-  /* 状态颜色 */
-  --color-success: #22c55e;
-  --color-success-bg: #dcfce7;
-  --color-warning: #fb923c;
-  --color-warning-bg: #fed7aa;
-  --color-error: #ef4444;
-  --color-error-bg: #fee2e2;
-  --color-info: #3f8cff;
-  --color-info-bg: #e8f2ff;
-  
-  /* 间距系统（基于4px） */
-  --spacing-xs: 0.25rem;   /* 4px */
-  --spacing-sm: 0.5rem;    /* 8px */
-  --spacing-md: 0.75rem;   /* 12px */
-  --spacing-lg: 1rem;      /* 16px */
-  --spacing-xl: 1.5rem;    /* 24px */
-  --spacing-2xl: 2rem;     /* 32px */
-  
-  /* 圆角系统 */
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
-  
-  /* 阴影系统 */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
-  
-  /* 动画时长 */
-  --transition-fast: 0.15s;
-  --transition-base: 0.2s;
-  --transition-slow: 0.3s;
-  
-  /* 缓动函数 */
-  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 * {
   box-sizing: border-box;
 }
@@ -96,16 +31,16 @@ body * {
 
 /* ==================== 统一卡片样式 ==================== */
 .card {
-  background: var(--color-bg-primary);
-  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+  border-radius: var(--radius-md);
   padding: var(--spacing-xl);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
   transition: all var(--transition-base) var(--ease-out);
 }
 
 .card:hover {
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .card-header {
@@ -114,15 +49,15 @@ body * {
   align-items: center;
   margin-bottom: var(--spacing-xl);
   padding-bottom: var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .card-header h2 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--font-size-lg);
   font-weight: 700;
-  color: var(--color-text-primary);
-  font-family: 'PingFang SC', sans-serif;
+  color: var(--text-primary);
+  font-family: var(--font-family);
 }
 
 .card input {
@@ -135,26 +70,26 @@ body * {
 table {
   width: 100%;
   border-collapse: collapse;
+  font-family: var(--font-family);
 }
 
 th,
 td {
   text-align: left;
   padding: var(--spacing-md) var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border);
-  font-family: 'PingFang SC', sans-serif;
+  border-bottom: 1px solid var(--border-color);
 }
 
 th {
   font-weight: 700;
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
-  background-color: var(--color-bg-tertiary);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  background-color: var(--bg-tertiary);
 }
 
 td {
-  color: var(--color-text-primary);
-  font-size: 0.875rem;
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
 }
 
 tbody tr {
@@ -162,7 +97,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background-color: var(--color-primary-light);
+  background-color: var(--info-bg);
 }
 
 /* ==================== 通用数据表格卡片样式 ==================== */

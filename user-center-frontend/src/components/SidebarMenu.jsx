@@ -3,17 +3,6 @@ import { useState } from 'react';
 import './SidebarMenu.css';
 
 /**
- * 菜单项配置
- * @typedef {Object} MenuItem
- * @property {string} key - 唯一标识
- * @property {string} label - 显示文本
- * @property {string} path - 路由路径
- * @property {React.ReactNode} icon - 图标组件
- * @property {MenuItem[]} [children] - 子菜单项
- * @property {boolean} [external] - 是否外部链接
- */
-
-/**
  * 侧边栏菜单组件
  * @param {Object} props
  * @param {MenuItem[]} props.items - 菜单项列表
@@ -43,6 +32,11 @@ export default function SidebarMenu({ items = [], onItemClick }) {
     return false;
   };
 
+  const getIcon = (IconComponent) => {
+    if (!IconComponent) return null;
+    return <IconComponent />;
+  };
+
   const renderMenuItem = (item, level = 0) => {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedKeys.has(item.key);
@@ -57,25 +51,15 @@ export default function SidebarMenu({ items = [], onItemClick }) {
           >
             {item.icon && (
               <span className="menu-icon">
-                {item.icon}
+                {getIcon(item.icon)}
               </span>
             )}
             <span className="menu-text">{item.label}</span>
-            <svg
-              className={`menu-arrow ${isExpanded ? 'expanded' : ''}`}
-              width="12"
-              height="12"
-              viewBox="0 0 12 12"
-              fill="none"
-            >
-              <path
-                d="M4.5 3L7.5 6L4.5 9"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <span className={`menu-arrow ${isExpanded ? 'expanded' : ''}`}>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M4.5 3L7.5 6L4.5 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
           </div>
           {isExpanded && (
             <div className="menu-children">
@@ -91,7 +75,7 @@ export default function SidebarMenu({ items = [], onItemClick }) {
       <div className="menu-item-content">
         {item.icon && (
           <span className="menu-icon">
-            {item.icon}
+            {getIcon(item.icon)}
           </span>
         )}
         <span className="menu-text">{item.label}</span>
@@ -148,4 +132,3 @@ export default function SidebarMenu({ items = [], onItemClick }) {
     </nav>
   );
 }
-

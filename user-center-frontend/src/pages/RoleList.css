@@ -1,26 +1,53 @@
-/* 角色列表页面样式 - 复用UserList的设计系统 */
+/* 角色列表页面样式 - 基于设计系统 */
 
 .role-list-page {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
+  gap: var(--spacing-lg);
 }
 
-/* 复用UserList的样式类 */
-.data-table-card,
-.table-header,
-.table-title,
-.table-container,
-.data-table,
-.loading-state,
-.spinner,
-.empty-state,
-.empty-content,
-.status-badge,
-.status-enabled,
-.status-disabled,
-.action-buttons,
-.btn-icon {
-  /* 这些样式已经在UserList.css中定义，通过全局样式共享 */
+.data-table-card.ant-card {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
 }
 
+.data-table-card .ant-card-head {
+  border-bottom: 1px solid var(--border-light);
+  padding: var(--spacing-md) var(--spacing-lg);
+  min-height: 60px;
+}
+
+.data-table-card .ant-card-head-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.data-table-card .ant-card-body {
+  padding: var(--spacing-lg);
+}
+
+.data-table-card .ant-table {
+  font-family: var(--font-family);
+}
+
+.data-table-card .ant-table-thead > tr > th {
+  background-color: var(--bg-tertiary);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.data-table-card .ant-table-tbody > tr > td {
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-md);
+}
+
+.data-table-card .ant-table-tbody > tr:hover > td {
+  background-color: var(--info-bg);
+}

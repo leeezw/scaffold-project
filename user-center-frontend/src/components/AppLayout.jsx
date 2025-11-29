@@ -1,5 +1,16 @@
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
+import { Input, Button, Dropdown, Avatar, Badge } from 'antd';
+import { 
+  SearchOutlined, 
+  BellOutlined, 
+  UserOutlined, 
+  LogoutOutlined,
+  DownOutlined,
+  HomeOutlined,
+  TeamOutlined,
+  ClockCircleOutlined
+} from '@ant-design/icons';
 import { useAuthContext } from '../hooks/AuthProvider.jsx';
 import SidebarMenu from './SidebarMenu.jsx';
 import './AppLayout.css';
@@ -10,32 +21,19 @@ const menuItems = [
     key: 'users',
     label: '用户',
     path: '/',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <path d="M2.25 6.75L9 1.5L15.75 6.75V15C15.75 15.3978 15.592 15.7794 15.3107 16.0607C15.0294 16.342 14.6478 16.5 14.25 16.5H3.75C3.35218 16.5 2.97064 16.342 2.68934 16.0607C2.40804 15.7794 2.25 15.3978 2.25 15V6.75Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        <path d="M6.75 16.5V9H11.25V16.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
+    icon: HomeOutlined,
   },
   {
     key: 'roles',
     label: '角色',
     path: '/roles',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <path d="M12.75 3.75C13.7446 3.75 14.6984 4.14509 15.4017 4.84835C16.1049 5.55161 16.5 6.50544 16.5 7.5C16.5 8.49456 16.1049 9.44839 15.4017 10.1517C14.6984 10.8549 13.7446 11.25 12.75 11.25M12.75 3.75C11.7554 3.75 10.8016 4.14509 10.0983 4.84835C9.39509 5.55161 9 6.50544 9 7.5C9 8.49456 9.39509 9.44839 10.0983 10.1517C10.8016 10.8549 11.7554 11.25 12.75 11.25M12.75 3.75C10.6789 3.75 9 5.42893 9 7.5C9 9.57107 10.6789 11.25 12.75 11.25M12.75 3.75C14.8211 3.75 16.5 5.42893 16.5 7.5C16.5 9.57107 14.8211 11.25 12.75 11.25M1.5 15C1.5 12.9289 3.17893 11.25 5.25 11.25M5.25 11.25C7.32107 11.25 9 12.9289 9 15M5.25 11.25C3.17893 11.25 1.5 12.9289 1.5 15M5.25 11.25C5.25 9.17893 6.92893 7.5 9 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
+    icon: TeamOutlined,
   },
   {
     key: 'sessions',
     label: 'Session',
     path: '/sessions',
-    icon: (
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <path d="M9 1.5V9M9 16.5C5.27208 16.5 2.25 13.4779 2.25 9.75C2.25 6.02208 5.27208 3 9 3C12.7279 3 15.75 6.02208 15.75 9.75C15.75 13.4779 12.7279 16.5 9 16.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ),
+    icon: ClockCircleOutlined,
   },
 ];
 
@@ -44,11 +42,7 @@ const logoutItem = {
   key: 'logout',
   label: '退出登录',
   path: '#',
-  icon: (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M7.5 17.5H4.16667C3.72464 17.5 3.30072 17.3244 2.98816 17.0118C2.67559 16.6993 2.5 16.2754 2.5 15.8333V4.16667C2.5 3.72464 2.67559 3.30072 2.98816 2.98816C3.30072 2.67559 3.72464 2.5 4.16667 2.5H7.5M13.3333 14.1667L17.5 10M17.5 10L13.3333 5.83333M17.5 10H7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  ),
+  icon: LogoutOutlined,
 };
 
 export default function AppLayout() {
@@ -93,6 +87,19 @@ export default function AppLayout() {
     console.log('搜索:', searchValue);
   };
 
+  // 用户下拉菜单项
+  const userMenuItems = [
+    {
+      key: 'logout',
+      label: (
+        <div onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <LogoutOutlined />
+          <span>退出登录</span>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="app-layout">
       {/* 左侧菜单栏 */}
@@ -101,11 +108,20 @@ export default function AppLayout() {
           {/* Logo 区域 */}
           <div className="sidebar-logo">
             <div className="logo-icon">
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <rect width="32" height="32" rx="8" fill="#3f8cff"/>
-                <path d="M16 8L24 14V24C24 24.5304 23.7893 25.0391 23.4142 25.4142C23.0391 25.7893 22.5304 26 22 26H10C9.46957 26 8.96086 25.7893 8.58579 25.4142C8.21071 25.0391 8 24.5304 8 24V14L16 8Z" fill="white"/>
-                <path d="M12 26V16H20V26" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <div style={{ 
+                width: '32px', 
+                height: '32px', 
+                borderRadius: '8px', 
+                background: '#3f8cff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '18px',
+                fontWeight: 'bold'
+              }}>
+                U
+              </div>
             </div>
             <div className="logo-text">
               <div className="logo-title">用户中心</div>
@@ -125,78 +141,55 @@ export default function AppLayout() {
         <header className="toolbar">
           <div className="toolbar-content">
             {/* 左侧搜索框 */}
-            <form className="toolbar-search" onSubmit={handleSearch}>
-              <svg className="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M19 19L14.65 14.65" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <input
-                type="text"
-                className="search-input"
-                placeholder="Search"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-              />
-            </form>
+            <Input
+              className="toolbar-search"
+              placeholder="搜索用户名、昵称或邮箱"
+              prefix={<SearchOutlined />}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onPressEnter={handleSearch}
+              allowClear
+            />
 
             {/* 右侧工具栏 */}
             <div className="toolbar-actions">
               {/* 通知按钮 */}
-              <button className="toolbar-btn toolbar-btn-icon" title="通知">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                  <path d="M15 6.66667C15 5.19391 14.3679 3.7812 13.2426 2.65593C12.1174 1.53066 10.7047 0.898682 9.23193 0.898682C7.75917 0.898682 6.34646 1.53066 5.22119 2.65593C4.09592 3.7812 3.46394 5.19391 3.46394 6.66667C3.46394 12.5 1.66667 14.1667 1.66667 14.1667H16.6667C16.6667 14.1667 15 12.5 15 6.66667Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M11.6667 17.5C11.4417 17.7525 11.1376 17.9167 10.8084 17.9667C10.4792 18.0167 10.1428 17.9493 9.85165 17.7747C9.56048 17.6001 9.33147 17.3276 9.20024 17.0017C9.06901 16.6758 9.04256 16.3135 9.12498 15.9708" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
+              <Badge count={0} size="small">
+                <Button
+                  type="text"
+                  icon={<BellOutlined />}
+                  className="toolbar-btn-icon"
+                  title="通知"
+                />
+              </Badge>
 
               {/* 用户资料下拉 */}
-              <div 
-                ref={userMenuRef}
-                className={`user-profile-dropdown ${showUserMenu ? 'active' : ''}`}
+              <Dropdown
+                menu={{ items: userMenuItems }}
+                trigger={['click']}
+                placement="bottomRight"
+                overlayClassName="user-profile-dropdown-menu"
               >
-                <button 
-                  className="toolbar-btn toolbar-btn-user"
-                  onClick={() => setShowUserMenu(!showUserMenu)}
+                <Button
+                  type="text"
+                  className="toolbar-btn-user"
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px',
+                    height: '40px',
+                    padding: '0 12px'
+                  }}
                 >
-                  <div className="user-avatar">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                      <circle cx="16" cy="16" r="16" fill="#e2e8f0"/>
-                      <path d="M16 10C17.6569 10 19 11.3431 19 13C19 14.6569 17.6569 16 16 16C14.3431 16 13 14.6569 13 13C13 11.3431 14.3431 10 16 10Z" fill="#64748b"/>
-                      <path d="M16 18C19.3137 18 22 19.3431 22 21V22H10V21C10 19.3431 12.6863 18 16 18Z" fill="#64748b"/>
-                    </svg>
-                  </div>
+                  <Avatar 
+                    size={32} 
+                    icon={<UserOutlined />}
+                    style={{ backgroundColor: '#e2e8f0', color: '#64748b' }}
+                  />
                   <span className="user-name">{user?.nickname || user?.username || 'User'}</span>
-                  <svg className="dropdown-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
-
-                {/* 下拉菜单 */}
-                {showUserMenu && (
-                  <div className="user-menu">
-                    <div className="user-menu-header">
-                      <div className="user-menu-avatar">
-                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                          <circle cx="20" cy="20" r="20" fill="#e2e8f0"/>
-                          <path d="M20 12.5C21.6569 12.5 23 13.8431 23 15.5C23 17.1569 21.6569 18.5 20 18.5C18.3431 18.5 17 17.1569 17 15.5C17 13.8431 18.3431 12.5 20 12.5Z" fill="#64748b"/>
-                          <path d="M20 22.5C23.3137 22.5 26 23.8431 26 25.5V26.5H14V25.5C14 23.8431 16.6863 22.5 20 22.5Z" fill="#64748b"/>
-                        </svg>
-                      </div>
-                      <div className="user-menu-info">
-                        <div className="user-menu-name">{user?.nickname || user?.username || 'User'}</div>
-                        <div className="user-menu-email">{user?.email || 'user@example.com'}</div>
-                      </div>
-                    </div>
-                    <div className="user-menu-divider"></div>
-                    <button className="user-menu-item" onClick={handleLogout}>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                        <path d="M6 13.3333H2.66667C2.31305 13.3333 1.97391 13.1929 1.72386 12.9428C1.47381 12.6928 1.33334 12.3536 1.33334 12V4C1.33334 3.64638 1.47381 3.30724 1.72386 3.05719C1.97391 2.80714 2.31305 2.66667 2.66667 2.66667H6M10.6667 10.6667L14.6667 6.66667M14.6667 6.66667L10.6667 2.66667M14.6667 6.66667H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      退出登录
-                    </button>
-                  </div>
-                )}
-              </div>
+                  <DownOutlined style={{ fontSize: '12px', color: '#64748b' }} />
+                </Button>
+              </Dropdown>
             </div>
           </div>
         </header>
