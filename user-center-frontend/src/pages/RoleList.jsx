@@ -27,6 +27,8 @@ export default function RoleList() {
   const [editingRole, setEditingRole] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [filterParams, setFilterParams] = useState({ status: 'all' });
+  const [permissionTree, setPermissionTree] = useState([]);
+  const [permissionTreeLoading, setPermissionTreeLoading] = useState(true);
   const debounceTimerRef = useRef(null);
 
   // 防抖处理筛选
@@ -48,6 +50,25 @@ export default function RoleList() {
         clearTimeout(debounceTimerRef.current);
       }
     };
+  }, []);
+
+  // 加载权限树
+  useEffect(() => {
+    const loadPermissionTree = async () => {
+      setPermissionTreeLoading(true);
+      try {
+        const res = await request.get('/permissions/tree');
+        if (res.code === 200 && res.data) {
+          const tree = Array.isArray(res.data) ? res.data : [];
+          setPermissionTree(tree);
+        }
+      } catch (error) {
+        console.error('loadPermissionTree error:', error);
+      } finally {
+        setPermissionTreeLoading(false);
+      }
+    };
+    loadPermissionTree();
   }, []);
 
   // 请求函数 - 适配 ProTableV2
@@ -120,6 +141,7 @@ export default function RoleList() {
       code: undefined,
       name: undefined,
       status: 1,
+      permissionIds: [],
     });
     setModalVisible(true);
   };
@@ -129,6 +151,7 @@ export default function RoleList() {
     form.setFieldsValue({
       code: record.code,
       name: record.name,
+      permissionIds: record.permissionIds || [],
       // 编辑时不设置状态，状态通过独立的状态按钮修改
     });
     setModalVisible(true);
@@ -137,9 +160,15 @@ export default function RoleList() {
   const handleSubmit = async (values) => {
     setSubmitLoading(true);
     try {
+      // 确保 permissionIds 是数组格式
+      const submitData = {
+        ...values,
+        permissionIds: Array.isArray(values.permissionIds) ? values.permissionIds : [],
+      };
+      
       if (editingRole) {
         // 编辑角色
-        const res = await request.put(`/roles/${editingRole.id}`, values);
+        const res = await request.put(`/roles/${editingRole.id}`, submitData);
         if (res.code === 200) {
           message.success('角色更新成功');
           setModalVisible(false);
@@ -151,7 +180,7 @@ export default function RoleList() {
         }
       } else {
         // 新增角色
-        const res = await request.post('/roles', values);
+        const res = await request.post('/roles', submitData);
         if (res.code === 200) {
           message.success('角色创建成功');
           setModalVisible(false);
@@ -161,6 +190,7 @@ export default function RoleList() {
             code: undefined,
             name: undefined,
             status: 1,
+            permissionIds: [],
           });
           setEditingRole(null);
           handleRefresh();
@@ -183,6 +213,7 @@ export default function RoleList() {
       code: undefined,
       name: undefined,
       status: 1,
+      permissionIds: [],
     });
     setEditingRole(null);
   };
@@ -456,6 +487,8 @@ export default function RoleList() {
           form={form}
           initialValues={editingRole}
           onFinish={handleSubmit}
+          permissionTree={permissionTree}
+          permissionTreeLoading={permissionTreeLoading}
         />
         <div className="modal-footer">
           <Button onClick={handleCancel}>

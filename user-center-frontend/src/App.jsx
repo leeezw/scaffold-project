@@ -3,6 +3,7 @@ import { useAuthContext } from './hooks/AuthProvider.jsx';
 import Login from './pages/Login.jsx';
 import UserList from './pages/UserList.jsx';
 import RoleList from './pages/RoleList.jsx';
+import PermissionList from './pages/PermissionList.jsx';
 import SessionList from './pages/SessionList.jsx';
 import AppLayout from './components/AppLayout.jsx';
 
@@ -28,6 +29,7 @@ export default function App() {
       >
         <Route index element={<UserList />} />
         <Route path="roles" element={<RoleList />} />
+        <Route path="permissions" element={<PermissionList />} />
         <Route path="sessions" element={<SessionList />} />
       </Route>
     </Routes>

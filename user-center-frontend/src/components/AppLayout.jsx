@@ -169,6 +169,7 @@ export default function AppLayout() {
   const breadcrumbMap = {
     '/': { title: '用户管理', icon: HomeOutlined },
     '/roles': { title: '角色管理', icon: TeamOutlined },
+    '/permissions': { title: '权限管理', icon: SafetyOutlined },
     '/sessions': { title: 'Session管理', icon: ClockCircleOutlined },
   };
 

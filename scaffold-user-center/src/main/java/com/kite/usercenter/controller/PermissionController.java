@@ -24,7 +24,7 @@ public class PermissionController {
     }
     
     @Operation(summary = "权限树")
-    @RequiresPermissions("permission:list")
+    @RequiresPermissions({"permission:list", "*:*:*"})
     @GetMapping("/tree")
     public Result<List<PermissionDTO>> tree() {
         return Result.success(permissionService.listAll());
