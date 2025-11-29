@@ -195,9 +195,10 @@ export default function RoleSelectModal({
       okText="确定"
       cancelText="取消"
       width={900}
-      style={{ top: 40 }}
       confirmLoading={submitting}
       className="role-select-modal"
+      style={{ top: 40 }}
+      bodyStyle={{ maxHeight: 'calc(100vh - 200px)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
     >
       <div className="role-select-content">
         {loading ? (

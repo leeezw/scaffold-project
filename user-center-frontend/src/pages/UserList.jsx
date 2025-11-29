@@ -409,16 +409,16 @@ export default function UserList() {
               <Form.Item name="keyword" style={{ marginBottom: 0 }}>
                 <Input
                   className='filter-search-input'
-                  placeholder="搜索用户名、昵称、邮箱或手机号"
+                placeholder="搜索用户名、昵称、邮箱或手机号"
                   allowClear
                   onChange={handleFilterChange}
                   onPressEnter={() => filterForm.submit()}
-                />
+              />
               </Form.Item>
               <Form.Item name="status" style={{ marginBottom: 0 }}>
                 <Select
                   className='filter-status-select'
-                  placeholder="用户状态"
+                placeholder="用户状态"
                   allowClear
                   onChange={() => filterForm.submit()}
                 >
