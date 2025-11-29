@@ -1,267 +1,209 @@
-/* 侧边栏菜单样式 - 基于设计系统 */
-/* 使用全局设计系统变量，无需重复定义 */
+/* 侧边栏菜单样式 - 基于 Ant Design Menu，符合设计系统 */
 
-/* ==================== 侧边栏菜单容器 ==================== */
-.sidebar-menu {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  align-items: flex-start;
+.sidebar-menu.ant-menu {
+  background-color: transparent;
+  border-right: none;
   padding: var(--spacing-sm) 0;
+  width: 100%;
 }
 
 /* ==================== 菜单项基础样式 ==================== */
-.menu-item {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  position: relative;
-  width: 100%;
-  margin-bottom: 0;
-  cursor: pointer;
-  transition: all var(--transition-base) var(--ease-out);
-  text-decoration: none;
-  min-height: 2.75rem;
-  color: inherit;
+.sidebar-menu .ant-menu-item,
+.sidebar-menu .ant-menu-submenu-title {
+  height: 2.75rem;
+  line-height: 2.75rem;
+  margin-bottom: var(--spacing-xs);
   border-radius: var(--radius-md);
-  overflow: visible;
-}
-
-.menu-item:not(:first-child) {
-  margin-top: 0;
-}
-
-.menu-item-content {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  position: relative;
-  width: 100%;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  z-index: 2;
-  gap: var(--spacing-md);
-}
-
-/* ==================== 图标样式 ==================== */
-.menu-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.25rem;
-  height: 1.25rem;
-  flex-shrink: 0;
-  color: var(--text-secondary);
+  padding-left: var(--spacing-md) !important;
+  padding-right: var(--spacing-md) !important;
   transition: all var(--transition-base) var(--ease-out);
-  z-index: 2;
-}
-
-.menu-icon svg {
-  width: 100%;
-  height: 100%;
-  transition: transform var(--transition-base) var(--ease-out);
-}
-
-/* ==================== 文字样式 ==================== */
-.menu-text {
+  color: var(--text-secondary);
+  font-family: var(--font-family);
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--text-secondary);
-  line-height: 1.5;
-  font-family: var(--font-family);
-  transition: all var(--transition-base) var(--ease-out);
-  position: relative;
-  z-index: 2;
-  flex: 1;
-  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
 }
 
-/* ==================== 箭头样式 ==================== */
-.menu-arrow {
-  margin-left: auto;
-  width: 0.875rem;
-  height: 0.875rem;
-  color: var(--text-secondary);
+.sidebar-menu .ant-menu-item-icon,
+.sidebar-menu .ant-menu-submenu-title .ant-menu-item-icon {
+  font-size: 1.125rem;
+  width: 1.125rem;
+  height: 1.125rem;
   transition: all var(--transition-base) var(--ease-out);
-  transform: rotate(-90deg);
+  color: var(--text-secondary);
+  margin-right: var(--spacing-sm);
   flex-shrink: 0;
+}
+
+.sidebar-menu .ant-menu-submenu-title .ant-menu-submenu-arrow {
+  color: var(--text-secondary);
   opacity: 0.6;
+  transition: all var(--transition-base) var(--ease-out);
+  right: var(--spacing-md);
 }
 
-.menu-arrow.expanded {
-  transform: rotate(0deg);
+.sidebar-menu .ant-menu-submenu-open > .ant-menu-submenu-title .ant-menu-submenu-arrow {
   opacity: 1;
-}
-
-/* ==================== 背景层（悬停/激活） ==================== */
-.menu-item::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: transparent;
-  border-radius: var(--radius-md);
-  opacity: 0;
-  transition: all var(--transition-base) var(--ease-out);
-  z-index: 0;
-}
-
-/* ==================== 左侧指示条 ==================== */
-.menu-item-indicator {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%) scaleY(0);
-  width: 0.25rem;
-  height: 0;
-  background-color: var(--primary-color);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  transition: all var(--transition-base) var(--ease-out);
-  z-index: 1;
+  color: var(--primary-color);
 }
 
 /* ==================== 悬停状态 ==================== */
-.menu-item:hover::before {
-  opacity: 1;
+.sidebar-menu .ant-menu-item:hover,
+.sidebar-menu .ant-menu-submenu-title:hover {
   background-color: var(--info-bg);
+  color: var(--text-primary);
 }
 
-.menu-item:hover .menu-icon {
+.sidebar-menu .ant-menu-item:hover .ant-menu-item-icon,
+.sidebar-menu .ant-menu-submenu-title:hover .ant-menu-item-icon {
   color: var(--primary-color);
   transform: scale(1.05);
 }
 
-.menu-item:hover .menu-icon svg {
-  transform: scale(1.05);
-}
-
-.menu-item:hover .menu-text {
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.menu-item:hover .menu-arrow {
+.sidebar-menu .ant-menu-submenu-title:hover .ant-menu-submenu-arrow {
   color: var(--primary-color);
   opacity: 1;
 }
 
 /* ==================== 激活状态 ==================== */
-.menu-item.active::before {
-  opacity: 1;
+.sidebar-menu .ant-menu-item-selected {
   background-color: var(--info-bg);
-  box-shadow: var(--shadow-sm);
-}
-
-.menu-item.active .menu-item-indicator {
-  transform: translateY(-50%) scaleY(1);
-  height: 60%;
-}
-
-.menu-item.active .menu-icon {
-  color: var(--primary-color);
-  transform: scale(1.05);
-}
-
-.menu-item.active .menu-icon svg {
-  transform: scale(1.05);
-}
-
-.menu-item.active .menu-text {
   color: var(--primary-color);
   font-weight: 600;
-}
-
-.menu-item.active .menu-arrow {
-  color: var(--primary-color);
-  opacity: 1;
-}
-
-/* 移除旧的装饰图标逻辑 */
-.menu-item.active .menu-item-content::before {
-  display: none;
-}
-
-.menu-item.active .menu-icon {
-  opacity: 1;
-}
-
-/* ==================== 多级菜单 ==================== */
-.menu-item-group {
-  width: 100%;
-}
-
-.menu-children {
-  margin-top: var(--spacing-xs);
-  margin-left: var(--spacing-lg);
-  padding-left: var(--spacing-md);
-  border-left: 2px solid var(--border-color);
-  animation: slideDown var(--transition-slow) var(--ease-out);
   position: relative;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.sidebar-menu .ant-menu-item-selected .ant-menu-item-icon {
+  color: var(--primary-color);
+  transform: scale(1.05);
 }
 
-.menu-children .menu-item {
-  min-height: 2.5rem;
+.sidebar-menu .ant-menu-item-selected::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0.1875rem;
+  height: 60%;
+  background-color: var(--primary-color);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
-.menu-children .menu-item::before {
-  width: 100%;
-  height: 100%;
+/* ==================== 子菜单样式 - 内嵌式展开 ==================== */
+.sidebar-menu .ant-menu-submenu .ant-menu {
+  background-color: transparent;
+  margin: 0;
+  padding: 0;
+  border-left: none;
 }
 
-.menu-children .menu-item-indicator {
+.sidebar-menu .ant-menu-submenu .ant-menu-submenu-title {
+  padding-left: var(--spacing-md) !important;
+  padding-right: var(--spacing-md) !important;
+}
+
+.sidebar-menu .ant-menu-submenu .ant-menu-item {
+  height: 2.5rem;
+  line-height: 2.5rem;
+  font-size: 0.875rem;
+  padding-left: var(--spacing-xl) !important;
+  padding-right: var(--spacing-md) !important;
+  margin-left: 0;
+}
+
+.sidebar-menu .ant-menu-submenu .ant-menu-item-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  margin-right: var(--spacing-sm);
+}
+
+.sidebar-menu .ant-menu-submenu .ant-menu-item-selected::before {
   height: 50%;
 }
 
-.menu-children .menu-text {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
+/* ==================== 子菜单激活状态 ==================== */
+.sidebar-menu .ant-menu-submenu-open > .ant-menu-submenu-title {
+  color: var(--text-primary);
 }
 
-.menu-children .menu-icon {
-  width: 1.125rem;
-  height: 1.125rem;
-}
-
-.menu-children .menu-item.active .menu-text {
+.sidebar-menu .ant-menu-submenu-open > .ant-menu-submenu-title .ant-menu-item-icon {
   color: var(--primary-color);
 }
 
 /* ==================== 焦点状态（可访问性） ==================== */
-.menu-item:focus-visible {
+.sidebar-menu .ant-menu-item:focus-visible,
+.sidebar-menu .ant-menu-submenu-title:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
 }
 
-.menu-item:focus-visible::before {
-  opacity: 1;
-  background-color: var(--info-bg);
+/* ==================== 分组样式 ==================== */
+.sidebar-menu .ant-menu-item-group-title {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: var(--font-family);
+}
+
+.sidebar-menu .ant-menu-item-group-list {
+  margin: 0;
+  padding: 0;
+}
+
+/* ==================== 分隔符样式 ==================== */
+.sidebar-menu .ant-menu-item-divider {
+  margin: var(--spacing-md) var(--spacing-md);
+  background-color: var(--border-color);
+  height: 1px;
+}
+
+/* ==================== 三级及以上菜单样式 - 内嵌式展开 ==================== */
+.sidebar-menu .ant-menu-submenu .ant-menu-submenu .ant-menu {
+  margin: 0;
+  padding: 0;
+  border-left: none;
+}
+
+.sidebar-menu .ant-menu-submenu .ant-menu-submenu .ant-menu-item {
+  height: 2.25rem;
+  line-height: 2.25rem;
+  font-size: 0.8125rem;
+  padding-left: calc(var(--spacing-xl) + var(--spacing-md)) !important;
+  padding-right: var(--spacing-md) !important;
+}
+
+.sidebar-menu .ant-menu-submenu .ant-menu-submenu .ant-menu-item-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  margin-right: var(--spacing-sm);
+}
+
+.sidebar-menu .ant-menu-submenu .ant-menu-submenu .ant-menu-submenu-title {
+  padding-left: calc(var(--spacing-xl) + var(--spacing-md)) !important;
+  padding-right: var(--spacing-md) !important;
+  font-size: 0.875rem;
+  height: 2.5rem;
+  line-height: 2.5rem;
 }
 
 /* ==================== 响应式优化 ==================== */
 @media (max-width: 768px) {
-  .menu-item-content {
-    padding: var(--spacing-sm) var(--spacing-md);
+  .sidebar-menu .ant-menu-item,
+  .sidebar-menu .ant-menu-submenu-title {
+    padding-left: var(--spacing-md) !important;
+    padding-right: var(--spacing-md) !important;
   }
   
-  .menu-text {
-    font-size: 0.875rem;
-  }
-  
-  .menu-icon {
-    width: 1.125rem;
-    height: 1.125rem;
+  .sidebar-menu .ant-menu-item-icon,
+  .sidebar-menu .ant-menu-submenu-title .ant-menu-item-icon {
+    font-size: 1.125rem;
   }
 }

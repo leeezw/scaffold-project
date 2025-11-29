@@ -9,31 +9,110 @@ import {
   DownOutlined,
   HomeOutlined,
   TeamOutlined,
-  ClockCircleOutlined
+  ClockCircleOutlined,
+  AppstoreOutlined,
+  MailOutlined,
+  SettingOutlined,
+  SafetyOutlined,
+  UserSwitchOutlined,
+  FileTextOutlined
 } from '@ant-design/icons';
 import { useAuthContext } from '../hooks/AuthProvider.jsx';
 import SidebarMenu from './SidebarMenu.jsx';
 import './AppLayout.css';
 
 // 菜单配置 - 可以从数据库获取
+// 支持多级菜单、分组和分隔符
 const menuItems = [
   {
     key: 'users',
-    label: '用户',
+    label: '用户管理',
     path: '/',
     icon: HomeOutlined,
   },
   {
-    key: 'roles',
-    label: '角色',
-    path: '/roles',
-    icon: TeamOutlined,
+    key: 'system',
+    label: '系统管理',
+    icon: AppstoreOutlined,
+    children: [
+      {
+        key: 'g1',
+        label: '权限管理',
+        type: 'group',
+        children: [
+          {
+            key: 'roles',
+            label: '角色管理',
+            path: '/roles',
+            icon: TeamOutlined,
+          },
+          {
+            key: 'permissions',
+            label: '权限配置',
+            path: '/permissions',
+            icon: SafetyOutlined,
+          },
+        ],
+      },
+      {
+        key: 'g2',
+        label: '系统设置',
+        type: 'group',
+        children: [
+          {
+            key: 'settings',
+            label: '系统设置',
+            icon: SettingOutlined,
+            children: [
+              {
+                key: 'general',
+                label: '通用设置',
+                path: '/settings/general',
+                icon: FileTextOutlined,
+              },
+              {
+                key: 'security',
+                label: '安全设置',
+                path: '/settings/security',
+                icon: SafetyOutlined,
+              },
+            ],
+          },
+          {
+            key: 'users-config',
+            label: '用户配置',
+            path: '/system/users-config',
+            icon: UserSwitchOutlined,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'divider',
   },
   {
     key: 'sessions',
-    label: 'Session',
+    label: 'Session管理',
     path: '/sessions',
     icon: ClockCircleOutlined,
+  },
+  {
+    key: 'notifications',
+    label: '通知中心',
+    icon: MailOutlined,
+    children: [
+      {
+        key: 'messages',
+        label: '消息通知',
+        path: '/notifications/messages',
+      },
+      {
+        key: 'alerts',
+        label: '告警通知',
+        path: '/notifications/alerts',
+      },
+    ],
   },
 ];
 
