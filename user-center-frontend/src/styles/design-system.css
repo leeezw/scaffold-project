@@ -264,3 +264,43 @@
   font-family: var(--font-family);
 }
 
+.ant-modal {
+  font-family: var(--font-family);
+}
+
+.ant-modal-content {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.ant-modal-header {
+  border-bottom: 1px solid var(--border-light);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.ant-modal-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+}
+
+.ant-modal-body {
+  padding: var(--spacing-lg);
+}
+
+.ant-modal-footer {
+  border-top: 1px solid var(--border-light);
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.ant-form {
+  font-family: var(--font-family);
+}
+
+.ant-form-item-label > label {
+  font-family: var(--font-family);
+}
+

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, Table, Statistic, Input, Button, Space, Tag, Pagination, Select } from 'antd';
+import { Card, Table, Statistic, Input, Button, Space, Tag, Pagination, Select, Modal, Form, message } from 'antd';
 import { 
   UserOutlined, 
   CheckCircleOutlined, 
@@ -9,6 +9,7 @@ import {
   DeleteOutlined,
 } from '@ant-design/icons';
 import request from '../api/index.js';
+import UserForm from '../components/UserForm.jsx';
 import './UserList.css';
 
 const { Search } = Input;
@@ -24,6 +25,10 @@ export default function UserList() {
   });
   const [query, setQuery] = useState({ keyword: '', pageNum: 1, pageSize: 10 });
   const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -63,6 +68,65 @@ export default function UserList() {
 
   const handlePageChange = (page, pageSize) => {
     setQuery({ ...query, pageNum: page, pageSize });
+  };
+
+  const handleAddUser = () => {
+    setEditingUser(null);
+    form.resetFields();
+    setModalVisible(true);
+  };
+
+  const handleEditUser = (record) => {
+    setEditingUser(record);
+    form.setFieldsValue({
+      username: record.username,
+      nickname: record.nickname,
+      email: record.email,
+      status: record.status,
+    });
+    setModalVisible(true);
+  };
+
+  const handleSubmit = async (values) => {
+    setSubmitLoading(true);
+    try {
+      // 编辑模式下，如果密码为空则移除密码字段
+      if (editingUser && !values.password) {
+        delete values.password;
+      }
+
+      if (editingUser) {
+        // 编辑用户
+        const res = await request.put(`/users/${editingUser.id}`, values);
+        if (res.code === 200) {
+          message.success('用户更新成功');
+          setModalVisible(false);
+          fetchUsers();
+        } else {
+          message.error(res.message || '更新失败');
+        }
+      } else {
+        // 新增用户
+        const res = await request.post('/users', values);
+        if (res.code === 200) {
+          message.success('用户创建成功');
+          setModalVisible(false);
+          fetchUsers();
+        } else {
+          message.error(res.message || '创建失败');
+        }
+      }
+    } catch (error) {
+      message.error(error.message || '操作失败');
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setModalVisible(false);
+    form.resetFields();
+    setEditingUser(null);
   };
 
   const columns = [
@@ -110,6 +174,7 @@ export default function UserList() {
             icon={<EditOutlined />} 
             size="small"
             title="编辑"
+            onClick={() => handleEditUser(record)}
           />
           <Button 
             type="text" 
@@ -167,7 +232,7 @@ export default function UserList() {
         title="用户列表"
         extra={
           <Space>
-            <Button type="primary" icon={<PlusOutlined />}>
+            <Button type="primary" icon={<PlusOutlined />} onClick={handleAddUser}>
               新增用户
             </Button>
           </Space>
@@ -211,6 +276,36 @@ export default function UserList() {
           </div>
         )}
       </Card>
+
+      {/* 新增/编辑用户弹窗 */}
+      <Modal
+        title={editingUser ? '编辑用户' : '新增用户'}
+        open={modalVisible}
+        onCancel={handleCancel}
+        footer={null}
+        width={600}
+        className="user-form-modal"
+        centered
+        destroyOnClose
+      >
+        <UserForm
+          form={form}
+          initialValues={editingUser}
+          onFinish={handleSubmit}
+        />
+        <div className="modal-footer">
+          <Button onClick={handleCancel}>
+            取消
+          </Button>
+          <Button 
+            type="primary" 
+            onClick={() => form.submit()}
+            loading={submitLoading}
+          >
+            {editingUser ? '更新' : '创建'}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

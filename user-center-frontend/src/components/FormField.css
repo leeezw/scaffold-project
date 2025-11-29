@@ -1,0 +1,209 @@
+/* 通用表单项样式 - 基于登录页面规范 */
+
+.form-field {
+  margin-bottom: 0;
+  padding: 0.88rem 0 1.19rem;
+}
+
+.form-field:last-child {
+  margin-top: 0.63rem;
+  padding: 1.25rem 0;
+}
+
+.form-field .ant-form-item-label {
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.form-field .ant-form-item-label > label {
+  margin-left: 0.5rem;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-secondary);
+  line-height: 1.5rem;
+  font-family: var(--font-family);
+  height: auto;
+}
+
+.form-field .ant-form-item-label > label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::before {
+  display: none;
+}
+
+.form-field .ant-form-item-label > label.ant-form-item-required:not(.ant-form-item-required-mark-optional)::after {
+  content: '*';
+  display: inline-block;
+  margin-left: 4px;
+  color: var(--error-color);
+  font-size: var(--font-size-sm);
+  font-family: SimSun, sans-serif;
+}
+
+.form-field .ant-form-item-control {
+  margin: 0;
+}
+
+.form-field .ant-input,
+.form-field .ant-input-password,
+.form-field .ant-select-selector,
+.form-field .ant-picker {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: solid 0.063rem var(--border-color);
+  height: 2.5rem;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  transition: all var(--transition-base) var(--ease-out);
+}
+
+/* Select 组件特殊样式 - 确保与输入框完全一致 */
+.form-field .ant-select {
+  height: 2.5rem;
+}
+
+.form-field .ant-select-selector {
+  height: 2.5rem !important;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.form-field .ant-select-selection-item {
+  line-height: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+}
+
+.form-field .ant-select-selection-placeholder {
+  line-height: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  opacity: 1;
+}
+
+.form-field .ant-select-arrow {
+  right: 1rem;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.form-field .ant-select-selection-search {
+  height: 2.5rem;
+  line-height: 2.5rem;
+}
+
+.form-field .ant-select-selection-search-input {
+  height: 2.5rem;
+  line-height: 2.5rem;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+}
+
+.form-field .ant-input::placeholder,
+.form-field .ant-input-password input::placeholder {
+  color: var(--text-secondary);
+}
+
+.form-field .ant-input:hover,
+.form-field .ant-input-password:hover,
+.form-field .ant-select:hover .ant-select-selector,
+.form-field .ant-picker:hover {
+  border-color: var(--primary-color);
+}
+
+.form-field .ant-select:hover .ant-select-arrow {
+  color: var(--primary-color);
+}
+
+.form-field .ant-input:focus,
+.form-field .ant-input-focused,
+.form-field .ant-input-password:focus,
+.form-field .ant-input-password-focused,
+.form-field .ant-select-focused .ant-select-selector,
+.form-field .ant-picker-focused {
+  border-color: var(--primary-color);
+  box-shadow: 0rem 0.063rem 0.13rem rgba(63, 140, 255, 0.3);
+}
+
+.form-field .ant-select-focused .ant-select-arrow {
+  color: var(--primary-color);
+}
+
+.form-field .ant-input-password {
+  padding: 0.625rem 1rem 0.625rem 1.25rem;
+}
+
+.form-field .ant-input-password .ant-input {
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  height: auto;
+}
+
+.form-field .ant-input-password .ant-input:focus {
+  box-shadow: none;
+}
+
+.form-field .ant-form-item-explain-error {
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
+  font-size: var(--font-size-xs);
+  color: var(--error-color);
+  font-family: var(--font-family);
+}
+
+.form-field .ant-form-item-explain-success {
+  margin-top: 0.5rem;
+  margin-left: 0.5rem;
+  font-size: var(--font-size-xs);
+  color: var(--success-color);
+  font-family: var(--font-family);
+}
+
+/* Select 下拉菜单样式 */
+.form-field .ant-select-dropdown {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-xs) 0;
+}
+
+.form-field .ant-select-item {
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family);
+  padding: var(--spacing-sm) var(--spacing-md);
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.form-field .ant-select-item-option-selected {
+  background-color: var(--info-bg);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.form-field .ant-select-item-option-active {
+  background-color: var(--bg-tertiary);
+}
+
+/* 确保 Input 的内边距与 Select 一致 */
+.form-field .ant-input {
+  padding: 0 1rem;
+  height: 2.5rem;
+  line-height: 2.5rem;
+}
+

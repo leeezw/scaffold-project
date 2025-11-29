@@ -145,6 +145,99 @@
   font-weight: 700;
 }
 
+/* ==================== 用户表单弹窗 ==================== */
+.user-form-modal.ant-modal-centered .ant-modal {
+  top: 50%;
+  transform: translateY(-50%);
+  padding-bottom: 0;
+}
+
+.user-form-modal .ant-modal-content {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  max-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.user-form-modal .ant-modal-header {
+  border-bottom: 1px solid var(--border-light);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  flex-shrink: 0;
+}
+
+.user-form-modal .ant-modal-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+}
+
+.user-form-modal .ant-modal-body {
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  max-height: calc(100vh - 300px);
+}
+
+.user-form-modal .ant-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.user-form-modal .ant-modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.user-form-modal .ant-modal-body::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 3px;
+}
+
+.user-form-modal .ant-modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.5);
+}
+
+.user-form-modal .ant-modal-footer {
+  display: none;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-light);
+}
+
+.modal-footer {
+  flex-shrink: 0;
+}
+
+.modal-footer .ant-btn {
+  height: 2.5rem;
+  padding: 0.5rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-md);
+  font-weight: 700;
+  font-family: var(--font-family);
+}
+
+.modal-footer .ant-btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-md);
+}
+
+.modal-footer .ant-btn-primary:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  box-shadow: var(--shadow-xl);
+}
+
 /* ==================== 响应式设计 ==================== */
 @media (max-width: 1200px) {
   .stats-grid {
@@ -175,5 +268,10 @@
 
   .data-table-card .ant-input-search {
     width: 100%;
+  }
+
+  .user-form-modal {
+    width: 90% !important;
+    max-width: 600px;
   }
 }
