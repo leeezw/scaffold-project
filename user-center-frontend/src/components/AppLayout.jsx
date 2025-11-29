@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
-import { Input, Button, Dropdown, Avatar, Badge } from 'antd';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { Input, Button, Dropdown, Avatar, Badge, Breadcrumb } from 'antd';
 import { 
   SearchOutlined, 
   BellOutlined, 
@@ -48,9 +48,49 @@ const logoutItem = {
 export default function AppLayout() {
   const { user, setUser, setToken } = useAuthContext();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchValue, setSearchValue] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
+
+  // 面包屑配置
+  const breadcrumbMap = {
+    '/': { title: '用户管理', icon: HomeOutlined },
+    '/roles': { title: '角色管理', icon: TeamOutlined },
+    '/sessions': { title: 'Session管理', icon: ClockCircleOutlined },
+  };
+
+  // 生成面包屑数据
+  const breadcrumbItems = useMemo(() => {
+    const items = [
+      {
+        title: (
+          <span 
+            style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+            onClick={() => navigate('/')}
+          >
+            <HomeOutlined />
+            <span>首页</span>
+          </span>
+        ),
+      },
+    ];
+
+    const currentPath = location.pathname;
+    if (currentPath !== '/' && breadcrumbMap[currentPath]) {
+      const config = breadcrumbMap[currentPath];
+      items.push({
+        title: (
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <config.icon />
+            <span>{config.title}</span>
+          </span>
+        ),
+      });
+    }
+
+    return items;
+  }, [location.pathname, navigate]);
 
   // 点击外部区域关闭下拉菜单
   useEffect(() => {
@@ -193,6 +233,16 @@ export default function AppLayout() {
             </div>
           </div>
         </header>
+
+        {/* 面包屑导航 */}
+        <nav className="breadcrumb-nav">
+          <Breadcrumb
+            items={breadcrumbItems}
+            separator="/"
+            className="app-breadcrumb"
+          />
+        </nav>
+
         <section className="content">
           <Outlet />
         </section>
