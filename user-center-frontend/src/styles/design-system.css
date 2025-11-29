@@ -1,0 +1,266 @@
+/* ==================== UI 设计系统 ==================== */
+/* 基于登录页面的设计规范 */
+
+:root {
+  /* ==================== 颜色系统 ==================== */
+  /* 主色 */
+  --primary-color: #3f8cff;
+  --primary-hover: #2e6fd9;
+  --primary-active: #2563eb;
+  
+  /* 文本颜色 */
+  --text-primary: #0a1629;
+  --text-secondary: #7d8592;
+  --text-tertiary: #94a3b8;
+  --text-disabled: #cbd5e1;
+  
+  /* 背景颜色 */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f4f9fd;
+  --bg-tertiary: #f8fafc;
+  
+  /* 边框颜色 */
+  --border-color: #d8e0f0;
+  --border-light: #e2e8f0;
+  
+  /* 状态颜色 */
+  --success-color: #22c55e;
+  --success-bg: #dcfce7;
+  --warning-color: #fb923c;
+  --warning-bg: #fed7aa;
+  --error-color: #ef4444;
+  --error-bg: #fee2e2;
+  --info-color: #3f8cff;
+  --info-bg: #e8f2ff;
+  
+  /* ==================== 间距系统 ==================== */
+  --spacing-xs: 0.5rem;    /* 8px */
+  --spacing-sm: 0.75rem;   /* 12px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+  
+  /* ==================== 圆角系统 ==================== */
+  --radius-sm: 0.5rem;     /* 8px */
+  --radius-md: 0.88rem;    /* 14px - 登录页面标准 */
+  --radius-lg: 1rem;       /* 16px */
+  --radius-xl: 1.5rem;     /* 24px */
+  
+  /* ==================== 阴影系统 ==================== */
+  --shadow-sm: 0rem 0.063rem 0.13rem rgba(184, 200, 224, 0.22);
+  --shadow-md: 0rem 0.38rem 0.75rem rgba(63, 140, 255, 0.26);
+  --shadow-lg: 0rem 0.38rem 3.63rem rgba(196, 203, 214, 0.1);
+  --shadow-xl: 0rem 0.5rem 1rem rgba(63, 140, 255, 0.35);
+  
+  /* ==================== 字体系统 ==================== */
+  --font-family: 'PingFang SC', 'PingFang TC', 'PingFang HK', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-size-xs: 0.75rem;   /* 12px */
+  --font-size-sm: 0.88rem;   /* 14px */
+  --font-size-md: 1rem;      /* 16px */
+  --font-size-lg: 1.25rem;   /* 20px */
+  --font-size-xl: 1.38rem;   /* 22px */
+  
+  /* ==================== 动画 ==================== */
+  --transition-fast: 0.15s;
+  --transition-base: 0.2s;
+  --transition-slow: 0.3s;
+  --ease-out: ease-out;
+}
+
+/* ==================== Ant Design 全局样式覆盖 ==================== */
+.ant-btn {
+  font-family: var(--font-family);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: all var(--transition-base) var(--ease-out);
+}
+
+.ant-btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-md);
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  box-shadow: var(--shadow-xl);
+}
+
+.ant-input {
+  font-family: var(--font-family);
+  border-radius: var(--radius-md);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base) var(--ease-out);
+}
+
+.ant-input:hover {
+  border-color: var(--primary-color);
+}
+
+.ant-input:focus,
+.ant-input-focused {
+  border-color: var(--primary-color);
+  box-shadow: 0rem 0.063rem 0.13rem rgba(63, 140, 255, 0.3);
+}
+
+.ant-select {
+  font-family: var(--font-family);
+}
+
+.ant-select .ant-select-selector {
+  border-radius: var(--radius-md);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.ant-select:hover .ant-select-selector {
+  border-color: var(--primary-color);
+}
+
+.ant-select-focused .ant-select-selector {
+  border-color: var(--primary-color);
+  box-shadow: 0rem 0.063rem 0.13rem rgba(63, 140, 255, 0.3);
+}
+
+.ant-card {
+  font-family: var(--font-family);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.ant-card-head {
+  border-bottom: 1px solid var(--border-light);
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.ant-card-head-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ant-card-body {
+  padding: var(--spacing-lg);
+}
+
+.ant-table {
+  font-family: var(--font-family);
+}
+
+.ant-table-thead > tr > th {
+  background-color: var(--bg-tertiary);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.ant-table-tbody > tr > td {
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-md);
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: var(--info-bg);
+}
+
+.ant-tag {
+  font-family: var(--font-family);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  font-size: var(--font-size-xs);
+}
+
+.ant-tag-success {
+  background-color: var(--success-bg);
+  color: var(--success-color);
+  border-color: var(--success-bg);
+}
+
+.ant-tag-error {
+  background-color: var(--error-bg);
+  color: var(--error-color);
+  border-color: var(--error-bg);
+}
+
+.ant-statistic {
+  font-family: var(--font-family);
+}
+
+.ant-statistic-title {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
+}
+
+.ant-statistic-content {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ant-pagination {
+  font-family: var(--font-family);
+}
+
+.ant-pagination-item {
+  border-radius: var(--radius-sm);
+  border-color: var(--border-color);
+}
+
+.ant-pagination-item-active {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.ant-pagination-item-active a {
+  color: #ffffff;
+}
+
+.ant-pagination-item:hover {
+  border-color: var(--primary-color);
+}
+
+.ant-pagination-item:hover a {
+  color: var(--primary-color);
+}
+
+.ant-pagination-prev,
+.ant-pagination-next {
+  border-radius: var(--radius-sm);
+  border-color: var(--border-color);
+}
+
+.ant-pagination-prev:hover,
+.ant-pagination-next:hover {
+  border-color: var(--primary-color);
+}
+
+.ant-pagination-prev:hover .ant-pagination-item-link,
+.ant-pagination-next:hover .ant-pagination-item-link {
+  color: var(--primary-color);
+}
+
+.ant-dropdown {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.ant-badge {
+  font-family: var(--font-family);
+}
+
+.ant-avatar {
+  font-family: var(--font-family);
+}
+

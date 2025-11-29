@@ -101,7 +101,6 @@
   flex-direction: column;
   overflow: hidden;
   margin-left: var(--spacing-xl);
-  padding-right: var(--spacing-lg);
 }
 
 /* ==================== 工具栏 ==================== */
@@ -219,7 +218,7 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-bottom: var(--spacing-lg);
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
