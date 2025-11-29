@@ -29,8 +29,7 @@ export default function UserList() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [searchStatus, setSearchStatus] = useState(undefined);
+  const [filterParams, setFilterParams] = useState({});
 
   // 请求函数 - 适配 ProTableV2
   const fetchUsers = async (params) => {
@@ -69,7 +68,6 @@ export default function UserList() {
   };
 
   const handleRefresh = () => {
-    console.log('handleRefresh');
     actionRef.current?.reload();
   };
 
@@ -326,9 +324,21 @@ export default function UserList() {
         search={false}
         toolbar={{
           filter: (
-            <LightFilter>
+            <LightFilter
+              onFinish={async (values) => {
+                // 当筛选条件变化时，更新筛选参数并触发表格刷新
+                const newFilterParams = { ...values };
+                // 处理 status 参数（如果存在且是 'all'，则移除）
+                if (newFilterParams.status === 'all') {
+                  delete newFilterParams.status;
+                }
+                setFilterParams(newFilterParams);
+                // 触发表格刷新，ProTable 会将 filterParams 合并到 requestParams 中
+                actionRef.current?.reload();
+              }}
+            >
               <ProFormText
-              className='search-input'
+                className='search-input'
                 name="keyword"
                 placeholder="搜索用户名、昵称、邮箱或手机号"
               />
@@ -354,7 +364,7 @@ export default function UserList() {
             </Button>,
           ],
         }}
-        params={{}}
+        params={filterParams}
       />
 
       {/* 新增/编辑用户弹窗 */}

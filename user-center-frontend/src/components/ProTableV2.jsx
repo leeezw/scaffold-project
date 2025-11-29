@@ -53,7 +53,7 @@ export default function ProTableV2({
     }
 
     try {
-      // 合并参数
+      // 合并参数：先合并基础 params，再合并 requestParams（包含来自 LightFilter 的筛选参数）
       const finalParams = {
         ...params,
         ...requestParams,
@@ -77,6 +77,9 @@ export default function ProTableV2({
         delete finalParams.status;
       }
 
+      // 移除 ProTable 内部使用的参数，避免传递给后端
+      delete finalParams.current;
+
       // 处理排序
       if (sort) {
         const sortKeys = Object.keys(sort);
@@ -97,7 +100,6 @@ export default function ProTableV2({
 
         // 触发数据变化回调
         if (onDataChange) {
-          console.log('数据发生变化')
           onDataChange(list, total);
         }
 
