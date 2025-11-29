@@ -50,29 +50,7 @@ export default function UserList() {
   return (
     <div className="user-list-page">
       {/* 顶部搜索栏 */}
-      <div className="page-header">
-        <div className="search-section">
-          <div className="search-box">
-            <svg className="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M19 19L14.65 14.65" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <input
-              type="text"
-              className="search-input"
-              placeholder="搜索用户名、昵称或邮箱"
-              value={query.keyword}
-              onChange={(e) => setQuery({ ...query, keyword: e.target.value, pageNum: 1 })}
-            />
-          </div>
-          <button className="btn-primary" onClick={() => {/* 新增用户 */}}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 3V13M3 8H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-            新增用户
-          </button>
-        </div>
-      </div>
+      
 
       {/* 统计卡片 */}
       <div className="stats-grid">

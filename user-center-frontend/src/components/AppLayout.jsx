@@ -1,4 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import { useAuthContext } from '../hooks/AuthProvider.jsx';
 import SidebarMenu from './SidebarMenu.jsx';
 import './AppLayout.css';
@@ -53,6 +54,26 @@ const logoutItem = {
 export default function AppLayout() {
   const { user, setUser, setToken } = useAuthContext();
   const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState('');
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef(null);
+
+  // 点击外部区域关闭下拉菜单
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
 
   const handleLogout = () => {
     setToken(null);
@@ -64,6 +85,12 @@ export default function AppLayout() {
     if (item.key === 'logout') {
       handleLogout();
     }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // 搜索逻辑可以在这里实现
+    console.log('搜索:', searchValue);
   };
 
   return (
@@ -95,10 +122,81 @@ export default function AppLayout() {
 
       {/* 主内容区 */}
       <main className="main-content">
-        <header className="topbar">
-          <div className="topbar-content">
-            <div>
-              欢迎，{user?.nickname || user?.username}
+        <header className="toolbar">
+          <div className="toolbar-content">
+            {/* 左侧搜索框 */}
+            <form className="toolbar-search" onSubmit={handleSearch}>
+              <svg className="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M9 17C13.4183 17 17 13.4183 17 9C17 4.58172 13.4183 1 9 1C4.58172 1 1 4.58172 1 9C1 13.4183 4.58172 17 9 17Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M19 19L14.65 14.65" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+              />
+            </form>
+
+            {/* 右侧工具栏 */}
+            <div className="toolbar-actions">
+              {/* 通知按钮 */}
+              <button className="toolbar-btn toolbar-btn-icon" title="通知">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M15 6.66667C15 5.19391 14.3679 3.7812 13.2426 2.65593C12.1174 1.53066 10.7047 0.898682 9.23193 0.898682C7.75917 0.898682 6.34646 1.53066 5.22119 2.65593C4.09592 3.7812 3.46394 5.19391 3.46394 6.66667C3.46394 12.5 1.66667 14.1667 1.66667 14.1667H16.6667C16.6667 14.1667 15 12.5 15 6.66667Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M11.6667 17.5C11.4417 17.7525 11.1376 17.9167 10.8084 17.9667C10.4792 18.0167 10.1428 17.9493 9.85165 17.7747C9.56048 17.6001 9.33147 17.3276 9.20024 17.0017C9.06901 16.6758 9.04256 16.3135 9.12498 15.9708" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+
+              {/* 用户资料下拉 */}
+              <div 
+                ref={userMenuRef}
+                className={`user-profile-dropdown ${showUserMenu ? 'active' : ''}`}
+              >
+                <button 
+                  className="toolbar-btn toolbar-btn-user"
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                >
+                  <div className="user-avatar">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                      <circle cx="16" cy="16" r="16" fill="#e2e8f0"/>
+                      <path d="M16 10C17.6569 10 19 11.3431 19 13C19 14.6569 17.6569 16 16 16C14.3431 16 13 14.6569 13 13C13 11.3431 14.3431 10 16 10Z" fill="#64748b"/>
+                      <path d="M16 18C19.3137 18 22 19.3431 22 21V22H10V21C10 19.3431 12.6863 18 16 18Z" fill="#64748b"/>
+                    </svg>
+                  </div>
+                  <span className="user-name">{user?.nickname || user?.username || 'User'}</span>
+                  <svg className="dropdown-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+
+                {/* 下拉菜单 */}
+                {showUserMenu && (
+                  <div className="user-menu">
+                    <div className="user-menu-header">
+                      <div className="user-menu-avatar">
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                          <circle cx="20" cy="20" r="20" fill="#e2e8f0"/>
+                          <path d="M20 12.5C21.6569 12.5 23 13.8431 23 15.5C23 17.1569 21.6569 18.5 20 18.5C18.3431 18.5 17 17.1569 17 15.5C17 13.8431 18.3431 12.5 20 12.5Z" fill="#64748b"/>
+                          <path d="M20 22.5C23.3137 22.5 26 23.8431 26 25.5V26.5H14V25.5C14 23.8431 16.6863 22.5 20 22.5Z" fill="#64748b"/>
+                        </svg>
+                      </div>
+                      <div className="user-menu-info">
+                        <div className="user-menu-name">{user?.nickname || user?.username || 'User'}</div>
+                        <div className="user-menu-email">{user?.email || 'user@example.com'}</div>
+                      </div>
+                    </div>
+                    <div className="user-menu-divider"></div>
+                    <button className="user-menu-item" onClick={handleLogout}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M6 13.3333H2.66667C2.31305 13.3333 1.97391 13.1929 1.72386 12.9428C1.47381 12.6928 1.33334 12.3536 1.33334 12V4C1.33334 3.64638 1.47381 3.30724 1.72386 3.05719C1.97391 2.80714 2.31305 2.66667 2.66667 2.66667H6M10.6667 10.6667L14.6667 6.66667M14.6667 6.66667L10.6667 2.66667M14.6667 6.66667H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      退出登录
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </header>

@@ -1,0 +1,35 @@
+/* Session列表页面样式 */
+
+.session-list-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.empty-state-full {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.empty-hint {
+  display: block;
+  margin-top: var(--spacing-sm);
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+  font-family: 'PingFang SC', sans-serif;
+}
+
+.session-id {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  background-color: var(--color-bg-tertiary);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+}
+
+.btn-icon-danger:hover {
+  background-color: var(--color-error-bg);
+  color: var(--color-error);
+}
+

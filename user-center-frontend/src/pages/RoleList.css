@@ -1,0 +1,26 @@
+/* 角色列表页面样式 - 复用UserList的设计系统 */
+
+.role-list-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+/* 复用UserList的样式类 */
+.data-table-card,
+.table-header,
+.table-title,
+.table-container,
+.data-table,
+.loading-state,
+.spinner,
+.empty-state,
+.empty-content,
+.status-badge,
+.status-enabled,
+.status-disabled,
+.action-buttons,
+.btn-icon {
+  /* 这些样式已经在UserList.css中定义，通过全局样式共享 */
+}
+
