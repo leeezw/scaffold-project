@@ -9,7 +9,7 @@ import {
   DeleteOutlined,
   PoweroffOutlined,
 } from '@ant-design/icons';
-import { LightFilter, ProFormText, ProFormSelect } from '@ant-design/pro-components';
+import { LightFilter, ProFormText, ProFormSelect, lighten } from '@ant-design/pro-components';
 import request from '../api/index.js';
 import UserForm from '../components/UserForm.jsx';
 import ProTableV2 from '../components/ProTableV2.jsx';
@@ -62,18 +62,28 @@ export default function UserList() {
     }
   };
 
-  // 处理数据变化
+  // 处理数据变化（仅用于通知，不触发刷新，避免无限循环）
   const handleDataChange = (data, total) => {
+    console.log('handleDataChange', data, total);
     // 统计数据已从后端获取，这里不需要再计算
   };
 
   const handleRefresh = () => {
+    console.log('handleRefresh');
     actionRef.current?.reload();
   };
 
   const handleAddUser = () => {
     setEditingUser(null);
     form.resetFields();
+    // 确保表单字段完全清空
+    form.setFieldsValue({
+      username: undefined,
+      password: undefined,
+      nickname: undefined,
+      email: undefined,
+      status: 1,
+    });
     setModalVisible(true);
   };
 
@@ -102,6 +112,8 @@ export default function UserList() {
         if (res.code === 200) {
           message.success('用户更新成功');
           setModalVisible(false);
+          form.resetFields();
+          setEditingUser(null);
           handleRefresh();
         } else {
           message.error(res.message || '更新失败');
@@ -112,6 +124,16 @@ export default function UserList() {
         if (res.code === 200) {
           message.success('用户创建成功');
           setModalVisible(false);
+          form.resetFields();
+          // 确保表单字段完全清空
+          form.setFieldsValue({
+            username: undefined,
+            password: undefined,
+            nickname: undefined,
+            email: undefined,
+            status: 1,
+          });
+          setEditingUser(null);
           handleRefresh();
         } else {
           message.error(res.message || '创建失败');
@@ -127,6 +149,14 @@ export default function UserList() {
   const handleCancel = () => {
     setModalVisible(false);
     form.resetFields();
+    // 清空表单字段
+    form.setFieldsValue({
+      username: undefined,
+      password: undefined,
+      nickname: undefined,
+      email: undefined,
+      status: 1,
+    });
     setEditingUser(null);
   };
 
@@ -339,6 +369,7 @@ export default function UserList() {
         destroyOnClose
       >
         <UserForm
+          key={editingUser ? `edit-${editingUser.id}` : 'add'}
           form={form}
           initialValues={editingUser}
           onFinish={handleSubmit}

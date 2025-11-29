@@ -6,6 +6,7 @@ import './ProTableV2.css';
  * ProTable V2 - 基于 @ant-design/pro-components 的高级表格组件
  * 
  * @param {Object} props
+ * @param {React.MutableRefObject} props.actionRef - 表格操作引用，用于外部控制表格刷新等操作
  * @param {Array} props.columns - 表格列配置（ProColumns 格式）
  * @param {Function} props.request - 请求函数，接收 (params, sort, filter) => Promise<{data: [], success: boolean, total: number}>
  * @param {Object} props.params - 额外的请求参数
@@ -21,6 +22,7 @@ import './ProTableV2.css';
  * @param {Object} props.tableProps - 传递给 ProTable 的其他属性
  */
 export default function ProTableV2({
+  actionRef: externalActionRef,
   columns = [],
   request,
   params = {},
@@ -35,7 +37,10 @@ export default function ProTableV2({
   onDataChange,
   tableProps = {},
 }) {
-  const actionRef = useRef();
+  const internalActionRef = useRef();
+  // 使用外部传入的 actionRef，如果没有则使用内部的
+  // 注意：如果外部传入了 actionRef，需要确保它被正确绑定到 ProTable
+  const actionRef = externalActionRef ?? internalActionRef;
 
   // 转换请求函数以适配后端 API 格式
   const handleRequest = async (requestParams, sort, filter) => {
@@ -92,6 +97,7 @@ export default function ProTableV2({
 
         // 触发数据变化回调
         if (onDataChange) {
+          console.log('数据发生变化')
           onDataChange(list, total);
         }
 
