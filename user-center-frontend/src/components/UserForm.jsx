@@ -34,7 +34,7 @@ export default function UserForm({ form, initialValues, onFinish }) {
 
       <FormField
         name="password"
-        label="密码"
+        label="初始密码"
         rules={[
           { required: !isEdit, message: '请输入密码' },
           { min: 6, message: '密码至少6个字符' },

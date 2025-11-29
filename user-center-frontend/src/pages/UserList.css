@@ -163,7 +163,7 @@
 
 .user-form-modal .ant-modal-header {
   border-bottom: 1px solid var(--border-light);
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg); /* 减少上下内边距 */
   border-radius: var(--radius-md) var(--radius-md) 0 0;
   flex-shrink: 0;
 }
@@ -176,7 +176,7 @@
 }
 
 .user-form-modal .ant-modal-body {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg); /* 减少上下内边距，第一个输入框更靠近分割线 */
   overflow-y: auto;
   flex: 1;
   min-height: 0;
@@ -208,34 +208,62 @@
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-md);
-  margin-top: var(--spacing-xl);
-  padding-top: var(--spacing-lg);
+  margin-top: var(--spacing-sm); /* 进一步减少顶部间距 */
+  padding-top: var(--spacing-sm); /* 进一步减少内边距 */
   border-top: 1px solid var(--border-light);
-}
-
-.modal-footer {
   flex-shrink: 0;
 }
 
 .modal-footer .ant-btn {
-  height: 2.5rem;
-  padding: 0.5rem 1.5rem;
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-md);
+  min-height: 2.75rem; /* 设置最小高度，防止变形 */
+  height: 2.75rem; /* 固定高度 */
+  padding: 0 1.5rem; /* 简化内边距，使用固定高度 */
+  border-radius: 0.88rem; /* 与登录页面一致 */
+  font-size: 1rem; /* 与登录页面一致 */
   font-weight: 700;
-  font-family: var(--font-family);
+  line-height: 1.19rem;
+  font-family: 'PingFang SC', 'PingFang TC', 'PingFang HK', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.modal-footer .ant-btn-default {
+  background-color: transparent;
+  color: #7d8592;
+  border: 1px solid #d8e0f0;
+}
+
+.modal-footer .ant-btn-default:hover {
+  background-color: #f8f9fa;
+  border-color: #3f8cff;
+  color: #3f8cff;
 }
 
 .modal-footer .ant-btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  box-shadow: var(--shadow-md);
+  background-color: #3f8cff; /* 与登录页面一致 */
+  border-color: #3f8cff;
+  color: #ffffff;
+  box-shadow: 0rem 0.38rem 0.75rem rgba(63, 140, 255, 0.26); /* 与登录页面一致 */
 }
 
-.modal-footer .ant-btn-primary:hover {
-  background-color: var(--primary-hover);
-  border-color: var(--primary-hover);
-  box-shadow: var(--shadow-xl);
+.modal-footer .ant-btn-primary:hover:not(:disabled) {
+  background-color: #2e6fd9; /* 与登录页面一致 */
+  border-color: #2e6fd9;
+  box-shadow: 0rem 0.5rem 1rem rgba(63, 140, 255, 0.35); /* 与登录页面一致 */
+}
+
+.modal-footer .ant-btn-primary:active:not(:disabled) {
+  transform: translateY(1px); /* 与登录页面一致 */
+}
+
+.modal-footer .ant-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 /* ==================== 响应式设计 ==================== */
