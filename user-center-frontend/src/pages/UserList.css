@@ -46,15 +46,94 @@
   margin-right: var(--spacing-sm);
 }
 
-/* ==================== 搜索和筛选卡片 ==================== */
-.search-card.ant-card {
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
+/* ==================== 搜索工具栏 ==================== */
+.search-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
-.search-card .ant-card-body {
-  padding: var(--spacing-md) var(--spacing-lg);
+.search-toolbar .search-input {
+  width: 240px;
+  min-width: 200px;
+  flex: 1;
+}
+
+.search-toolbar .search-input .ant-input {
+  border-radius: var(--radius-md);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-base) var(--ease-out);
+}
+
+.search-toolbar .search-input .ant-input:hover {
+  border-color: var(--primary-color);
+}
+
+.search-toolbar .search-input .ant-input:focus,
+.search-toolbar .search-input .ant-input-focused {
+  border-color: var(--primary-color);
+  box-shadow: 0rem 0.063rem 0.13rem rgba(63, 140, 255, 0.3);
+}
+
+.search-toolbar .search-input .ant-input-search-button {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.search-toolbar .search-input .ant-input-search-button:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.search-toolbar .status-select {
+  width: 140px;
+}
+
+.search-toolbar .status-select .ant-select-selector {
+  border-radius: var(--radius-md);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-base) var(--ease-out);
+}
+
+.search-toolbar .status-select:hover .ant-select-selector {
+  border-color: var(--primary-color);
+}
+
+.search-toolbar .status-select.ant-select-focused .ant-select-selector {
+  border-color: var(--primary-color);
+  box-shadow: 0rem 0.063rem 0.13rem rgba(63, 140, 255, 0.3);
+}
+
+.search-toolbar .ant-btn-primary {
+  height: 40px;
+  padding: 0 1.5rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  box-shadow: var(--shadow-md);
+  border: none;
+  transition: all var(--transition-base) var(--ease-out);
+}
+
+.search-toolbar .ant-btn-primary:hover,
+.search-toolbar .ant-btn-primary:focus {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  box-shadow: var(--shadow-xl);
+}
+
+.search-toolbar .ant-btn-primary:active {
+  transform: translateY(1px);
 }
 
 /* ==================== 数据表格卡片 ==================== */
@@ -307,6 +386,14 @@
 
   .data-table-card .ant-input-search {
     width: 100%;
+  }
+
+  .search-toolbar .search-input {
+    width: 100%;
+  }
+
+  .search-toolbar .status-select {
+    width: 120px;
   }
 
   .user-form-modal {

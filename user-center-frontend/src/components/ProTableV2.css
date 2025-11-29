@@ -1,0 +1,430 @@
+/* ProTable V2 组件样式 - 基于 @ant-design/pro-components */
+
+.pro-table-v2 {
+  font-family: var(--font-family);
+}
+
+/* ==================== 卡片样式 ==================== */
+.pro-table-v2 .ant-pro-card {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.pro-table-v2 .ant-pro-card-body {
+  padding: var(--spacing-lg);
+}
+
+/* ==================== 表格头部 ==================== */
+.pro-table-v2 .ant-pro-table-list-toolbar {
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: var(--spacing-md);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-title {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-extra {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* ==================== 搜索表单 ==================== */
+.pro-table-v2 .ant-pro-table-search {
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.pro-table-v2 .ant-pro-table-search .ant-form-item-label > label {
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.pro-table-v2 .ant-pro-table-search .ant-input,
+.pro-table-v2 .ant-pro-table-search .ant-select-selector {
+  border-radius: var(--radius-md);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-base) var(--ease-out);
+}
+
+.pro-table-v2 .ant-pro-table-search .ant-input:hover,
+.pro-table-v2 .ant-pro-table-search .ant-select:hover .ant-select-selector {
+  border-color: var(--primary-color);
+}
+
+.pro-table-v2 .ant-pro-table-search .ant-input:focus,
+.pro-table-v2 .ant-pro-table-search .ant-input-focused,
+.pro-table-v2 .ant-pro-table-search .ant-select-focused .ant-select-selector {
+  border-color: var(--primary-color);
+  box-shadow: 0rem 0.063rem 0.13rem rgba(63, 140, 255, 0.3);
+}
+
+/* ==================== 工具栏搜索区域 ==================== */
+.pro-table-v2 .ant-pro-table-list-toolbar-filter {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .search-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .search-input {
+  width: 280px;
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .search-input .ant-input {
+  border-radius: var(--radius-md);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-base) var(--ease-out);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .search-input .ant-input:hover {
+  border-color: var(--primary-color);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .search-input .ant-input:focus,
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .search-input .ant-input-focused {
+  border-color: var(--primary-color);
+  box-shadow: 0rem 0.063rem 0.13rem rgba(63, 140, 255, 0.3);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .search-input .ant-input-search-button {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .search-input .ant-input-search-button:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .status-select {
+  width: 140px;
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .status-select .ant-select-selector {
+  border-radius: var(--radius-md);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-base) var(--ease-out);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .status-select:hover .ant-select-selector {
+  border-color: var(--primary-color);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .status-select.ant-select-focused .ant-select-selector {
+  border-color: var(--primary-color);
+  box-shadow: 0rem 0.063rem 0.13rem rgba(63, 140, 255, 0.3);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* ==================== 表格样式 ==================== */
+.pro-table-v2 .ant-table {
+  font-family: var(--font-family);
+}
+
+.pro-table-v2 .ant-table-thead > tr > th {
+  background-color: var(--bg-tertiary);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.pro-table-v2 .ant-table-tbody > tr > td {
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-md);
+}
+
+.pro-table-v2 .ant-table-tbody > tr:hover > td {
+  background-color: var(--info-bg);
+}
+
+/* ==================== 工具栏按钮 ==================== */
+.pro-table-v2 .ant-btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  height: auto;
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: var(--font-size-md);
+  color: #ffffff;
+  transition: all var(--transition-base) var(--ease-out);
+}
+
+.pro-table-v2 .ant-btn-primary:hover,
+.pro-table-v2 .ant-btn-primary:focus {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  box-shadow: var(--shadow-xl);
+}
+
+.pro-table-v2 .ant-btn-primary:active {
+  transform: translateY(1px);
+}
+
+/* ==================== 分页 ==================== */
+.pro-table-v2 .ant-pro-table-list-toolbar-container {
+  border-bottom: none;
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-container + .ant-pro-table {
+  border-top: none;
+}
+
+/* ProTable 分页容器 */
+.pro-table-v2 .ant-pro-table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-light);
+}
+
+/* 分页信息区域（左侧）- 匹配之前版本的样式 */
+.pro-table-v2 .ant-pro-table-pagination-left {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+}
+
+.pro-table-v2 .ant-pro-table-pagination-left .ant-select {
+  margin: 0 8px;
+  font-family: var(--font-family);
+  width: 80px;
+}
+
+.pro-table-v2 .ant-pro-table-pagination-left .ant-select-selector {
+  border-radius: var(--radius-sm);
+  border-color: var(--border-color);
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-base) var(--ease-out);
+}
+
+.pro-table-v2 .ant-pro-table-pagination-left .ant-select:hover .ant-select-selector {
+  border-color: var(--primary-color);
+}
+
+.pro-table-v2 .ant-pro-table-pagination-left .ant-select-focused .ant-select-selector {
+  border-color: var(--primary-color);
+  box-shadow: 0rem 0.063rem 0.13rem rgba(63, 140, 255, 0.3);
+}
+
+/* 分页器区域（右侧） */
+.pro-table-v2 .ant-pro-table-pagination-right {
+  display: flex;
+  align-items: center;
+}
+
+/* 分页总数文本样式 */
+.pro-table-v2 .ant-pagination-total-text {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  margin-right: var(--spacing-md);
+}
+
+.pro-table-v2 .ant-pagination {
+  font-family: var(--font-family);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.pro-table-v2 .ant-pagination-item {
+  border-radius: var(--radius-sm);
+  border-color: var(--border-color);
+  margin: 0;
+  vertical-align: middle;
+}
+
+.pro-table-v2 .ant-pagination-item-active {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.pro-table-v2 .ant-pagination-item-active a {
+  color: #ffffff;
+}
+
+.pro-table-v2 .ant-pagination-item:hover {
+  border-color: var(--primary-color);
+}
+
+.pro-table-v2 .ant-pagination-item:hover a {
+  color: var(--primary-color);
+}
+
+.pro-table-v2 .ant-pagination-prev,
+.pro-table-v2 .ant-pagination-next {
+  border-radius: var(--radius-sm);
+  border-color: var(--border-color);
+  margin: 0;
+  vertical-align: middle;
+}
+
+.pro-table-v2 .ant-pagination-prev:hover,
+.pro-table-v2 .ant-pagination-next:hover {
+  border-color: var(--primary-color);
+}
+
+.pro-table-v2 .ant-pagination-prev:hover .ant-pagination-item-link,
+.pro-table-v2 .ant-pagination-next:hover .ant-pagination-item-link {
+  color: var(--primary-color);
+}
+
+/* 确保分页器容器对齐 */
+.pro-table-v2 .ant-pagination-options {
+  display: flex;
+  align-items: center;
+}
+
+.pro-table-v2 .ant-pagination-options {
+  font-family: var(--font-family);
+}
+
+.pro-table-v2 .ant-pagination-options .ant-select {
+  font-family: var(--font-family);
+}
+
+.pro-table-v2 .ant-pagination-options .ant-select-selector {
+  border-radius: var(--radius-sm);
+  border-color: var(--border-color);
+}
+
+.pro-table-v2 .ant-pagination-options .ant-select:hover .ant-select-selector {
+  border-color: var(--primary-color);
+}
+
+.pro-table-v2 .ant-pagination-options .ant-select-focused .ant-select-selector {
+  border-color: var(--primary-color);
+}
+
+/* ==================== 空状态 ==================== */
+.pro-table-v2 .ant-empty {
+  padding: var(--spacing-xl) 0;
+}
+
+.pro-table-v2 .ant-empty .ant-empty-image {
+  opacity: 0.5;
+}
+
+.pro-table-v2 .ant-empty .ant-empty-description {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* ==================== 响应式设计 ==================== */
+@media (max-width: 1024px) {
+  /* 中等屏幕：确保分页有足够的间距 */
+  .pro-table-v2 .ant-pro-table-pagination {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md);
+  }
+
+  .pro-table-v2 .ant-pro-table-pagination-left {
+    justify-content: center;
+  }
+
+  .pro-table-v2 .ant-pro-table-pagination-right {
+    justify-content: center;
+  }
+
+  .pro-table-v2 .ant-pagination {
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .pro-table-v2 .ant-pagination-item,
+  .pro-table-v2 .ant-pagination-prev,
+  .pro-table-v2 .ant-pagination-next {
+    margin: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .pro-table-v2 .ant-pro-table-list-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md);
+  }
+
+  .pro-table-v2 .ant-pro-table-list-toolbar-extra {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  /* 小屏幕：分页垂直排列 */
+  .pro-table-v2 .ant-pro-table-pagination {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md);
+  }
+
+  .pro-table-v2 .ant-pro-table-pagination-left {
+    justify-content: center;
+  }
+
+  .pro-table-v2 .ant-pro-table-pagination-right {
+    justify-content: center;
+  }
+
+  .pro-table-v2 .ant-pagination {
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .pro-table-v2 .ant-pagination-item,
+  .pro-table-v2 .ant-pagination-prev,
+  .pro-table-v2 .ant-pagination-next {
+    margin: 0;
+  }
+}
+

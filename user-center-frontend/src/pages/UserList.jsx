@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, Statistic, Button, Space, Tag, Modal, Form, message, Input, Select } from 'antd';
 import { 
   UserOutlined, 
@@ -8,37 +8,31 @@ import {
   EditOutlined,
   DeleteOutlined,
   PoweroffOutlined,
-  SearchOutlined,
 } from '@ant-design/icons';
+import { LightFilter, ProFormText, ProFormSelect } from '@ant-design/pro-components';
 import request from '../api/index.js';
 import UserForm from '../components/UserForm.jsx';
-import ProTable from '../components/ProTable.jsx';
+import ProTableV2 from '../components/ProTableV2.jsx';
 import './UserList.css';
 
 const { Search } = Input;
 
 export default function UserList() {
+  const actionRef = useRef();
   const [stats, setStats] = useState({
     total: 0,
     enabled: 0,
     disabled: 0,
     today: 0
   });
-  const [query, setQuery] = useState({ 
-    keyword: '', 
-    status: undefined, // undefined 表示全部
-    pageNum: 1, 
-    pageSize: 10,
-    sortField: 'createTime',
-    sortOrder: 'desc'
-  });
   const [form] = Form.useForm();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchStatus, setSearchStatus] = useState(undefined);
 
-  // 请求函数
+  // 请求函数 - 适配 ProTableV2
   const fetchUsers = async (params) => {
     try {
       const res = await request.get('/users/page', { params });
@@ -52,7 +46,7 @@ export default function UserList() {
           today: res.data.todayNewCount || 0
         });
         
-        // 返回 ProTable 期望的格式
+        // 返回 ProTableV2 期望的格式
         return {
           code: 200,
           data: res.data.pageData || { list: [], total: 0 }
@@ -68,29 +62,13 @@ export default function UserList() {
     }
   };
 
-  // 处理数据变化（保留兼容性）
+  // 处理数据变化
   const handleDataChange = (data, total) => {
     // 统计数据已从后端获取，这里不需要再计算
   };
 
   const handleRefresh = () => {
-    setRefreshKey(prev => prev + 1);
-  };
-
-  // 处理搜索
-  const handleSearch = (value) => {
-    setQuery({ ...query, keyword: value, pageNum: 1 });
-    setRefreshKey(prev => prev + 1);
-  };
-
-  // 处理状态筛选
-  const handleStatusChange = (value) => {
-    setQuery({ 
-      ...query, 
-      status: value === 'all' ? undefined : value, 
-      pageNum: 1 
-    });
-    setRefreshKey(prev => prev + 1);
+    actionRef.current?.reload();
   };
 
   const handleAddUser = () => {
@@ -190,37 +168,55 @@ export default function UserList() {
       dataIndex: 'id',
       key: 'id',
       width: 80,
+      hideInSearch: true,
     },
     {
       title: '用户名',
       dataIndex: 'username',
       key: 'username',
+      ellipsis: true,
     },
     {
       title: '昵称',
       dataIndex: 'nickname',
       key: 'nickname',
+      ellipsis: true,
+      hideInSearch: true,
       render: (text) => text || '-',
     },
     {
       title: '邮箱',
       dataIndex: 'email',
       key: 'email',
+      ellipsis: true,
+      hideInSearch: true,
       render: (text) => text || '-',
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      render: (status) => (
-        <Tag color={status === 1 ? 'success' : 'error'}>
-          {status === 1 ? '启用' : '禁用'}
+      valueType: 'select',
+      valueEnum: {
+        1: {
+          text: '启用',
+          status: 'Success',
+        },
+        0: {
+          text: '禁用',
+          status: 'Error',
+        },
+      },
+      render: (_, record) => (
+        <Tag color={record.status === 1 ? 'success' : 'error'}>
+          {record.status === 1 ? '启用' : '禁用'}
         </Tag>
       ),
     },
     {
       title: '操作',
       key: 'action',
+      valueType: 'option',
       width: 200,
       render: (_, record) => (
         <Space size="small">
@@ -289,42 +285,46 @@ export default function UserList() {
         </Card>
       </div>
 
-      {/* 搜索和筛选栏 */}
-      <Card className="search-card">
-        <Space size="middle" style={{ width: '100%' }}>
-          <Search
-            placeholder="搜索用户名、昵称、邮箱或手机号"
-            allowClear
-            enterButton={<SearchOutlined />}
-            style={{ width: 400 }}
-            onSearch={handleSearch}
-            defaultValue={query.keyword}
-          />
-          <Select
-            placeholder="用户状态"
-            style={{ width: 150 }}
-            value={query.status === undefined ? 'all' : query.status}
-            onChange={handleStatusChange}
-          >
-            <Select.Option value="all">全部</Select.Option>
-            <Select.Option value={1}>启用</Select.Option>
-            <Select.Option value={0}>禁用</Select.Option>
-          </Select>
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddUser}>
-            新增用户
-          </Button>
-        </Space>
-      </Card>
-
       {/* 数据表格 */}
-      <ProTable
-        key={refreshKey}
-        title="用户列表"
+      <ProTableV2
+        actionRef={actionRef}
+        headerTitle="用户列表"
         columns={columns}
         request={fetchUsers}
-        params={query}
         rowKey="id"
         onDataChange={handleDataChange}
+        search={false}
+        toolbar={{
+          filter: (
+            <LightFilter>
+              <ProFormText
+              className='search-input'
+                name="keyword"
+                placeholder="搜索用户名、昵称、邮箱或手机号"
+              />
+              <ProFormSelect
+                name="status"
+                placeholder="用户状态"
+                valueEnum={{
+                  all: { text: '全部' },
+                  1: { text: '启用' },
+                  0: { text: '禁用' },
+                }}
+              />
+            </LightFilter>
+          ),
+          actions: [
+            <Button 
+              key="add" 
+              type="primary" 
+              icon={<PlusOutlined />} 
+              onClick={handleAddUser}
+            >
+              新增用户
+            </Button>,
+          ],
+        }}
+        params={{}}
       />
 
       {/* 新增/编辑用户弹窗 */}
