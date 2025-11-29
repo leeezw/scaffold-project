@@ -269,6 +269,49 @@
   background-color: var(--bg-tertiary);
 }
 
+/* 用户菜单头部信息 */
+.user-menu-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+}
+
+.user-menu-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.user-menu-name {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+}
+
+.user-menu-email {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+}
+
+.user-menu-item-info {
+  cursor: default !important;
+}
+
+.user-menu-item-info:hover {
+  background-color: transparent !important;
+}
+
+.user-menu-divider {
+  margin: var(--spacing-xs) 0;
+}
+
+.user-menu-item {
+  cursor: pointer;
+}
+
 .content {
   flex: 1;
   overflow-y: auto;

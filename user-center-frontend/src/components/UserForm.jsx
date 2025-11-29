@@ -64,15 +64,18 @@ export default function UserForm({ form, initialValues, onFinish }) {
         <Input placeholder="请输入邮箱" />
       </FormField>
 
-      <FormField
-        name="status"
-        label="状态"
-      >
-        <Select>
-          <Option value={1}>启用</Option>
-          <Option value={0}>禁用</Option>
-        </Select>
-      </FormField>
+      {/* 状态字段只在新增时显示，编辑时通过独立的状态按钮修改 */}
+      {!isEdit && (
+        <FormField
+          name="status"
+          label="状态"
+        >
+          <Select>
+            <Option value={1}>启用</Option>
+            <Option value={0}>禁用</Option>
+          </Select>
+        </FormField>
+      )}
     </Form>
   );
 }

@@ -13,8 +13,7 @@ import java.util.List;
 @Data
 public class UserUpdateRequest {
     
-    @NotNull
-    @Schema(description = "用户ID", required = true)
+    @Schema(description = "用户ID")
     private Long id;
     
     @Schema(description = "昵称")

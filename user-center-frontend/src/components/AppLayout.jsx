@@ -18,6 +18,7 @@ import {
   FileTextOutlined
 } from '@ant-design/icons';
 import { useAuthContext } from '../hooks/AuthProvider.jsx';
+import request from '../api/index.js';
 import SidebarMenu from './SidebarMenu.jsx';
 import './AppLayout.css';
 
@@ -125,12 +126,44 @@ const logoutItem = {
 };
 
 export default function AppLayout() {
-  const { user, setUser, setToken } = useAuthContext();
+  const { user, setUser, setToken, token } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchValue, setSearchValue] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
+
+  // 如果 token 存在但没有用户信息，尝试获取用户信息
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      if (token && !user) {
+        try {
+          // 根据 OpenAPI 规范：/api/auth/current GET
+          const res = await request.get('/auth/current', {
+            params: {}
+          });
+          if (res.code === 200 && res.data) {
+            setUser(res.data);
+          }
+        } catch (err) {
+          console.warn('获取当前用户信息失败:', err);
+          // 如果失败，尝试传递空对象作为 loginUser 参数
+          try {
+            const res = await request.get('/auth/current', {
+              params: { loginUser: {} }
+            });
+            if (res.code === 200 && res.data) {
+              setUser(res.data);
+            }
+          } catch (err2) {
+            console.warn('获取当前用户信息失败（第二次尝试）:', err2);
+          }
+        }
+      }
+    };
+
+    fetchCurrentUser();
+  }, [token, user, setUser]);
 
   // 面包屑配置
   const breadcrumbMap = {
@@ -188,10 +221,23 @@ export default function AppLayout() {
     };
   }, [showUserMenu]);
 
-  const handleLogout = () => {
-    setToken(null);
-    setUser(null);
-    navigate('/login', { replace: true });
+  const handleLogout = async () => {
+    try {
+      // 根据 OpenAPI 规范：/api/auth/logout POST
+      // 调用登出接口
+      await request.post('/auth/logout');
+    } catch (error) {
+      console.error('登出接口调用失败:', error);
+      // 即使接口调用失败，也清除本地状态
+    } finally {
+      // 清除本地存储和状态
+      setToken(null);
+      setUser(null);
+      localStorage.removeItem('uc_token');
+      localStorage.removeItem('uc_user');
+      localStorage.removeItem('uc_remember');
+      navigate('/login', { replace: true });
+    }
   };
 
   const handleMenuClick = (item) => {
@@ -206,16 +252,58 @@ export default function AppLayout() {
     console.log('搜索:', searchValue);
   };
 
+  // 获取用户头像显示内容
+  const getUserAvatarProps = () => {
+    if (user?.avatar) {
+      return { src: user.avatar };
+    }
+    // 如果有昵称或用户名，显示首字母
+    const name = user?.nickname || user?.username || '';
+    if (name) {
+      return { 
+        style: { backgroundColor: '#3f8cff', color: 'white' },
+        children: name.charAt(0).toUpperCase()
+      };
+    }
+    // 默认显示图标
+    return { 
+      icon: <UserOutlined />,
+      style: { backgroundColor: '#3f8cff', color: 'white' }
+    };
+  };
+
   // 用户下拉菜单项
   const userMenuItems = [
     {
+      key: 'user-info',
+      label: (
+        <div className="user-menu-header">
+          <Avatar 
+            size="large"
+            {...getUserAvatarProps()}
+          />
+          <div className="user-menu-info">
+            <div className="user-menu-name">{user?.nickname || user?.username || 'User'}</div>
+            <div className="user-menu-email">{user?.email || user?.phone || ''}</div>
+          </div>
+        </div>
+      ),
+      disabled: true,
+      className: 'user-menu-item-info',
+    },
+    {
+      type: 'divider',
+      className: 'user-menu-divider',
+    },
+    {
       key: 'logout',
       label: (
-        <div onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <LogoutOutlined />
           <span>退出登录</span>
         </div>
       ),
+      className: 'user-menu-item',
     },
   ];
 
@@ -284,7 +372,14 @@ export default function AppLayout() {
 
               {/* 用户资料下拉 */}
               <Dropdown
-                menu={{ items: userMenuItems }}
+                menu={{ 
+                  items: userMenuItems,
+                  onClick: ({ key }) => {
+                    if (key === 'logout') {
+                      handleLogout();
+                    }
+                  }
+                }}
                 trigger={['click']}
                 placement="bottomRight"
                 classNames={{ root: 'user-profile-dropdown-menu' }}
@@ -301,9 +396,19 @@ export default function AppLayout() {
                   }}
                 >
                   <Avatar 
-                    size={32} 
-                    icon={<UserOutlined />}
-                    style={{ backgroundColor: '#e2e8f0', color: '#64748b' }}
+                    size={32}
+                    {...(user?.avatar 
+                      ? { src: user.avatar }
+                      : (user?.nickname || user?.username)
+                        ? { 
+                            style: { backgroundColor: '#3f8cff', color: 'white' },
+                            children: (user?.nickname || user?.username).charAt(0).toUpperCase()
+                          }
+                        : { 
+                            icon: <UserOutlined />,
+                            style: { backgroundColor: '#e2e8f0', color: '#64748b' }
+                          }
+                    )}
                   />
                   <span className="user-name">{user?.nickname || user?.username || 'User'}</span>
                   <DownOutlined style={{ fontSize: '12px', color: '#64748b' }} />

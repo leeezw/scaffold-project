@@ -7,6 +7,7 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
+  PoweroffOutlined,
 } from '@ant-design/icons';
 import request from '../api/index.js';
 import UserForm from '../components/UserForm.jsx';
@@ -61,7 +62,7 @@ export default function UserList() {
       username: record.username,
       nickname: record.nickname,
       email: record.email,
-      status: record.status,
+      // 编辑时不设置状态，状态通过独立的状态按钮修改
     });
     setModalVisible(true);
   };
@@ -108,6 +109,38 @@ export default function UserList() {
     setEditingUser(null);
   };
 
+  // 修改用户状态
+  const handleChangeStatus = async (record) => {
+    const newStatus = record.status === 1 ? 0 : 1;
+    const statusText = newStatus === 1 ? '启用' : '禁用';
+    
+    Modal.confirm({
+      title: `确认${statusText}用户`,
+      content: `确定要${statusText}用户 "${record.nickname || record.username}" 吗？`,
+      okText: '确认',
+      cancelText: '取消',
+      onOk: async () => {
+        try {
+          // 根据 OpenAPI 规范：/api/users/status PUT
+          // Request: { id, status }
+          const res = await request.put('/users/status', {
+            id: record.id,
+            status: newStatus
+          });
+          
+          if (res.code === 200) {
+            message.success(`用户已${statusText}`);
+            handleRefresh();
+          } else {
+            message.error(res.message || `${statusText}失败`);
+          }
+        } catch (error) {
+          message.error(error.message || `${statusText}失败`);
+        }
+      }
+    });
+  };
+
   const columns = [
     {
       title: 'ID',
@@ -145,7 +178,7 @@ export default function UserList() {
     {
       title: '操作',
       key: 'action',
-      width: 120,
+      width: 200,
       render: (_, record) => (
         <Space size="small">
           <Button 
@@ -154,6 +187,14 @@ export default function UserList() {
             size="small"
             title="编辑"
             onClick={() => handleEditUser(record)}
+          />
+          <Button 
+            type="text" 
+            icon={<PoweroffOutlined />} 
+            size="small"
+            title={record.status === 1 ? '禁用' : '启用'}
+            danger={record.status === 1}
+            onClick={() => handleChangeStatus(record)}
           />
           <Button 
             type="text" 

@@ -19,19 +19,80 @@ export default function Login() {
     setLoading(true);
     setError(null);
     try {
+      // 根据 OpenAPI 规范：/api/auth/login POST
+      // Request: { username, password }
+      // Response: ResultMapStringObject { code, message, data: Map<String, Object>, timestamp, success }
       const res = await request.post('/auth/login', { 
         username, 
-        password,
-        rememberMe 
+        password
       });
+      
       if (res.code !== 200) {
         throw new Error(res.message || '登录失败');
       }
-      setToken(res.data.token);
-      setUser(res.data.user);
+      
+      // 根据 OpenAPI 规范，响应是 ResultMapStringObject
+      // data 是一个 Map<String, Object>，通常包含 token 和 user 信息
+      // 根据实际返回结构处理
+      const data = res.data || {};
+      
+      // 尝试多种可能的 token 字段名
+      const token = data.token || data.accessToken || data.access_token || data.Token;
+      
+      if (!token) {
+        throw new Error('登录响应中未找到 token');
+      }
+      
+      setToken(token);
+      
+      // 如果响应中包含用户信息，直接使用
+      // 注意：根据 OpenAPI，data 是 Map<String, Object>，可能需要根据实际返回结构调整
+      let user = data.user || data.userInfo || data.loginUser || data.User;
+      
+      // 如果登录响应中没有用户信息，调用 /api/auth/current 获取
+      if (!user) {
+        try {
+          // 根据 OpenAPI 规范：/api/auth/current GET
+          // 需要 loginUser 查询参数，但通常只需要 token 即可
+          // 先尝试不传参数，如果失败再传空对象
+          const currentUserRes = await request.get('/auth/current', {
+            params: {}
+          });
+          if (currentUserRes.code === 200 && currentUserRes.data) {
+            user = currentUserRes.data;
+          }
+        } catch (err) {
+          console.warn('获取当前用户信息失败:', err);
+          // 如果获取失败，尝试传递空对象作为 loginUser 参数
+          try {
+            const currentUserRes = await request.get('/auth/current', {
+              params: { loginUser: {} }
+            });
+            if (currentUserRes.code === 200 && currentUserRes.data) {
+              user = currentUserRes.data;
+            }
+          } catch (err2) {
+            console.warn('获取当前用户信息失败（第二次尝试）:', err2);
+          }
+        }
+      }
+      
+      // 设置用户信息
+      if (user) {
+        setUser(user);
+      }
+      
+      // 如果选择了记住我，可以设置更长的过期时间（前端处理）
+      if (rememberMe) {
+        // 前端记住用户信息，但 token 过期时间由后端控制
+        localStorage.setItem('uc_remember', 'true');
+      } else {
+        localStorage.removeItem('uc_remember');
+      }
+      
       navigate('/', { replace: true });
     } catch (err) {
-      setError(err.message || '登录失败，请检查用户名和密码');
+      setError(err.response?.data?.message || err.message || '登录失败，请检查用户名和密码');
     } finally {
       setLoading(false);
     }

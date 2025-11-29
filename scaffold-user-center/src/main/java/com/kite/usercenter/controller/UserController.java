@@ -27,21 +27,21 @@ public class UserController {
     }
     
     @Operation(summary = "用户分页查询")
-    @RequiresPermissions("user:list")
+    @RequiresPermissions({"user:list", "*:*:*"})
     @GetMapping("/page")
     public Result<PageResult<UserDTO>> pageUsers(UserPageRequest request) {
         return Result.success(userService.pageUsers(request));
     }
     
     @Operation(summary = "用户详情")
-    @RequiresPermissions("user:list")
+    @RequiresPermissions({"user:list", "*:*:*"})
     @GetMapping("/{id}")
     public Result<UserDTO> getUser(@PathVariable Long id) {
         return Result.success(userService.getUserDetail(id));
     }
     
     @Operation(summary = "创建用户")
-    @RequiresPermissions("user:create")
+    @RequiresPermissions({"user:create", "*:*:*"})
     @PostMapping
     @OperationLog(module = "用户管理", operationType = "新增", description = "创建用户")
     public Result<Void> createUser(@RequestBody @Validated UserCreateRequest request) {
@@ -50,16 +50,19 @@ public class UserController {
     }
     
     @Operation(summary = "更新用户")
-    @RequiresPermissions("user:update")
-    @PutMapping
+    @RequiresPermissions({"user:update", "*:*:*"})
+    @PutMapping("/{id}")
     @OperationLog(module = "用户管理", operationType = "修改", description = "更新用户")
-    public Result<Void> updateUser(@RequestBody @Validated UserUpdateRequest request) {
+    public Result<Void> updateUser(
+            @PathVariable Long id,
+            @RequestBody @Validated UserUpdateRequest request) {
+        request.setId(id);
         userService.updateUser(request);
         return Result.success();
     }
     
     @Operation(summary = "修改用户状态")
-    @RequiresPermissions("user:update")
+    @RequiresPermissions({"user:update", "*:*:*"})
     @PutMapping("/status")
     @OperationLog(module = "用户管理", operationType = "修改", description = "修改用户状态")
     public Result<Void> changeStatus(@RequestBody @Validated ChangeStatusRequest request) {
@@ -68,7 +71,7 @@ public class UserController {
     }
     
     @Operation(summary = "重置密码")
-    @RequiresPermissions("user:reset-password")
+    @RequiresPermissions({"user:reset-password", "*:*:*"})
     @PutMapping("/password")
     @OperationLog(module = "用户管理", operationType = "修改", description = "重置用户密码")
     public Result<Void> resetPassword(@RequestBody @Validated ResetPasswordRequest request) {
