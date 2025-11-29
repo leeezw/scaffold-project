@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Card, Statistic, Button, Space, Tag, Modal, Form, message, Input, Select } from 'antd';
 import { 
   UserOutlined, 
@@ -9,7 +9,7 @@ import {
   DeleteOutlined,
   PoweroffOutlined,
 } from '@ant-design/icons';
-import { LightFilter, ProFormText, ProFormSelect, lighten } from '@ant-design/pro-components';
+import { ProFormText, ProFormSelect } from '@ant-design/pro-components';
 import request from '../api/index.js';
 import UserForm from '../components/UserForm.jsx';
 import ProTableV2 from '../components/ProTableV2.jsx';
@@ -26,10 +26,33 @@ export default function UserList() {
     today: 0
   });
   const [form] = Form.useForm();
+  const [filterForm] = Form.useForm();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [filterParams, setFilterParams] = useState({});
+  const [filterParams, setFilterParams] = useState({ status: 'all' });
+  const debounceTimerRef = useRef(null);
+
+  // 防抖处理筛选
+  const handleFilterChange = useCallback(() => {
+    // 清除之前的定时器
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    // 设置新的定时器，500ms 后执行搜索
+    debounceTimerRef.current = setTimeout(() => {
+      filterForm.submit();
+    }, 500);
+  }, [filterForm]);
+
+  // 组件卸载时清理定时器
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
 
   // 请求函数 - 适配 ProTableV2
   const fetchUsers = async (params) => {
@@ -324,7 +347,10 @@ export default function UserList() {
         search={false}
         toolbar={{
           filter: (
-            <LightFilter
+            <Form
+              form={filterForm}
+              layout="inline"
+              initialValues={{ status: 'all' }}
               onFinish={async (values) => {
                 // 当筛选条件变化时，更新筛选参数并触发表格刷新
                 const newFilterParams = { ...values };
@@ -336,22 +362,30 @@ export default function UserList() {
                 // 触发表格刷新，ProTable 会将 filterParams 合并到 requestParams 中
                 actionRef.current?.reload();
               }}
+              className="filter-form"
             >
-              <ProFormText
-                className='search-input'
-                name="keyword"
-                placeholder="搜索用户名、昵称、邮箱或手机号"
-              />
-              <ProFormSelect
-                name="status"
-                placeholder="用户状态"
-                valueEnum={{
-                  all: { text: '全部' },
-                  1: { text: '启用' },
-                  0: { text: '禁用' },
-                }}
-              />
-            </LightFilter>
+              <Form.Item name="keyword" style={{ marginBottom: 0 }}>
+                <Input
+                  className='filter-search-input'
+                  placeholder="搜索用户名、昵称、邮箱或手机号"
+                  allowClear
+                  onChange={handleFilterChange}
+                  onPressEnter={() => filterForm.submit()}
+                />
+              </Form.Item>
+              <Form.Item name="status" style={{ marginBottom: 0 }}>
+                <Select
+                  className='filter-status-select'
+                  placeholder="用户状态"
+                  allowClear
+                  onChange={() => filterForm.submit()}
+                >
+                  <Select.Option value="all">全部</Select.Option>
+                  <Select.Option value={1}>启用</Select.Option>
+                  <Select.Option value={0}>禁用</Select.Option>
+                </Select>
+              </Form.Item>
+            </Form>
           ),
           actions: [
             <Button 

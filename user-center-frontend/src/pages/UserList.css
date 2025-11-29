@@ -113,6 +113,90 @@
   box-shadow: 0rem 0.063rem 0.13rem rgba(63, 140, 255, 0.3);
 }
 
+/* ==================== 筛选表单样式 ==================== */
+/* 筛选表单容器 */
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .filter-form,
+.user-list-page .filter-form {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* 筛选输入框样式 */
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .filter-search-input,
+.user-list-page .filter-search-input {
+  width: 280px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-base) var(--ease-out);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .filter-search-input:hover,
+.user-list-page .filter-search-input:hover {
+  border-color: var(--primary-color);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .filter-search-input:focus,
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .filter-search-input.ant-input-focused,
+.user-list-page .filter-search-input:focus,
+.user-list-page .filter-search-input.ant-input-focused {
+  border-color: var(--primary-color);
+  box-shadow: 0rem 0.063rem 0.13rem rgba(63, 140, 255, 0.3);
+}
+
+/* 筛选下拉框样式 */
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .filter-status-select,
+.user-list-page .filter-status-select {
+  width: 140px;
+  height: 36px;
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .filter-status-select .ant-select-selector,
+.user-list-page .filter-status-select .ant-select-selector {
+  border-radius: var(--radius-md);
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  transition: all var(--transition-base) var(--ease-out);
+  height: 36px !important;
+  min-height: 36px;
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .filter-status-select .ant-select-selector .ant-select-selection-item,
+.user-list-page .filter-status-select .ant-select-selector .ant-select-selection-item {
+  line-height: 34px;
+  font-size: var(--font-size-sm);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .filter-status-select .ant-select-selection-placeholder,
+.user-list-page .filter-status-select .ant-select-selection-placeholder {
+  line-height: 34px;
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .filter-status-select:hover .ant-select-selector,
+.user-list-page .filter-status-select:hover .ant-select-selector {
+  border-color: var(--primary-color);
+}
+
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .filter-status-select.ant-select-focused .ant-select-selector,
+.user-list-page .filter-status-select.ant-select-focused .ant-select-selector {
+  border-color: var(--primary-color);
+  box-shadow: 0rem 0.063rem 0.13rem rgba(63, 140, 255, 0.3);
+}
+
+/* 表单项样式 */
+.pro-table-v2 .ant-pro-table-list-toolbar-filter .filter-form .ant-form-item,
+.user-list-page .filter-form .ant-form-item {
+  margin-bottom: 0;
+}
+
 .search-toolbar .ant-btn-primary {
   height: 40px;
   padding: 0 1.5rem;
