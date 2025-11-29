@@ -19,6 +19,7 @@ import './ProTableV2.css';
  * @param {Object} props.pagination - 分页配置
  * @param {boolean} props.cardBordered - 是否显示卡片边框，默认 true
  * @param {Function} props.onDataChange - 数据变化回调 (data, total) => void
+ * @param {Object} props.defaultSort - 默认排序配置，如 { createTime: 'desc' }
  * @param {Object} props.tableProps - 传递给 ProTable 的其他属性
  */
 export default function ProTableV2({
@@ -35,6 +36,7 @@ export default function ProTableV2({
   pagination,
   cardBordered = true,
   onDataChange,
+  defaultSort,
   tableProps = {},
 }) {
   const internalActionRef = useRef();
@@ -88,6 +90,14 @@ export default function ProTableV2({
           finalParams.sortField = sortKey;
           finalParams.sortOrder = sort[sortKey] === 'ascend' ? 'asc' : 'desc';
         }
+      } else if (defaultSort) {
+        // 如果没有用户排序，使用默认排序
+        const sortKeys = Object.keys(defaultSort);
+        if (sortKeys.length > 0) {
+          const sortKey = sortKeys[0];
+          finalParams.sortField = sortKey;
+          finalParams.sortOrder = defaultSort[sortKey] === 'ascend' || defaultSort[sortKey] === 'asc' ? 'asc' : 'desc';
+        }
       }
 
       // 调用请求函数
@@ -140,6 +150,7 @@ export default function ProTableV2({
         ...searchConfig,
       }}
       params={params}
+      defaultSort={defaultSort}
       pagination={pagination === undefined ? {
         defaultPageSize: 10,
         pageSizeOptions: ['10', '20', '50', '100'],

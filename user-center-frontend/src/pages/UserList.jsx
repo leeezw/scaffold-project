@@ -220,12 +220,14 @@ export default function UserList() {
       key: 'id',
       width: 80,
       hideInSearch: true,
+      sorter: true,
     },
     {
       title: '用户名',
       dataIndex: 'username',
       key: 'username',
       ellipsis: true,
+      sorter: true,
     },
     {
       title: '昵称',
@@ -234,6 +236,7 @@ export default function UserList() {
       ellipsis: true,
       hideInSearch: true,
       render: (text) => text || '-',
+      sorter: true,
     },
     {
       title: '邮箱',
@@ -242,6 +245,7 @@ export default function UserList() {
       ellipsis: true,
       hideInSearch: true,
       render: (text) => text || '-',
+      sorter: true,
     },
     {
       title: '状态',
@@ -263,6 +267,25 @@ export default function UserList() {
           {record.status === 1 ? '启用' : '禁用'}
         </Tag>
       ),
+      sorter: true,
+    },
+    {
+      title: '创建时间',
+      dataIndex: 'createTime',
+      key: 'createTime',
+      valueType: 'dateTime',
+      hideInSearch: true,
+      sorter: true,
+      width: 180,
+    },
+    {
+      title: '更新时间',
+      dataIndex: 'updateTime',
+      key: 'updateTime',
+      valueType: 'dateTime',
+      hideInSearch: true,
+      sorter: true,
+      width: 180,
     },
     {
       title: '操作',
@@ -345,6 +368,9 @@ export default function UserList() {
         rowKey="id"
         onDataChange={handleDataChange}
         search={false}
+        defaultSort={{
+          createTime: 'desc',
+        }}
         toolbar={{
           filter: (
             <Form

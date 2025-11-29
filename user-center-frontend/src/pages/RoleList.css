@@ -7,42 +7,42 @@
 }
 
 /* ==================== 统计卡片 ==================== */
-.stats-grid {
+.role-list-page .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-md);
 }
 
-.stats-grid .stat-card.ant-card {
+.role-list-page .stats-grid .stat-card.ant-card {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
   transition: all var(--transition-base) var(--ease-out);
 }
 
-.stats-grid .stat-card.ant-card:hover {
+.role-list-page .stats-grid .stat-card.ant-card:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
-.stats-grid .stat-card .ant-card-body {
+.role-list-page .stats-grid .stat-card .ant-card-body {
   padding: var(--spacing-lg) var(--spacing-xl);
 }
 
-.stats-grid .stat-card .ant-statistic-title {
+.role-list-page .stats-grid .stat-card .ant-statistic-title {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
   font-weight: 600;
   margin-bottom: var(--spacing-xs);
 }
 
-.stats-grid .stat-card .ant-statistic-content {
+.role-list-page .stats-grid .stat-card .ant-statistic-content {
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
-.stats-grid .stat-card .ant-statistic-content-prefix {
+.role-list-page .stats-grid .stat-card .ant-statistic-content-prefix {
   margin-right: var(--spacing-sm);
 }
 
