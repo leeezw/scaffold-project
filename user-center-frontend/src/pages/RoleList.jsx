@@ -74,7 +74,7 @@ export default function RoleList() {
   // 请求函数 - 适配 ProTableV2
   const fetchRoles = async (params) => {
     try {
-      const res = await request.get('/roles', { params });
+    const res = await request.get('/roles', { params });
       if (res.code === 200 && res.data) {
         const list = Array.isArray(res.data) ? res.data : [];
         
@@ -114,7 +114,7 @@ export default function RoleList() {
           }
         };
       }
-      return res;
+    return res;
     } catch (error) {
       console.error('fetchRoles error:', error);
       return {

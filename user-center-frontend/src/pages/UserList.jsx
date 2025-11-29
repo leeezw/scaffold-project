@@ -6,12 +6,13 @@ import {
   StopOutlined, 
   PlusOutlined,
   EditOutlined,
-  DeleteOutlined,
+  SafetyOutlined,
   PoweroffOutlined,
 } from '@ant-design/icons';
 import { ProFormText, ProFormSelect } from '@ant-design/pro-components';
 import request from '../api/index.js';
 import UserForm from '../components/UserForm.jsx';
+import RoleSelectModal from '../components/RoleSelectModal.jsx';
 import ProTableV2 from '../components/ProTableV2.jsx';
 import './UserList.css';
 
@@ -31,6 +32,8 @@ export default function UserList() {
   const [editingUser, setEditingUser] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [filterParams, setFilterParams] = useState({ status: 'all' });
+  const [roleModalVisible, setRoleModalVisible] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
   const debounceTimerRef = useRef(null);
 
   // 防抖处理筛选
@@ -213,6 +216,19 @@ export default function UserList() {
     });
   };
 
+  // 授予角色
+  const handleAssignRoles = (record) => {
+    setSelectedUser(record);
+    setRoleModalVisible(true);
+  };
+
+  // 角色授予成功回调
+  const handleRoleAssignSuccess = () => {
+    setRoleModalVisible(false);
+    setSelectedUser(null);
+    handleRefresh();
+  };
+
   const columns = [
     {
       title: 'ID',
@@ -311,10 +327,10 @@ export default function UserList() {
           />
           <Button 
             type="text" 
-            icon={<DeleteOutlined />} 
+            icon={<SafetyOutlined />} 
             size="small"
-            danger
-            title="删除"
+            title="授予角色"
+            onClick={() => handleAssignRoles(record)}
           />
         </Space>
       ),
@@ -457,6 +473,19 @@ export default function UserList() {
           </Button>
         </div>
       </Modal>
+
+      {/* 授予角色弹窗 */}
+      <RoleSelectModal
+        visible={roleModalVisible}
+        userId={selectedUser?.id}
+        userName={selectedUser?.nickname || selectedUser?.username}
+        currentRoleIds={selectedUser?.roleIds || []}
+        onCancel={() => {
+          setRoleModalVisible(false);
+          setSelectedUser(null);
+        }}
+        onOk={handleRoleAssignSuccess}
+      />
     </div>
   );
 }
