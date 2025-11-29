@@ -68,6 +68,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         loginUser.setNickname(user.getNickname());
         loginUser.setEmail(user.getEmail());
         loginUser.setPhone(user.getPhone());
+        loginUser.setAvatar(user.getAvatar());
         List<Long> roleIds = userRoleMapper.listRoleIdsByUserId(user.getId());
         if (!CollectionUtils.isEmpty(roleIds)) {
             List<Role> roles = roleMapper.selectByIds(roleIds);

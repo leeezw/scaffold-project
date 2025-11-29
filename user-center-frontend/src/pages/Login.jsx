@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { RightOutlined } from '@ant-design/icons';
 import request from '../api/index.js';
 import { useAuthContext } from '../hooks/AuthProvider.jsx';
 import './Login.css';
@@ -191,11 +192,7 @@ export default function Login() {
             ) : (
               <>
                 <span>登录</span>
-                <img 
-                  src="https://ide.code.fun/api/image?token=6922da31043f1900118e884b&name=17281b52a2fa8b6968a2ff5f41495b56.png"
-                  alt=""
-                  className="button-arrow"
-                />
+                <RightOutlined className="button-arrow" />
               </>
             )}
           </button>
