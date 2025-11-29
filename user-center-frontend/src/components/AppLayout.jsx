@@ -32,6 +32,12 @@ const menuItems = [
     icon: HomeOutlined,
   },
   {
+    key: 'sessions',
+    label: 'Session管理',
+    path: '/sessions',
+    icon: ClockCircleOutlined,
+  },
+  {
     key: 'system',
     label: '系统管理',
     icon: AppstoreOutlined,
@@ -55,48 +61,42 @@ const menuItems = [
           },
         ],
       },
-      {
-        key: 'g2',
-        label: '系统设置',
-        type: 'group',
-        children: [
-          {
-            key: 'settings',
-            label: '系统设置',
-            icon: SettingOutlined,
-            children: [
-              {
-                key: 'general',
-                label: '通用设置',
-                path: '/settings/general',
-                icon: FileTextOutlined,
-              },
-              {
-                key: 'security',
-                label: '安全设置',
-                path: '/settings/security',
-                icon: SafetyOutlined,
-              },
-            ],
-          },
-          {
-            key: 'users-config',
-            label: '用户配置',
-            path: '/system/users-config',
-            icon: UserSwitchOutlined,
-          },
-        ],
-      },
+      // {
+      //   key: 'g2',
+      //   label: '系统设置',
+      //   type: 'group',
+      //   children: [
+      //     {
+      //       key: 'settings',
+      //       label: '系统设置',
+      //       icon: SettingOutlined,
+      //       children: [
+      //         {
+      //           key: 'general',
+      //           label: '通用设置',
+      //           path: '/settings/general',
+      //           icon: FileTextOutlined,
+      //         },
+      //         {
+      //           key: 'security',
+      //           label: '安全设置',
+      //           path: '/settings/security',
+      //           icon: SafetyOutlined,
+      //         },
+      //       ],
+      //     },
+      //     {
+      //       key: 'users-config',
+      //       label: '用户配置',
+      //       path: '/system/users-config',
+      //       icon: UserSwitchOutlined,
+      //     },
+      //   ],
+      // },
     ],
   },
   {
     type: 'divider',
-  },
-  {
-    key: 'sessions',
-    label: 'Session管理',
-    path: '/sessions',
-    icon: ClockCircleOutlined,
   },
   {
     key: 'notifications',

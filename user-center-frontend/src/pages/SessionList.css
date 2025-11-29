@@ -1,62 +1,73 @@
-/* Session列表页面样式 - 基于设计系统 */
+/* Session列表页面样式 */
 
 .session-list-page {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
+  /* 移除padding，使用父容器.content的padding来对齐顶部工具栏 */
 }
 
-.data-table-card.ant-card {
+/* 统计卡片网格 */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+}
+
+.stat-card {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-light);
+  transition: all var(--transition-base) var(--ease-out);
 }
 
-.data-table-card .ant-card-head {
-  border-bottom: 1px solid var(--border-light);
-  padding: var(--spacing-md) var(--spacing-lg);
-  min-height: 60px;
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
-.data-table-card .ant-card-head-title {
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-  color: var(--text-primary);
+/* 筛选表单 */
+.filter-form {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
 }
 
-.data-table-card .ant-card-body {
-  padding: var(--spacing-lg);
+.filter-search-input {
+  width: 300px;
+  height: 36px !important;
 }
 
-.data-table-card .ant-table {
-  font-family: var(--font-family);
+.filter-status-select {
+  width: 200px;
 }
 
-.data-table-card .ant-table-thead > tr > th {
-  background-color: var(--bg-tertiary);
-  font-size: var(--font-size-sm);
-  font-weight: 700;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border-color);
-  padding: var(--spacing-sm) var(--spacing-md);
+.filter-status-select .ant-select-selector {
+  height: 36px !important;
+  min-height: 36px;
 }
 
-.data-table-card .ant-table-tbody > tr > td {
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-color);
-  padding: var(--spacing-md);
+.filter-status-select .ant-select-selection-item {
+  line-height: 34px;
 }
 
-.data-table-card .ant-table-tbody > tr:hover > td {
-  background-color: var(--info-bg);
-}
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
 
-.session-id {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: var(--font-size-sm);
-  background-color: var(--bg-tertiary);
-  padding: 0.25rem 0.5rem;
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
+  .filter-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-search-input {
+    width: 100%;
+  }
+
+  .filter-status-select {
+    width: 100%;
+  }
 }
