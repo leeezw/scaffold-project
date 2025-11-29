@@ -1,27 +1,28 @@
-import { useEffect, useState } from 'react';
-import { Card, Table, Tag, Space, Button } from 'antd';
+import { useState } from 'react';
+import { Tag, Space, Button } from 'antd';
 import { EyeOutlined, LogoutOutlined } from '@ant-design/icons';
 import request from '../api/index.js';
+import ProTable from '../components/ProTable.jsx';
 import './SessionList.css';
 
 export default function SessionList() {
-  const [sessions, setSessions] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    const fetchSessions = async () => {
-      setLoading(true);
-      try {
-        const res = await request.get('/auth/session/my-sessions');
-        if (res.code === 200) {
-          setSessions(res.data || []);
+  // 请求函数
+  const fetchSessions = async () => {
+    const res = await request.get('/auth/session/my-sessions');
+    if (res.code === 200 && res.data) {
+      // 转换数据格式
+      return {
+        ...res,
+        data: {
+          list: res.data.map((session, index) => ({ key: index, session })),
+          total: res.data.length
         }
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchSessions();
-  }, []);
+      };
+    }
+    return res;
+  };
 
   const columns = [
     {
@@ -77,17 +78,15 @@ export default function SessionList() {
 
   return (
     <div className="session-list-page">
-      <Card className="data-table-card" title="我的 Session">
-        <Table
-          columns={columns}
-          dataSource={sessions.map((session, index) => ({ key: index, session }))}
-          loading={loading}
-          rowKey="key"
-          locale={{
-            emptyText: '暂无 Session'
-          }}
-        />
-      </Card>
+      <ProTable
+        key={refreshKey}
+        title="我的 Session"
+        columns={columns}
+        request={fetchSessions}
+        params={{}}
+        rowKey="key"
+        showPagination={false}
+      />
     </div>
   );
 }

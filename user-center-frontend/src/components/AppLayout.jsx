@@ -168,7 +168,7 @@ export default function AppLayout() {
                 menu={{ items: userMenuItems }}
                 trigger={['click']}
                 placement="bottomRight"
-                overlayClassName="user-profile-dropdown-menu"
+                classNames={{ root: 'user-profile-dropdown-menu' }}
               >
                 <Button
                   type="text"

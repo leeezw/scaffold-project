@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, Table, Statistic, Input, Button, Space, Tag, Pagination, Select, Modal, Form, message } from 'antd';
+import { Card, Statistic, Button, Space, Tag, Modal, Form, message } from 'antd';
 import { 
   UserOutlined, 
   CheckCircleOutlined, 
@@ -10,13 +10,10 @@ import {
 } from '@ant-design/icons';
 import request from '../api/index.js';
 import UserForm from '../components/UserForm.jsx';
+import ProTable from '../components/ProTable.jsx';
 import './UserList.css';
 
-const { Search } = Input;
-
 export default function UserList() {
-  const [data, setData] = useState([]);
-  const [total, setTotal] = useState(0);
   const [stats, setStats] = useState({
     total: 0,
     enabled: 0,
@@ -24,34 +21,20 @@ export default function UserList() {
     today: 0
   });
   const [query, setQuery] = useState({ keyword: '', pageNum: 1, pageSize: 10 });
-  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    fetchUsers();
-  }, [query]);
-
-  useEffect(() => {
-    calculateStats();
-  }, [data, total]);
-
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const res = await request.get('/users/page', { params: query });
-      if (res.code === 200) {
-        setData(res.data.list);
-        setTotal(res.data.total);
-      }
-    } finally {
-      setLoading(false);
-    }
+  // 请求函数
+  const fetchUsers = async (params) => {
+    const res = await request.get('/users/page', { params });
+    return res;
   };
 
-  const calculateStats = () => {
+  // 处理数据变化，更新统计数据
+  const handleDataChange = (data, total) => {
     const enabled = data.filter(u => u.status === 1).length;
     const disabled = data.filter(u => u.status === 0).length;
     setStats({
@@ -62,12 +45,8 @@ export default function UserList() {
     });
   };
 
-  const handleSearch = (value) => {
-    setQuery({ ...query, keyword: value, pageNum: 1 });
-  };
-
-  const handlePageChange = (page, pageSize) => {
-    setQuery({ ...query, pageNum: page, pageSize });
+  const handleRefresh = () => {
+    setRefreshKey(prev => prev + 1);
   };
 
   const handleAddUser = () => {
@@ -101,7 +80,7 @@ export default function UserList() {
         if (res.code === 200) {
           message.success('用户更新成功');
           setModalVisible(false);
-          fetchUsers();
+          handleRefresh();
         } else {
           message.error(res.message || '更新失败');
         }
@@ -111,7 +90,7 @@ export default function UserList() {
         if (res.code === 200) {
           message.success('用户创建成功');
           setModalVisible(false);
-          fetchUsers();
+          handleRefresh();
         } else {
           message.error(res.message || '创建失败');
         }
@@ -195,7 +174,7 @@ export default function UserList() {
         <Card className="stat-card">
           <Statistic
             title="用户总数"
-            value={stats.total || total}
+            value={stats.total}
             prefix={<UserOutlined style={{ color: '#3f8cff' }} />}
             valueStyle={{ color: '#0a1629' }}
           />
@@ -227,55 +206,20 @@ export default function UserList() {
       </div>
 
       {/* 数据表格 */}
-      <Card 
-        className="data-table-card"
+      <ProTable
+        key={refreshKey}
         title="用户列表"
         extra={
-          <Space>
-            <Button type="primary" icon={<PlusOutlined />} onClick={handleAddUser}>
-              新增用户
-            </Button>
-          </Space>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddUser}>
+            新增用户
+          </Button>
         }
-      >
-        <Table
-          columns={columns}
-          dataSource={data}
-          loading={loading}
-          rowKey="id"
-          pagination={false}
-          locale={{
-            emptyText: '暂无数据'
-          }}
-        />
-        
-        {data.length > 0 && (
-          <div className="pagination-wrapper">
-            <div className="pagination-info">
-              共 {total} 条，每页显示
-              <Select
-                value={query.pageSize}
-                onChange={(value) => setQuery({ ...query, pageSize: value, pageNum: 1 })}
-                style={{ width: 80, margin: '0 8px' }}
-              >
-                <Select.Option value={10}>10</Select.Option>
-                <Select.Option value={20}>20</Select.Option>
-                <Select.Option value={50}>50</Select.Option>
-              </Select>
-              条
-            </div>
-            <Pagination
-              current={query.pageNum}
-              total={total}
-              pageSize={query.pageSize}
-              onChange={handlePageChange}
-              showSizeChanger={false}
-              showQuickJumper
-              showTotal={(total) => `共 ${total} 条`}
-            />
-          </div>
-        )}
-      </Card>
+        columns={columns}
+        request={fetchUsers}
+        params={query}
+        rowKey="id"
+        onDataChange={handleDataChange}
+      />
 
       {/* 新增/编辑用户弹窗 */}
       <Modal

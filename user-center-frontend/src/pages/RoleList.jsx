@@ -1,27 +1,18 @@
-import { useEffect, useState } from 'react';
-import { Card, Table, Tag, Space, Button } from 'antd';
+import { useState } from 'react';
+import { Tag, Space, Button } from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import request from '../api/index.js';
+import ProTable from '../components/ProTable.jsx';
 import './RoleList.css';
 
 export default function RoleList() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    const fetchRoles = async () => {
-      setLoading(true);
-      try {
-        const res = await request.get('/roles');
-        if (res.code === 200) {
-          setData(res.data);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRoles();
-  }, []);
+  // 请求函数
+  const fetchRoles = async () => {
+    const res = await request.get('/roles');
+    return res;
+  };
 
   const columns = [
     {
@@ -82,17 +73,15 @@ export default function RoleList() {
 
   return (
     <div className="role-list-page">
-      <Card className="data-table-card" title="角色列表">
-        <Table
-          columns={columns}
-          dataSource={data}
-          loading={loading}
-          rowKey="id"
-          locale={{
-            emptyText: '暂无数据'
-          }}
-        />
-      </Card>
+      <ProTable
+        key={refreshKey}
+        title="角色列表"
+        columns={columns}
+        request={fetchRoles}
+        params={{}}
+        rowKey="id"
+        showPagination={false}
+      />
     </div>
   );
 }
