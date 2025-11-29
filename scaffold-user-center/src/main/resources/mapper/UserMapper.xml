@@ -63,13 +63,27 @@
             <if test="keyword != null and keyword != ''">
                 AND (username LIKE CONCAT('%', #{keyword}, '%')
                  OR nickname LIKE CONCAT('%', #{keyword}, '%')
+                 OR email LIKE CONCAT('%', #{keyword}, '%')
                  OR phone LIKE CONCAT('%', #{keyword}, '%'))
             </if>
             <if test="status != null">
                 AND status = #{status}
             </if>
         </where>
-        ORDER BY create_time DESC
+        ORDER BY
+        <choose>
+            <when test="sortField == 'username'">username</when>
+            <when test="sortField == 'nickname'">nickname</when>
+            <when test="sortField == 'email'">email</when>
+            <when test="sortField == 'status'">status</when>
+            <when test="sortField == 'createTime'">create_time</when>
+            <when test="sortField == 'updateTime'">update_time</when>
+            <otherwise>create_time</otherwise>
+        </choose>
+        <choose>
+            <when test="sortOrder == 'asc'">ASC</when>
+            <otherwise>DESC</otherwise>
+        </choose>
         LIMIT #{offset}, #{limit}
     </select>
 
@@ -80,10 +94,53 @@
             <if test="keyword != null and keyword != ''">
                 AND (username LIKE CONCAT('%', #{keyword}, '%')
                  OR nickname LIKE CONCAT('%', #{keyword}, '%')
+                 OR email LIKE CONCAT('%', #{keyword}, '%')
                  OR phone LIKE CONCAT('%', #{keyword}, '%'))
             </if>
             <if test="status != null">
                 AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="countEnabled" resultType="long">
+        SELECT COUNT(1)
+        FROM sys_user
+        <where>
+            status = 1
+            <if test="keyword != null and keyword != ''">
+                AND (username LIKE CONCAT('%', #{keyword}, '%')
+                 OR nickname LIKE CONCAT('%', #{keyword}, '%')
+                 OR email LIKE CONCAT('%', #{keyword}, '%')
+                 OR phone LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="countDisabled" resultType="long">
+        SELECT COUNT(1)
+        FROM sys_user
+        <where>
+            status = 0
+            <if test="keyword != null and keyword != ''">
+                AND (username LIKE CONCAT('%', #{keyword}, '%')
+                 OR nickname LIKE CONCAT('%', #{keyword}, '%')
+                 OR email LIKE CONCAT('%', #{keyword}, '%')
+                 OR phone LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </select>
+
+    <select id="countTodayNew" resultType="long">
+        SELECT COUNT(1)
+        FROM sys_user
+        <where>
+            DATE(create_time) = CURDATE()
+            <if test="keyword != null and keyword != ''">
+                AND (username LIKE CONCAT('%', #{keyword}, '%')
+                 OR nickname LIKE CONCAT('%', #{keyword}, '%')
+                 OR email LIKE CONCAT('%', #{keyword}, '%')
+                 OR phone LIKE CONCAT('%', #{keyword}, '%'))
             </if>
         </where>
     </select>

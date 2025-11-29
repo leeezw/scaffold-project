@@ -46,6 +46,17 @@
   margin-right: var(--spacing-sm);
 }
 
+/* ==================== 搜索和筛选卡片 ==================== */
+.search-card.ant-card {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.search-card .ant-card-body {
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
 /* ==================== 数据表格卡片 ==================== */
 .data-table-card.ant-card {
   border-radius: var(--radius-md);

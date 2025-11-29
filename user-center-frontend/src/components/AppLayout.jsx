@@ -254,7 +254,8 @@ export default function AppLayout() {
 
   // 获取用户头像显示内容
   const getUserAvatarProps = () => {
-    if (user?.avatar) {
+    // 检查 avatar 是否存在且不为空字符串
+    if (user?.avatar && typeof user.avatar === 'string' && user.avatar.trim() !== '') {
       return { src: user.avatar };
     }
     // 如果有昵称或用户名，显示首字母
@@ -387,31 +388,13 @@ export default function AppLayout() {
                 <Button
                   type="text"
                   className="toolbar-btn-user"
-                  style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '8px',
-                    height: '40px',
-                    padding: '0 12px'
-                  }}
                 >
                   <Avatar 
                     size={32}
-                    {...(user?.avatar 
-                      ? { src: user.avatar }
-                      : (user?.nickname || user?.username)
-                        ? { 
-                            style: { backgroundColor: '#3f8cff', color: 'white' },
-                            children: (user?.nickname || user?.username).charAt(0).toUpperCase()
-                          }
-                        : { 
-                            icon: <UserOutlined />,
-                            style: { backgroundColor: '#e2e8f0', color: '#64748b' }
-                          }
-                    )}
+                    {...getUserAvatarProps()}
                   />
                   <span className="user-name">{user?.nickname || user?.username || 'User'}</span>
-                  <DownOutlined style={{ fontSize: '12px', color: '#64748b' }} />
+                  <DownOutlined className="user-dropdown-icon" />
                 </Button>
               </Dropdown>
             </div>

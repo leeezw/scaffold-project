@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Card, Statistic, Button, Space, Tag, Modal, Form, message } from 'antd';
+import { Card, Statistic, Button, Space, Tag, Modal, Form, message, Input, Select } from 'antd';
 import { 
   UserOutlined, 
   CheckCircleOutlined, 
@@ -8,11 +8,14 @@ import {
   EditOutlined,
   DeleteOutlined,
   PoweroffOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
 import request from '../api/index.js';
 import UserForm from '../components/UserForm.jsx';
 import ProTable from '../components/ProTable.jsx';
 import './UserList.css';
+
+const { Search } = Input;
 
 export default function UserList() {
   const [stats, setStats] = useState({
@@ -21,7 +24,14 @@ export default function UserList() {
     disabled: 0,
     today: 0
   });
-  const [query, setQuery] = useState({ keyword: '', pageNum: 1, pageSize: 10 });
+  const [query, setQuery] = useState({ 
+    keyword: '', 
+    status: undefined, // undefined 表示全部
+    pageNum: 1, 
+    pageSize: 10,
+    sortField: 'createTime',
+    sortOrder: 'desc'
+  });
   const [form] = Form.useForm();
   const [modalVisible, setModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -30,23 +40,56 @@ export default function UserList() {
 
   // 请求函数
   const fetchUsers = async (params) => {
-    const res = await request.get('/users/page', { params });
-    return res;
+    try {
+      const res = await request.get('/users/page', { params });
+      // 处理新的响应结构：{ code, data: { pageData: { list, total }, total, enabledCount, disabledCount, todayNewCount } }
+      if (res.code === 200 && res.data) {
+        // 更新统计数据
+        setStats({
+          total: res.data.total || 0,
+          enabled: res.data.enabledCount || 0,
+          disabled: res.data.disabledCount || 0,
+          today: res.data.todayNewCount || 0
+        });
+        
+        // 返回 ProTable 期望的格式
+        return {
+          code: 200,
+          data: res.data.pageData || { list: [], total: 0 }
+        };
+      }
+      return res;
+    } catch (error) {
+      console.error('fetchUsers error:', error);
+      return {
+        code: 500,
+        data: { list: [], total: 0 }
+      };
+    }
   };
 
-  // 处理数据变化，更新统计数据
+  // 处理数据变化（保留兼容性）
   const handleDataChange = (data, total) => {
-    const enabled = data.filter(u => u.status === 1).length;
-    const disabled = data.filter(u => u.status === 0).length;
-    setStats({
-      total: total,
-      enabled: enabled,
-      disabled: disabled,
-      today: 0
-    });
+    // 统计数据已从后端获取，这里不需要再计算
   };
 
   const handleRefresh = () => {
+    setRefreshKey(prev => prev + 1);
+  };
+
+  // 处理搜索
+  const handleSearch = (value) => {
+    setQuery({ ...query, keyword: value, pageNum: 1 });
+    setRefreshKey(prev => prev + 1);
+  };
+
+  // 处理状态筛选
+  const handleStatusChange = (value) => {
+    setQuery({ 
+      ...query, 
+      status: value === 'all' ? undefined : value, 
+      pageNum: 1 
+    });
     setRefreshKey(prev => prev + 1);
   };
 
@@ -246,15 +289,37 @@ export default function UserList() {
         </Card>
       </div>
 
+      {/* 搜索和筛选栏 */}
+      <Card className="search-card">
+        <Space size="middle" style={{ width: '100%' }}>
+          <Search
+            placeholder="搜索用户名、昵称、邮箱或手机号"
+            allowClear
+            enterButton={<SearchOutlined />}
+            style={{ width: 400 }}
+            onSearch={handleSearch}
+            defaultValue={query.keyword}
+          />
+          <Select
+            placeholder="用户状态"
+            style={{ width: 150 }}
+            value={query.status === undefined ? 'all' : query.status}
+            onChange={handleStatusChange}
+          >
+            <Select.Option value="all">全部</Select.Option>
+            <Select.Option value={1}>启用</Select.Option>
+            <Select.Option value={0}>禁用</Select.Option>
+          </Select>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddUser}>
+            新增用户
+          </Button>
+        </Space>
+      </Card>
+
       {/* 数据表格 */}
       <ProTable
         key={refreshKey}
         title="用户列表"
-        extra={
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleAddUser}>
-            新增用户
-          </Button>
-        }
         columns={columns}
         request={fetchUsers}
         params={query}

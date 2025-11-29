@@ -29,7 +29,7 @@ public class UserController {
     @Operation(summary = "用户分页查询")
     @RequiresPermissions({"user:list", "*:*:*"})
     @GetMapping("/page")
-    public Result<PageResult<UserDTO>> pageUsers(UserPageRequest request) {
+    public Result<UserPageResponse> pageUsers(UserPageRequest request) {
         return Result.success(userService.pageUsers(request));
     }
     

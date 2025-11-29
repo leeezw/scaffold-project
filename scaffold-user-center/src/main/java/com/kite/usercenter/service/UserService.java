@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface UserService {
     
-    PageResult<UserDTO> pageUsers(UserPageRequest request);
+    UserPageResponse pageUsers(UserPageRequest request);
     
     UserDTO getUserDetail(Long id);
     

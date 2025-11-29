@@ -37,14 +37,43 @@ public class UserServiceImpl implements UserService {
     }
     
     @Override
-    public PageResult<UserDTO> pageUsers(UserPageRequest request) {
+    public UserPageResponse pageUsers(UserPageRequest request) {
         int pageNum = request.getPageNum() != null && request.getPageNum() > 0 ? request.getPageNum() : 1;
         int pageSize = request.getPageSize() != null && request.getPageSize() > 0 ? request.getPageSize() : 10;
         int offset = (pageNum - 1) * pageSize;
-        List<User> list = userMapper.selectPage(request.getKeyword(), request.getStatus(), offset, pageSize);
+        
+        // 获取排序字段和排序方向
+        String sortField = request.getSortField() != null ? request.getSortField() : "createTime";
+        String sortOrder = request.getSortOrder() != null ? request.getSortOrder() : "desc";
+        
+        // 查询分页数据
+        List<User> list = userMapper.selectPage(
+            request.getKeyword(), 
+            request.getStatus(), 
+            sortField,
+            sortOrder,
+            offset, 
+            pageSize
+        );
+        
+        // 查询总数和统计信息
         long total = userMapper.count(request.getKeyword(), request.getStatus());
+        long enabledCount = userMapper.countEnabled(request.getKeyword());
+        long disabledCount = userMapper.countDisabled(request.getKeyword());
+        long todayNewCount = userMapper.countTodayNew(request.getKeyword());
+        
+        // 转换为 DTO
         List<UserDTO> dtoList = list.stream().map(this::convertToDTO).collect(Collectors.toList());
-        return PageResult.of(dtoList, total, pageNum, pageSize);
+        
+        // 构建响应对象
+        UserPageResponse response = new UserPageResponse();
+        response.setPageData(PageResult.of(dtoList, total, pageNum, pageSize));
+        response.setTotal(total);
+        response.setEnabledCount(enabledCount);
+        response.setDisabledCount(disabledCount);
+        response.setTodayNewCount(todayNewCount);
+        
+        return response;
     }
     
     @Override

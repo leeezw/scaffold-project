@@ -26,21 +26,21 @@ public class RoleController {
     }
     
     @Operation(summary = "角色列表")
-    @RequiresPermissions("role:list")
+    @RequiresPermissions({"role:list", "*:*:*"})
     @GetMapping
     public Result<List<RoleDTO>> listRoles() {
         return Result.success(roleService.listAll());
     }
     
     @Operation(summary = "角色详情")
-    @RequiresPermissions("role:list")
+    @RequiresPermissions({"role:list", "*:*:*"})
     @GetMapping("/{id}")
     public Result<RoleDTO> getRole(@PathVariable Long id) {
         return Result.success(roleService.getById(id));
     }
     
     @Operation(summary = "创建角色")
-    @RequiresPermissions("role:create")
+    @RequiresPermissions({"role:create", "*:*:*"})
     @PostMapping
     @OperationLog(module = "角色管理", operationType = "新增", description = "创建角色")
     public Result<Void> createRole(@RequestBody @Validated RoleRequest request) {
@@ -49,7 +49,7 @@ public class RoleController {
     }
     
     @Operation(summary = "更新角色")
-    @RequiresPermissions("role:update")
+    @RequiresPermissions({"role:update", "*:*:*"})
     @PutMapping("/{id}")
     @OperationLog(module = "角色管理", operationType = "修改", description = "更新角色")
     public Result<Void> updateRole(@PathVariable Long id, @RequestBody @Validated RoleRequest request) {
@@ -58,7 +58,7 @@ public class RoleController {
     }
     
     @Operation(summary = "删除角色")
-    @RequiresPermissions("role:delete")
+    @RequiresPermissions({"role:delete", "*:*:*"})
     @DeleteMapping("/{id}")
     @OperationLog(module = "角色管理", operationType = "删除", description = "删除角色")
     public Result<Void> deleteRole(@PathVariable Long id) {
