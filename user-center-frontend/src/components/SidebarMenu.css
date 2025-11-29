@@ -1,28 +1,71 @@
-/* 侧边栏菜单样式 */
+/* ==================== 设计系统变量 ==================== */
+:root {
+  /* 颜色系统 */
+  --sidebar-bg: #ffffff;
+  --sidebar-text-primary: #1e293b;
+  --sidebar-text-secondary: #64748b;
+  --sidebar-text-disabled: #94a3b8;
+  --sidebar-accent: #3f8cff;
+  --sidebar-accent-hover: #2e6fd9;
+  --sidebar-accent-light: #e8f2ff;
+  --sidebar-accent-light-hover: #d6e8ff;
+  --sidebar-border: #e2e8f0;
+  
+  /* 间距系统（基于 4px） */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 0.75rem;   /* 12px */
+  --spacing-lg: 1rem;      /* 16px */
+  --spacing-xl: 1.5rem;    /* 24px */
+  
+  /* 圆角系统 */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  
+  /* 阴影系统 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  
+  /* 动画时长 */
+  --transition-fast: 0.15s;
+  --transition-base: 0.2s;
+  --transition-slow: 0.3s;
+  
+  /* 缓动函数 */
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
 
+/* ==================== 侧边栏菜单容器 ==================== */
 .sidebar-menu {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: var(--spacing-xs);
   align-items: flex-start;
+  padding: var(--spacing-sm) 0;
 }
 
+/* ==================== 菜单项基础样式 ==================== */
 .menu-item {
   display: flex;
   flex-direction: row;
   align-items: center;
   position: relative;
-  width: 10.75rem;
+  width: 100%;
   margin-bottom: 0;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-base) var(--ease-out);
   text-decoration: none;
-  min-height: 2.5rem;
+  min-height: 2.75rem;
   color: inherit;
+  border-radius: var(--radius-md);
+  overflow: visible;
 }
 
 .menu-item:not(:first-child) {
-  margin-top: 0.75rem;
+  margin-top: 0;
 }
 
 .menu-item-content {
@@ -32,173 +75,230 @@
   justify-content: flex-start;
   position: relative;
   width: 100%;
-  padding: 0;
+  padding: var(--spacing-sm) var(--spacing-lg);
   z-index: 2;
+  gap: var(--spacing-md);
 }
 
+/* ==================== 图标样式 ==================== */
 .menu-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.13rem;
-  height: 1.13rem;
+  width: 1.25rem;
+  height: 1.25rem;
   flex-shrink: 0;
-  color: #7d8592;
-  transition: color 0.2s ease;
+  color: var(--sidebar-text-secondary);
+  transition: all var(--transition-base) var(--ease-out);
   z-index: 2;
-  margin-left: 0.74rem;
 }
 
 .menu-icon svg {
   width: 100%;
   height: 100%;
+  transition: transform var(--transition-base) var(--ease-out);
 }
 
+/* ==================== 文字样式 ==================== */
 .menu-text {
-  margin-left: 3.08rem;
-  font-size: 0.94rem;
-  font-weight: 600;
-  color: #7d8592;
-  line-height: 0.9rem;
-  font-family: 'PingFang SC', sans-serif;
-  transition: all 0.2s ease;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--sidebar-text-secondary);
+  line-height: 1.5;
+  font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  transition: all var(--transition-base) var(--ease-out);
   position: relative;
   z-index: 2;
+  flex: 1;
+  letter-spacing: 0.01em;
 }
 
+/* ==================== 箭头样式 ==================== */
 .menu-arrow {
   margin-left: auto;
-  margin-right: 0.5rem;
-  width: 0.75rem;
-  height: 0.75rem;
-  color: #7d8592;
-  transition: all 0.2s ease;
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--sidebar-text-secondary);
+  transition: all var(--transition-base) var(--ease-out);
   transform: rotate(-90deg);
   flex-shrink: 0;
+  opacity: 0.6;
 }
 
 .menu-arrow.expanded {
   transform: rotate(0deg);
+  opacity: 1;
 }
 
-/* 菜单项背景块（选中状态） */
+/* ==================== 背景层（悬停/激活） ==================== */
 .menu-item::before {
   content: '';
   position: absolute;
   left: 0;
   top: 0;
-  width: 10.75rem;
-  height: 2.5rem;
-  background-color: rgba(63, 140, 255, 0.1);
-  border-radius: 0.63rem;
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  border-radius: var(--radius-md);
   opacity: 0;
-  transition: opacity 0.2s ease;
+  transition: all var(--transition-base) var(--ease-out);
   z-index: 0;
 }
 
-/* 菜单项右侧装饰竖线 */
+/* ==================== 左侧指示条 ==================== */
 .menu-item-indicator {
   position: absolute;
-  right: 0;
+  left: 0;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(-50%) scaleY(0);
   width: 0.25rem;
-  height: 2.5rem;
-  background-color: transparent;
-  border-radius: 0.13rem;
-  transition: background-color 0.2s ease;
+  height: 0;
+  background-color: var(--sidebar-accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  transition: all var(--transition-base) var(--ease-out);
   z-index: 1;
 }
 
-/* 菜单项悬停状态 */
+/* ==================== 悬停状态 ==================== */
 .menu-item:hover::before {
   opacity: 1;
+  background-color: var(--sidebar-accent-light);
 }
 
-.menu-item:hover .menu-icon,
-.menu-item:hover .menu-text,
+.menu-item:hover .menu-icon {
+  color: var(--sidebar-accent);
+  transform: scale(1.05);
+}
+
+.menu-item:hover .menu-icon svg {
+  transform: scale(1.05);
+}
+
+.menu-item:hover .menu-text {
+  color: var(--sidebar-text-primary);
+  font-weight: 600;
+}
+
 .menu-item:hover .menu-arrow {
-  color: #3f8cff;
+  color: var(--sidebar-accent);
+  opacity: 1;
 }
 
-/* 菜单项激活状态 */
+/* ==================== 激活状态 ==================== */
 .menu-item.active::before {
   opacity: 1;
-  background-color: rgba(63, 140, 255, 0.1);
+  background-color: var(--sidebar-accent-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .menu-item.active .menu-item-indicator {
-  background-color: #3f8cff;
+  transform: translateY(-50%) scaleY(1);
+  height: 60%;
 }
 
 .menu-item.active .menu-icon {
-  color: #3f8cff;
+  color: var(--sidebar-accent);
+  transform: scale(1.05);
+}
+
+.menu-item.active .menu-icon svg {
+  transform: scale(1.05);
 }
 
 .menu-item.active .menu-text {
-  color: #3f8cff;
-  font-weight: 700;
+  color: var(--sidebar-accent);
+  font-weight: 600;
 }
 
 .menu-item.active .menu-arrow {
-  color: #3f8cff;
+  color: var(--sidebar-accent);
+  opacity: 1;
 }
 
-/* 激活状态的左侧装饰图标 */
+/* 移除旧的装饰图标逻辑 */
 .menu-item.active .menu-item-content::before {
-  content: '';
-  position: absolute;
-  left: 0.74rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 1.06rem;
-  height: 1.19rem;
-  background-image: url('https://ide.code.fun/api/image?token=6922da31043f1900118e884b&name=ed0920f464443232cddac26751682cd6.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-  z-index: 1;
+  display: none;
 }
 
-/* 激活状态时，图标隐藏 */
 .menu-item.active .menu-icon {
-  opacity: 0;
+  opacity: 1;
 }
 
-/* 多级菜单 */
+/* ==================== 多级菜单 ==================== */
 .menu-item-group {
   width: 100%;
 }
 
 .menu-children {
-  margin-top: 0.5rem;
-  margin-left: 1.5rem;
-  padding-left: 0.5rem;
-  border-left: 1px solid rgba(216, 224, 240, 0.3);
+  margin-top: var(--spacing-xs);
+  margin-left: var(--spacing-lg);
+  padding-left: var(--spacing-md);
+  border-left: 2px solid var(--sidebar-border);
+  animation: slideDown var(--transition-slow) var(--ease-out);
+  position: relative;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .menu-children .menu-item {
-  width: 9.25rem;
-  min-height: 2.25rem;
+  min-height: 2.5rem;
 }
 
 .menu-children .menu-item::before {
-  width: 9.25rem;
-  height: 2.25rem;
+  width: 100%;
+  height: 100%;
 }
 
 .menu-children .menu-item-indicator {
-  height: 2.25rem;
+  height: 50%;
 }
 
 .menu-children .menu-text {
-  font-size: 0.88rem;
-  margin-left: 2.5rem;
+  font-size: 0.875rem;
+  color: var(--sidebar-text-secondary);
 }
 
 .menu-children .menu-icon {
-  width: 1rem;
-  height: 1rem;
-  margin-left: 0.5rem;
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
+.menu-children .menu-item.active .menu-text {
+  color: var(--sidebar-accent);
+}
+
+/* ==================== 焦点状态（可访问性） ==================== */
+.menu-item:focus-visible {
+  outline: 2px solid var(--sidebar-accent);
+  outline-offset: 2px;
+}
+
+.menu-item:focus-visible::before {
+  opacity: 1;
+  background-color: var(--sidebar-accent-light);
+}
+
+/* ==================== 响应式优化 ==================== */
+@media (max-width: 768px) {
+  .menu-item-content {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  
+  .menu-text {
+    font-size: 0.875rem;
+  }
+  
+  .menu-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+}

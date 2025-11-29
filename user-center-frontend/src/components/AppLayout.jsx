@@ -71,6 +71,21 @@ export default function AppLayout() {
       {/* 左侧菜单栏 */}
       <aside className="sidebar">
         <div className="sidebar-content">
+          {/* Logo 区域 */}
+          <div className="sidebar-logo">
+            <div className="logo-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <rect width="32" height="32" rx="8" fill="#3f8cff"/>
+                <path d="M16 8L24 14V24C24 24.5304 23.7893 25.0391 23.4142 25.4142C23.0391 25.7893 22.5304 26 22 26H10C9.46957 26 8.96086 25.7893 8.58579 25.4142C8.21071 25.0391 8 24.5304 8 24V14L16 8Z" fill="white"/>
+                <path d="M12 26V16H20V26" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <div className="logo-text">
+              <div className="logo-title">用户中心</div>
+              <div className="logo-subtitle">User Center</div>
+            </div>
+          </div>
+          
           <SidebarMenu items={menuItems} onItemClick={handleMenuClick} />
           <div className="sidebar-footer">
             <SidebarMenu items={[logoutItem]} onItemClick={handleMenuClick} />
