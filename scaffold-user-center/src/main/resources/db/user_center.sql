@@ -103,6 +103,24 @@ INSERT INTO sys_permission (code, name, type, parent_id, path, method, icon, com
 VALUES ('menu:permissions', '权限配置', 'menu', @system_menu_id, '/permissions', NULL, 'SafetyOutlined', 'PermissionList', 1, 1, 40)
 ON DUPLICATE KEY UPDATE code = code;
 
+SET @permission_menu_id = (SELECT id FROM sys_permission WHERE code = 'menu:permissions');
+
+INSERT INTO sys_permission (code, name, type, parent_id, status, sort)
+VALUES ('permission:list', '查看权限', 'button', @permission_menu_id, 1, 41)
+ON DUPLICATE KEY UPDATE code = code;
+
+INSERT INTO sys_permission (code, name, type, parent_id, status, sort)
+VALUES ('permission:create', '新增权限', 'button', @permission_menu_id, 1, 42)
+ON DUPLICATE KEY UPDATE code = code;
+
+INSERT INTO sys_permission (code, name, type, parent_id, status, sort)
+VALUES ('permission:update', '编辑权限', 'button', @permission_menu_id, 1, 43)
+ON DUPLICATE KEY UPDATE code = code;
+
+INSERT INTO sys_permission (code, name, type, parent_id, status, sort)
+VALUES ('permission:delete', '删除权限', 'button', @permission_menu_id, 1, 44)
+ON DUPLICATE KEY UPDATE code = code;
+
 INSERT INTO sys_user_role (user_id, role_id)
 SELECT u.id, r.id FROM sys_user u, sys_role r
 WHERE u.username = 'admin' AND r.code = 'admin'
@@ -113,6 +131,14 @@ INSERT INTO sys_role_permission (role_id, permission_id)
 SELECT r.id, p.id FROM sys_role r, sys_permission p
 WHERE r.code = 'admin'
   AND p.code IN ('menu:users', 'menu:sessions', 'menu:system', 'menu:roles', 'menu:permissions')
+  AND NOT EXISTS (
+    SELECT 1 FROM sys_role_permission WHERE role_id = r.id AND permission_id = p.id
+);
+
+INSERT INTO sys_role_permission (role_id, permission_id)
+SELECT r.id, p.id FROM sys_role r, sys_permission p
+WHERE r.code = 'admin'
+  AND p.code IN ('permission:list', 'permission:create', 'permission:update', 'permission:delete')
   AND NOT EXISTS (
     SELECT 1 FROM sys_role_permission WHERE role_id = r.id AND permission_id = p.id
 );

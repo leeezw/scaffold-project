@@ -15,4 +15,6 @@ public interface RolePermissionMapper {
     List<Long> listPermissionIdsByRoleId(Long roleId);
 
     List<Long> listPermissionIdsByRoleIds(@Param("roleIds") List<Long> roleIds);
+
+    int deleteByPermissionId(Long permissionId);
 }

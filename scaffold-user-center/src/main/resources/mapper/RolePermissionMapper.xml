@@ -27,4 +27,8 @@
             #{roleId}
         </foreach>
     </select>
+
+    <delete id="deleteByPermissionId">
+        DELETE FROM sys_role_permission WHERE permission_id = #{permissionId}
+    </delete>
 </mapper>

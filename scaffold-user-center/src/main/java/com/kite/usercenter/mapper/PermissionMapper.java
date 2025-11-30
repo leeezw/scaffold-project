@@ -20,4 +20,8 @@ public interface PermissionMapper {
     List<Permission> selectAll();
     
     List<Permission> selectByIds(@Param("ids") List<Long> ids);
+
+    Permission selectByCode(String code);
+
+    int countByParentId(Long parentId);
 }

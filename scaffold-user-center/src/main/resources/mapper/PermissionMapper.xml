@@ -65,4 +65,16 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="selectByCode" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM sys_permission
+        WHERE code = #{code}
+    </select>
+
+    <select id="countByParentId" resultType="int">
+        SELECT COUNT(1)
+        FROM sys_permission
+        WHERE parent_id = #{parentId}
+    </select>
 </mapper>

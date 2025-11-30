@@ -129,3 +129,14 @@
     grid-template-columns: 1fr;
   }
 }
+.permission-toolbar {
+  margin-bottom: 16px;
+}
+
+.permission-drawer-form .ant-form-item {
+  margin-bottom: 16px;
+}
+
+.permission-drawer-form .ant-divider {
+  margin: 16px 0 12px;
+}
