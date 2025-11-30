@@ -17,6 +17,9 @@ public class PermissionDTO implements Serializable {
     private Long parentId;
     private String path;
     private String method;
+    private String icon;
+    private String component;
+    private Integer visible;
     private Integer status;
     private Integer sort;
     private List<PermissionDTO> children;

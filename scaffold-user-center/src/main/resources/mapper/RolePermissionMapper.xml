@@ -18,4 +18,13 @@
     <select id="listPermissionIdsByRoleId" resultType="long">
         SELECT permission_id FROM sys_role_permission WHERE role_id = #{roleId}
     </select>
+
+    <select id="listPermissionIdsByRoleIds" resultType="long">
+        SELECT DISTINCT permission_id
+        FROM sys_role_permission
+        WHERE role_id IN
+        <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+            #{roleId}
+        </foreach>
+    </select>
 </mapper>

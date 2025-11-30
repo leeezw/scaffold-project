@@ -35,10 +35,13 @@ CREATE TABLE IF NOT EXISTS sys_permission (
     id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
     code        VARCHAR(128) NOT NULL COMMENT '权限编码',
     name        VARCHAR(128) NOT NULL COMMENT '权限名称',
-    type        VARCHAR(32)  NOT NULL DEFAULT 'API' COMMENT '类型：MENU/BUTTON/API',
+    type        VARCHAR(32)  NOT NULL DEFAULT 'api' COMMENT '类型：menu/button/api',
     parent_id   BIGINT UNSIGNED DEFAULT 0 COMMENT '父级ID',
     path        VARCHAR(255) DEFAULT NULL COMMENT '路由/URL',
     method      VARCHAR(16)  DEFAULT NULL COMMENT 'HTTP方法',
+    icon        VARCHAR(128) DEFAULT NULL COMMENT '菜单图标',
+    component   VARCHAR(255) DEFAULT NULL COMMENT '前端组件/页面标识',
+    visible     TINYINT      NOT NULL DEFAULT 1 COMMENT '是否显示 1-显示 0-隐藏',
     status      TINYINT      NOT NULL DEFAULT 1 COMMENT '状态：1-启用，0-禁用',
     sort        INT          NOT NULL DEFAULT 0 COMMENT '排序',
     create_time DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
@@ -74,13 +77,45 @@ VALUES ('admin', '系统管理员', 1, '拥有所有权限')
 ON DUPLICATE KEY UPDATE code = code;
 
 INSERT INTO sys_permission (code, name, type, parent_id, path, method, status, sort)
-VALUES ('*:*:*', '所有权限', 'API', 0, '*', '*', 1, 0)
+VALUES ('*:*:*', '所有权限', 'api', 0, '*', '*', 1, 0)
+ON DUPLICATE KEY UPDATE code = code;
+
+-- 菜单示例数据
+INSERT INTO sys_permission (code, name, type, parent_id, path, method, icon, component, visible, status, sort)
+VALUES ('menu:system', '系统管理', 'menu', 0, NULL, NULL, 'AppstoreOutlined', NULL, 1, 1, 10)
+ON DUPLICATE KEY UPDATE code = code;
+
+SET @system_menu_id = (SELECT id FROM sys_permission WHERE code = 'menu:system');
+
+INSERT INTO sys_permission (code, name, type, parent_id, path, method, icon, component, visible, status, sort)
+VALUES ('menu:users', '用户管理', 'menu', 0, '/', NULL, 'HomeOutlined', 'UserList', 1, 1, 1)
+ON DUPLICATE KEY UPDATE code = code;
+
+INSERT INTO sys_permission (code, name, type, parent_id, path, method, icon, component, visible, status, sort)
+VALUES ('menu:sessions', 'Session 管理', 'menu', 0, '/sessions', NULL, 'ClockCircleOutlined', 'SessionList', 1, 1, 20)
+ON DUPLICATE KEY UPDATE code = code;
+
+INSERT INTO sys_permission (code, name, type, parent_id, path, method, icon, component, visible, status, sort)
+VALUES ('menu:roles', '角色管理', 'menu', @system_menu_id, '/roles', NULL, 'TeamOutlined', 'RoleList', 1, 1, 30)
+ON DUPLICATE KEY UPDATE code = code;
+
+INSERT INTO sys_permission (code, name, type, parent_id, path, method, icon, component, visible, status, sort)
+VALUES ('menu:permissions', '权限配置', 'menu', @system_menu_id, '/permissions', NULL, 'SafetyOutlined', 'PermissionList', 1, 1, 40)
 ON DUPLICATE KEY UPDATE code = code;
 
 INSERT INTO sys_user_role (user_id, role_id)
 SELECT u.id, r.id FROM sys_user u, sys_role r
 WHERE u.username = 'admin' AND r.code = 'admin'
 AND NOT EXISTS (SELECT 1 FROM sys_user_role WHERE user_id = u.id AND role_id = r.id);
+
+-- 管理员拥有所有菜单
+INSERT INTO sys_role_permission (role_id, permission_id)
+SELECT r.id, p.id FROM sys_role r, sys_permission p
+WHERE r.code = 'admin'
+  AND p.code IN ('menu:users', 'menu:sessions', 'menu:system', 'menu:roles', 'menu:permissions')
+  AND NOT EXISTS (
+    SELECT 1 FROM sys_role_permission WHERE role_id = r.id AND permission_id = p.id
+);
 
 INSERT INTO sys_role_permission (role_id, permission_id)
 SELECT r.id, p.id FROM sys_role r, sys_permission p

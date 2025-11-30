@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { Input, Button, Dropdown, Avatar, Badge, Breadcrumb } from 'antd';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { Input, Button, Dropdown, Avatar, Badge, Breadcrumb, Empty, Spin } from 'antd';
 import { 
   SearchOutlined, 
   BellOutlined, 
@@ -22,100 +22,24 @@ import request from '../api/index.js';
 import SidebarMenu from './SidebarMenu.jsx';
 import './AppLayout.css';
 
-// 菜单配置 - 可以从数据库获取
-// 支持多级菜单、分组和分隔符
-const menuItems = [
-  {
-    key: 'users',
-    label: '用户管理',
-    path: '/',
-    icon: HomeOutlined,
-  },
-  {
-    key: 'sessions',
-    label: 'Session管理',
-    path: '/sessions',
-    icon: ClockCircleOutlined,
-  },
-  {
-    key: 'system',
-    label: '系统管理',
-    icon: AppstoreOutlined,
-    children: [
-      {
-        key: 'g1',
-        label: '权限管理',
-        type: 'group',
-        children: [
-          {
-            key: 'roles',
-            label: '角色管理',
-            path: '/roles',
-            icon: TeamOutlined,
-          },
-          {
-            key: 'permissions',
-            label: '权限配置',
-            path: '/permissions',
-            icon: SafetyOutlined,
-          },
-        ],
-      },
-      // {
-      //   key: 'g2',
-      //   label: '系统设置',
-      //   type: 'group',
-      //   children: [
-      //     {
-      //       key: 'settings',
-      //       label: '系统设置',
-      //       icon: SettingOutlined,
-      //       children: [
-      //         {
-      //           key: 'general',
-      //           label: '通用设置',
-      //           path: '/settings/general',
-      //           icon: FileTextOutlined,
-      //         },
-      //         {
-      //           key: 'security',
-      //           label: '安全设置',
-      //           path: '/settings/security',
-      //           icon: SafetyOutlined,
-      //         },
-      //       ],
-      //     },
-      //     {
-      //       key: 'users-config',
-      //       label: '用户配置',
-      //       path: '/system/users-config',
-      //       icon: UserSwitchOutlined,
-      //     },
-      //   ],
-      // },
-    ],
-  },
-  {
-    type: 'divider',
-  },
-  {
-    key: 'notifications',
-    label: '通知中心',
-    icon: MailOutlined,
-    children: [
-      {
-        key: 'messages',
-        label: '消息通知',
-        path: '/notifications/messages',
-      },
-      {
-        key: 'alerts',
-        label: '告警通知',
-        path: '/notifications/alerts',
-      },
-    ],
-  },
-];
+const ICON_MAP = {
+  HomeOutlined,
+  TeamOutlined,
+  ClockCircleOutlined,
+  AppstoreOutlined,
+  MailOutlined,
+  SettingOutlined,
+  SafetyOutlined,
+  UserSwitchOutlined,
+  FileTextOutlined,
+};
+
+const getIconComponent = (iconName) => {
+  if (!iconName) {
+    return undefined;
+  }
+  return ICON_MAP[iconName] || FileTextOutlined;
+};
 
 // 退出登录菜单项
 const logoutItem = {
@@ -131,7 +55,61 @@ export default function AppLayout() {
   const location = useLocation();
   const [searchValue, setSearchValue] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [menuTree, setMenuTree] = useState([]);
+  const [menuLoading, setMenuLoading] = useState(false);
+  const [pathMetaMap, setPathMetaMap] = useState({});
   const userMenuRef = useRef(null);
+
+  const sortMenus = useCallback((menus = []) => {
+    return [...menus].sort((a, b) => {
+      const sortA = a?.sort ?? 0;
+      const sortB = b?.sort ?? 0;
+      if (sortA !== sortB) {
+        return sortA - sortB;
+      }
+      const idA = a?.id ?? 0;
+      const idB = b?.id ?? 0;
+      return idA - idB;
+    });
+  }, []);
+
+  const transformMenuData = useCallback((menus = []) => {
+    if (!Array.isArray(menus)) {
+      return [];
+    }
+    return sortMenus(menus).map(item => {
+      const key = item?.id ? String(item.id) : (item?.code || item?.path || Math.random().toString(36).slice(2));
+      const menuItem = {
+        key,
+        label: item?.name || key,
+        path: item?.path,
+        icon: getIconComponent(item?.icon),
+      };
+      if (Array.isArray(item?.children) && item.children.length > 0) {
+        menuItem.children = transformMenuData(item.children);
+      }
+      return menuItem;
+    });
+  }, [sortMenus]);
+
+  const extractPathMeta = useCallback((menus = []) => {
+    const map = {};
+    const traverse = (items = []) => {
+      items.forEach(item => {
+        if (item.path) {
+          map[item.path] = {
+            label: item.label,
+            icon: item.icon,
+          };
+        }
+        if (item.children && item.children.length > 0) {
+          traverse(item.children);
+        }
+      });
+    };
+    traverse(menus);
+    return map;
+  }, []);
 
   // 如果 token 存在但没有用户信息，尝试获取用户信息
   useEffect(() => {
@@ -165,13 +143,78 @@ export default function AppLayout() {
     fetchCurrentUser();
   }, [token, user, setUser]);
 
-  // 面包屑配置
-  const breadcrumbMap = {
-    '/': { title: '用户管理', icon: HomeOutlined },
-    '/roles': { title: '角色管理', icon: TeamOutlined },
-    '/permissions': { title: '权限管理', icon: SafetyOutlined },
-    '/sessions': { title: 'Session管理', icon: ClockCircleOutlined },
-  };
+  const fetchMenus = useCallback(async () => {
+    if (!token) {
+      setMenuTree([]);
+      setPathMetaMap({});
+      return;
+    }
+    setMenuLoading(true);
+    try {
+      const res = await request.get('/menus/my');
+      if (res.code === 200 && Array.isArray(res.data)) {
+        const transformed = transformMenuData(res.data);
+        setMenuTree(transformed);
+        setPathMetaMap(extractPathMeta(transformed));
+      } else {
+        setMenuTree([]);
+        setPathMetaMap({});
+      }
+    } catch (error) {
+      console.error('获取菜单失败:', error);
+      setMenuTree([]);
+      setPathMetaMap({});
+    } finally {
+      setMenuLoading(false);
+    }
+  }, [token, transformMenuData, extractPathMeta]);
+
+  useEffect(() => {
+    fetchMenus();
+  }, [fetchMenus]);
+
+  const allowedPaths = useMemo(() => {
+    const paths = [];
+    const traverse = (items = []) => {
+      items.forEach(item => {
+        if (item.path) {
+          paths.push(item.path);
+        }
+        if (item.children && item.children.length > 0) {
+          traverse(item.children);
+        }
+      });
+    };
+    traverse(menuTree);
+    return paths;
+  }, [menuTree]);
+
+  useEffect(() => {
+    if (!token || menuLoading || allowedPaths.length === 0) {
+      return;
+    }
+    const currentPath = location.pathname;
+    const matched = allowedPaths.some(path => currentPath === path || currentPath.startsWith(`${path}/`));
+    if (!matched) {
+      navigate(allowedPaths[0], { replace: true });
+    }
+  }, [allowedPaths, location.pathname, menuLoading, navigate, token]);
+
+  const currentBreadcrumb = useMemo(() => {
+    const currentPath = location.pathname;
+    if (!currentPath) {
+      return null;
+    }
+    let matched = null;
+    Object.entries(pathMetaMap).forEach(([path, meta]) => {
+      if (currentPath === path || currentPath.startsWith(`${path}/`)) {
+        if (!matched || path.length > matched.path.length) {
+          matched = { path, ...meta };
+        }
+      }
+    });
+    return matched;
+  }, [location.pathname, pathMetaMap]);
 
   // 生成面包屑数据
   const breadcrumbItems = useMemo(() => {
@@ -189,21 +232,20 @@ export default function AppLayout() {
       },
     ];
 
-    const currentPath = location.pathname;
-    if (currentPath !== '/' && breadcrumbMap[currentPath]) {
-      const config = breadcrumbMap[currentPath];
+    if (currentBreadcrumb && currentBreadcrumb.path !== '/') {
+      const IconComponent = currentBreadcrumb.icon || FileTextOutlined;
       items.push({
         title: (
           <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <config.icon />
-            <span>{config.title}</span>
+            {IconComponent ? <IconComponent /> : <FileTextOutlined />}
+            <span>{currentBreadcrumb.label}</span>
           </span>
         ),
       });
     }
 
     return items;
-  }, [location.pathname, navigate]);
+  }, [currentBreadcrumb, navigate]);
 
   // 点击外部区域关闭下拉菜单
   useEffect(() => {
@@ -338,7 +380,21 @@ export default function AppLayout() {
             </div>
           </div>
           
-          <SidebarMenu items={menuItems} onItemClick={handleMenuClick} />
+          <div style={{ flex: 1, width: '100%' }}>
+            {menuLoading ? (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
+                <Spin />
+              </div>
+            ) : menuTree.length > 0 ? (
+              <SidebarMenu items={menuTree} onItemClick={handleMenuClick} />
+            ) : (
+              <Empty
+                description="暂无可用菜单"
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                style={{ padding: '24px 0' }}
+              />
+            )}
+          </div>
           <div className="sidebar-footer">
             <SidebarMenu items={[logoutItem]} onItemClick={handleMenuClick} />
           </div>

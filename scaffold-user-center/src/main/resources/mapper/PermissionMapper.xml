@@ -11,6 +11,9 @@
         <result column="parent_id" property="parentId"/>
         <result column="path" property="path"/>
         <result column="method" property="method"/>
+        <result column="icon" property="icon"/>
+        <result column="component" property="component"/>
+        <result column="visible" property="visible"/>
         <result column="status" property="status"/>
         <result column="sort" property="sort"/>
         <result column="create_time" property="createTime"/>
@@ -18,12 +21,12 @@
     </resultMap>
 
     <sql id="BaseColumns">
-        id, code, name, type, parent_id, path, method, status, sort, create_time, update_time
+        id, code, name, type, parent_id, path, method, icon, component, visible, status, sort, create_time, update_time
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO sys_permission (code, name, type, parent_id, path, method, status, sort)
-        VALUES (#{code}, #{name}, #{type}, #{parentId}, #{path}, #{method}, #{status}, #{sort})
+        INSERT INTO sys_permission (code, name, type, parent_id, path, method, icon, component, visible, status, sort)
+        VALUES (#{code}, #{name}, #{type}, #{parentId}, #{path}, #{method}, #{icon}, #{component}, #{visible}, #{status}, #{sort})
     </insert>
 
     <update id="update">
@@ -34,6 +37,9 @@
             <if test="parentId != null"> parent_id = #{parentId},</if>
             <if test="path != null"> path = #{path},</if>
             <if test="method != null"> method = #{method},</if>
+            <if test="icon != null"> icon = #{icon},</if>
+            <if test="component != null"> component = #{component},</if>
+            <if test="visible != null"> visible = #{visible},</if>
             <if test="status != null"> status = #{status},</if>
             <if test="sort != null"> sort = #{sort},</if>
         </set>

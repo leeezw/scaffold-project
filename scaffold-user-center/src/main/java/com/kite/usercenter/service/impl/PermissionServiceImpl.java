@@ -46,6 +46,9 @@ public class PermissionServiceImpl implements PermissionService {
         dto.setParentId(permission.getParentId());
         dto.setPath(permission.getPath());
         dto.setMethod(permission.getMethod());
+        dto.setIcon(permission.getIcon());
+        dto.setComponent(permission.getComponent());
+        dto.setVisible(permission.getVisible());
         dto.setStatus(permission.getStatus());
         dto.setSort(permission.getSort());
         return dto;
