@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Card, Statistic, Button, Space, Tag, Modal, Form, message, Input, Select } from 'antd';
+import { Card, Statistic, Button, Space, Tag, Modal, Form, message, Input, Select, Drawer, Tree, Spin } from 'antd';
 import { 
   SafetyOutlined, 
   CheckCircleOutlined, 
@@ -29,6 +29,11 @@ export default function RoleList() {
   const [filterParams, setFilterParams] = useState({ status: 'all' });
   const [permissionTree, setPermissionTree] = useState([]);
   const [permissionTreeLoading, setPermissionTreeLoading] = useState(true);
+  const [grantDrawerVisible, setGrantDrawerVisible] = useState(false);
+  const [grantLoading, setGrantLoading] = useState(false);
+  const [grantTree, setGrantTree] = useState([]);
+  const [grantCheckedKeys, setGrantCheckedKeys] = useState([]);
+  const [grantRole, setGrantRole] = useState(null);
   const debounceTimerRef = useRef(null);
 
   // 防抖处理筛选
@@ -218,6 +223,73 @@ export default function RoleList() {
     setEditingRole(null);
   };
 
+  const buildTreeData = useCallback((nodes = []) => {
+    return nodes.map(node => ({
+      title: (
+        <span>
+          <strong>{node.name}</strong>
+          <span style={{ marginLeft: 6, color: '#999' }}>({node.code})</span>
+        </span>
+      ),
+      key: node.id?.toString(),
+      children: node.children && node.children.length > 0 ? buildTreeData(node.children) : undefined,
+    }));
+  }, []);
+
+  const handleOpenGrantDrawer = async (record) => {
+    setGrantDrawerVisible(true);
+    setGrantRole(record);
+    setGrantLoading(true);
+    try {
+      const res = await request.get(`/roles/${record.id}/permissions`);
+      if (res.code === 200 && res.data) {
+        setGrantTree(buildTreeData(res.data.tree || []));
+        const checked = (res.data.checkedKeys || []).map(id => id?.toString());
+        setGrantCheckedKeys(checked);
+      } else {
+        setGrantTree([]);
+        setGrantCheckedKeys([]);
+      }
+    } catch (error) {
+      message.error(error.message || '加载权限数据失败');
+    } finally {
+      setGrantLoading(false);
+    }
+  };
+
+  const handleGrantCheck = (checkedKeysValue) => {
+    if (Array.isArray(checkedKeysValue)) {
+      setGrantCheckedKeys(checkedKeysValue);
+    } else if (checkedKeysValue?.checked) {
+      setGrantCheckedKeys(checkedKeysValue.checked);
+    }
+  };
+
+  const handleGrantSubmit = async () => {
+    if (!grantRole) {
+      return;
+    }
+    setGrantLoading(true);
+    try {
+      const payload = {
+        permissionIds: grantCheckedKeys.map(key => Number(key)),
+      };
+      const res = await request.post(`/roles/${grantRole.id}/permissions`, payload);
+      if (res.code === 200) {
+        message.success('菜单授权成功');
+        setGrantDrawerVisible(false);
+        setGrantRole(null);
+        handleRefresh();
+      } else {
+        message.error(res.message || '授权失败');
+      }
+    } catch (error) {
+      message.error(error.message || '授权失败');
+    } finally {
+      setGrantLoading(false);
+    }
+  };
+
   // 修改角色状态
   const handleChangeStatus = async (record) => {
     const newStatus = record.status === 1 ? 0 : 1;
@@ -347,6 +419,13 @@ export default function RoleList() {
       width: 200,
       render: (_, record) => (
         <Space size="small">
+          <Button 
+            type="text" 
+            icon={<SafetyOutlined />} 
+            size="small"
+            title="菜单授权"
+            onClick={() => handleOpenGrantDrawer(record)}
+          />
           <Button 
             type="text" 
             icon={<EditOutlined />} 
@@ -503,6 +582,40 @@ export default function RoleList() {
           </Button>
         </div>
       </Modal>
+
+      <Drawer
+        title={grantRole ? `菜单授权 - ${grantRole.name || grantRole.code}` : '菜单授权'}
+        placement="right"
+        width={420}
+        open={grantDrawerVisible}
+        onClose={() => {
+          setGrantDrawerVisible(false);
+          setGrantRole(null);
+        }}
+        extra={(
+          <Space>
+            <Button onClick={() => setGrantDrawerVisible(false)}>取消</Button>
+            <Button type="primary" loading={grantLoading} onClick={handleGrantSubmit}>
+              保存
+            </Button>
+          </Space>
+        )}
+      >
+        {grantLoading ? (
+          <div style={{ textAlign: 'center', padding: '40px 0' }}>
+            <Spin />
+          </div>
+        ) : (
+          <Tree
+            checkable
+            selectable={false}
+            treeData={grantTree}
+            checkedKeys={grantCheckedKeys}
+            onCheck={handleGrantCheck}
+            defaultExpandAll
+          />
+        )}
+      </Drawer>
     </div>
   );
 }

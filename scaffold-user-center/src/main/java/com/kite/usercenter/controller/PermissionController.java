@@ -29,7 +29,7 @@ public class PermissionController {
     @RequiresPermissions({"permission:list", "*:*:*"})
     @GetMapping("/tree")
     public Result<List<PermissionDTO>> tree() {
-        return Result.success(permissionService.listAll());
+        return Result.success(permissionService.listGrantedTreeForCurrentUser());
     }
 
     @Operation(summary = "创建权限/菜单")

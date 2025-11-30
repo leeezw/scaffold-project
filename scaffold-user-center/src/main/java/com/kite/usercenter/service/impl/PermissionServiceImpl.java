@@ -1,5 +1,7 @@
 package com.kite.usercenter.service.impl;
 
+import com.kite.authenticator.context.LoginUser;
+import com.kite.authenticator.context.LoginUserContext;
 import com.kite.common.exception.BusinessException;
 import com.kite.common.response.ResultCode;
 import com.kite.usercenter.dto.PermissionDTO;
@@ -35,6 +37,24 @@ public class PermissionServiceImpl implements PermissionService {
                 .map(this::toDTO)
                 .collect(Collectors.groupingBy(dto -> dto.getParentId() == null ? 0L : dto.getParentId()));
         return buildTree(0L, grouped);
+    }
+
+    @Override
+    public List<PermissionDTO> listGrantedTreeForCurrentUser() {
+        LoginUser loginUser = LoginUserContext.getLoginUser();
+        if (loginUser == null) {
+            return Collections.emptyList();
+        }
+        List<String> permissions = loginUser.getPermissions();
+        if (permissions == null) {
+            return Collections.emptyList();
+        }
+        if (permissions.contains("*:*:*")) {
+            return listAll();
+        }
+        Set<String> allowedCodes = new HashSet<>(permissions);
+        List<PermissionDTO> tree = listAll();
+        return filterTreeRecursive(tree, allowedCodes);
     }
 
     @Override
@@ -152,5 +172,21 @@ public class PermissionServiceImpl implements PermissionService {
         dto.setStatus(permission.getStatus());
         dto.setSort(permission.getSort());
         return dto;
+    }
+
+    private List<PermissionDTO> filterTreeRecursive(List<PermissionDTO> nodes, Set<String> allowedCodes) {
+        if (nodes == null || nodes.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<PermissionDTO> result = new ArrayList<>();
+        for (PermissionDTO node : nodes) {
+            List<PermissionDTO> filteredChildren = filterTreeRecursive(node.getChildren(), allowedCodes);
+            boolean allowed = allowedCodes.contains(node.getCode());
+            if (allowed || !filteredChildren.isEmpty()) {
+                node.setChildren(filteredChildren);
+                result.add(node);
+            }
+        }
+        return result;
     }
 }

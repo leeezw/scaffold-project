@@ -9,6 +9,8 @@ public interface PermissionService {
     
     List<PermissionDTO> listAll();
 
+    List<PermissionDTO> listGrantedTreeForCurrentUser();
+
     void create(PermissionRequest request);
 
     void update(Long id, PermissionRequest request);

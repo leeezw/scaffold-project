@@ -4,8 +4,10 @@ import com.kite.authenticator.annotation.RequiresPermissions;
 import com.kite.common.annotation.OperationLog;
 import com.kite.common.response.Result;
 import com.kite.usercenter.dto.RoleDTO;
+import com.kite.usercenter.dto.RolePermissionRequest;
 import com.kite.usercenter.dto.RoleRequest;
 import com.kite.usercenter.service.RoleService;
+import com.kite.usercenter.vo.RolePermissionVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.validation.annotation.Validated;
@@ -63,6 +65,24 @@ public class RoleController {
     @OperationLog(module = "角色管理", operationType = "删除", description = "删除角色")
     public Result<Void> deleteRole(@PathVariable Long id) {
         roleService.delete(id);
+        return Result.success();
+    }
+
+    @Operation(summary = "获取角色权限树")
+    @RequiresPermissions({"role:list", "*:*:*"})
+    @GetMapping("/{id}/permissions")
+    public Result<RolePermissionVO> getRolePermissions(@PathVariable Long id) {
+        return Result.success(roleService.getRolePermissions(id));
+    }
+
+    @Operation(summary = "保存角色权限")
+    @RequiresPermissions({"role:update", "*:*:*"})
+    @PostMapping("/{id}/permissions")
+    @OperationLog(module = "角色管理", operationType = "修改", description = "保存角色菜单权限")
+    public Result<Void> grantPermissions(@PathVariable Long id,
+                                         @RequestBody @Validated RolePermissionRequest request) {
+        request.setRoleId(id);
+        roleService.grantPermissions(request);
         return Result.success();
     }
 }
