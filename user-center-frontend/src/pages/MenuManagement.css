@@ -1,0 +1,18 @@
+.menu-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.menu-node {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.menu-type {
+  margin: 0 8px;
+  font-size: 12px;
+  color: #999;
+}

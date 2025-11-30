@@ -1,0 +1,15 @@
+.tenant-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tenant-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tenant-header h2 {
+  margin: 0;
+}

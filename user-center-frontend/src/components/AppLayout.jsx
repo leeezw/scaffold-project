@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { Input, Button, Dropdown, Avatar, Badge, Breadcrumb } from 'antd';
+import { Input, Button, Dropdown, Avatar, Badge, Breadcrumb, Spin } from 'antd';
 import { 
   SearchOutlined, 
   BellOutlined, 
@@ -22,100 +22,50 @@ import request from '../api/index.js';
 import SidebarMenu from './SidebarMenu.jsx';
 import './AppLayout.css';
 
-// 菜单配置 - 可以从数据库获取
-// 支持多级菜单、分组和分隔符
-const menuItems = [
-  {
-    key: 'users',
-    label: '用户管理',
-    path: '/',
-    icon: HomeOutlined,
-  },
-  {
-    key: 'sessions',
-    label: 'Session管理',
-    path: '/sessions',
-    icon: ClockCircleOutlined,
-  },
-  {
-    key: 'system',
-    label: '系统管理',
-    icon: AppstoreOutlined,
-    children: [
-      {
-        key: 'g1',
-        label: '权限管理',
-        type: 'group',
-        children: [
-          {
-            key: 'roles',
-            label: '角色管理',
-            path: '/roles',
-            icon: TeamOutlined,
-          },
-          {
-            key: 'permissions',
-            label: '权限配置',
-            path: '/permissions',
-            icon: SafetyOutlined,
-          },
-        ],
-      },
-      // {
-      //   key: 'g2',
-      //   label: '系统设置',
-      //   type: 'group',
-      //   children: [
-      //     {
-      //       key: 'settings',
-      //       label: '系统设置',
-      //       icon: SettingOutlined,
-      //       children: [
-      //         {
-      //           key: 'general',
-      //           label: '通用设置',
-      //           path: '/settings/general',
-      //           icon: FileTextOutlined,
-      //         },
-      //         {
-      //           key: 'security',
-      //           label: '安全设置',
-      //           path: '/settings/security',
-      //           icon: SafetyOutlined,
-      //         },
-      //       ],
-      //     },
-      //     {
-      //       key: 'users-config',
-      //       label: '用户配置',
-      //       path: '/system/users-config',
-      //       icon: UserSwitchOutlined,
-      //     },
-      //   ],
-      // },
-    ],
-  },
-  {
-    type: 'divider',
-  },
-  {
-    key: 'notifications',
-    label: '通知中心',
-    icon: MailOutlined,
-    children: [
-      {
-        key: 'messages',
-        label: '消息通知',
-        path: '/notifications/messages',
-      },
-      {
-        key: 'alerts',
-        label: '告警通知',
-        path: '/notifications/alerts',
-      },
-    ],
-  },
-];
+const MENU_ICON_MAP = {
+  HomeOutlined,
+  TeamOutlined,
+  ClockCircleOutlined,
+  AppstoreOutlined,
+  MailOutlined,
+  SafetyOutlined,
+  SettingOutlined,
+  UserSwitchOutlined,
+  FileTextOutlined,
+};
+
+const transformMenuTree = (menus = [], parentKey = 'menu') => {
+  if (!Array.isArray(menus)) {
+    return [];
+  }
+
+  return menus
+    .filter((item) => item && item.type !== 'BUTTON' && item.visible !== false && item.status !== 0)
+    .sort((a, b) => (a?.sort ?? 0) - (b?.sort ?? 0))
+    .map((item, index) => {
+      const key = item.id != null 
+        ? String(item.id) 
+        : String(item.permission || item.path || `${parentKey}-${index}`);
+
+      const normalized = {
+        key,
+        label: item.name,
+        path: item.path || undefined,
+      };
+
+      const IconComponent = item.icon ? MENU_ICON_MAP[item.icon] : undefined;
+      if (IconComponent) {
+        normalized.icon = IconComponent;
+      }
+
+      const children = transformMenuTree(item.children || [], key);
+      if (children.length > 0) {
+        normalized.children = children;
+      }
+
+      return normalized;
+    });
+};
 
 // 退出登录菜单项
 const logoutItem = {
@@ -129,6 +79,10 @@ export default function AppLayout() {
   const { user, setUser, setToken, token } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
+  const [menuItems, setMenuItems] = useState([]);
+  const [menuLoading, setMenuLoading] = useState(true);
+  const [menuError, setMenuError] = useState('');
+  const [menuReloadFlag, setMenuReloadFlag] = useState(0);
   const [searchValue, setSearchValue] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
@@ -164,6 +118,52 @@ export default function AppLayout() {
 
     fetchCurrentUser();
   }, [token, user, setUser]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchMenus = async () => {
+      if (!token) {
+        setMenuItems([]);
+        setMenuError('');
+        setMenuLoading(false);
+        return;
+      }
+
+      setMenuLoading(true);
+      setMenuError('');
+
+      try {
+        const res = await request.get('/menus/tree', {
+          params: { status: 1 }
+        });
+
+        if (ignore) return;
+
+        if (res.code !== 200) {
+          throw new Error(res.message || '菜单加载失败');
+        }
+
+        const data = Array.isArray(res.data) ? res.data : [];
+        setMenuItems(transformMenuTree(data));
+      } catch (error) {
+        if (ignore) return;
+        console.error('菜单数据加载失败:', error);
+        setMenuItems([]);
+        setMenuError(error.message || '菜单加载失败');
+      } finally {
+        if (!ignore) {
+          setMenuLoading(false);
+        }
+      }
+    };
+
+    fetchMenus();
+
+    return () => {
+      ignore = true;
+    };
+  }, [token, menuReloadFlag]);
 
   // 面包屑配置
   const breadcrumbMap = {
@@ -245,6 +245,10 @@ export default function AppLayout() {
     if (item.key === 'logout') {
       handleLogout();
     }
+  };
+
+  const retryLoadMenus = () => {
+    setMenuReloadFlag((flag) => flag + 1);
   };
 
   const handleSearch = (e) => {
@@ -335,10 +339,47 @@ export default function AppLayout() {
             <div className="logo-text">
               <div className="logo-title">用户中心</div>
               <div className="logo-subtitle">User Center</div>
-            </div>
           </div>
-          
-          <SidebarMenu items={menuItems} onItemClick={handleMenuClick} />
+        </div>
+        
+          {menuLoading ? (
+            <div
+              style={{
+                padding: '12px 16px',
+                color: '#94a3b8',
+                fontSize: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              <Spin size="small" />
+              <span>菜单加载中...</span>
+            </div>
+          ) : menuError ? (
+            <div
+              style={{
+                padding: '12px 16px',
+                color: '#ef4444',
+                fontSize: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '6px'
+              }}
+            >
+              <span>{menuError}</span>
+              <Button
+                type="link"
+                size="small"
+                onClick={retryLoadMenus}
+                style={{ padding: 0, alignSelf: 'flex-start' }}
+              >
+                重试
+              </Button>
+            </div>
+          ) : (
+            <SidebarMenu items={menuItems} onItemClick={handleMenuClick} />
+          )}
           <div className="sidebar-footer">
             <SidebarMenu items={[logoutItem]} onItemClick={handleMenuClick} />
           </div>

@@ -107,7 +107,7 @@
         SELECT COUNT(1)
         FROM sys_user
         <where>
-            status = 1
+            AND status = 1
             <if test="keyword != null and keyword != ''">
                 AND (username LIKE CONCAT('%', #{keyword}, '%')
                  OR nickname LIKE CONCAT('%', #{keyword}, '%')
@@ -121,7 +121,7 @@
         SELECT COUNT(1)
         FROM sys_user
         <where>
-            status = 0
+            AND status = 0
             <if test="keyword != null and keyword != ''">
                 AND (username LIKE CONCAT('%', #{keyword}, '%')
                  OR nickname LIKE CONCAT('%', #{keyword}, '%')
@@ -135,7 +135,7 @@
         SELECT COUNT(1)
         FROM sys_user
         <where>
-            DATE(create_time) = CURDATE()
+            AND DATE(create_time) = CURDATE()
             <if test="keyword != null and keyword != ''">
                 AND (username LIKE CONCAT('%', #{keyword}, '%')
                  OR nickname LIKE CONCAT('%', #{keyword}, '%')
