@@ -38,5 +38,9 @@ public interface SessionDao {
      * 删除用户的所有 Session
      */
     void deleteUserSessions(Long userId);
+    
+    /**
+     * 获取所有 Session 列表
+     */
+    java.util.List<Session> listAllSessions();
 }
-

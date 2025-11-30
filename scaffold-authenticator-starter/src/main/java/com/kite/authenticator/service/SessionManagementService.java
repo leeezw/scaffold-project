@@ -1,5 +1,9 @@
 package com.kite.authenticator.service;
 
+
+import com.kite.authenticator.session.Session;
+
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -34,6 +38,21 @@ public interface SessionManagementService {
     Set<String> getUserSessionKeys(Long userId);
     
     /**
+     * 获取用户的 Session 列表
+     * 
+     * @param userId 用户ID
+     * @return Session 列表
+     */
+    List<Session> getUserSessions(Long userId);
+    
+    /**
+     * 获取所有 Session 列表
+     * 
+     * @return Session 列表
+     */
+    List<Session> listAllSessions();
+    
+    /**
      * 禁用用户（禁用所有 Session）
      * 
      * @param userId 用户ID
@@ -47,4 +66,3 @@ public interface SessionManagementService {
      */
     void deleteSession(String sessionKey);
 }
-

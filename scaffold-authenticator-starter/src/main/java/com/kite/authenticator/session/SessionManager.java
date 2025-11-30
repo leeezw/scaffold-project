@@ -29,9 +29,11 @@ public class SessionManager {
         session.setSessionKey(sessionKey);
         session.setUserId(loginUser.getUserId());
         session.setDeviceId(deviceId != null ? deviceId : "default");
-        session.setStartTime(System.currentTimeMillis());
-        session.setLastAccessTime(System.currentTimeMillis());
-        session.setExpireAt(System.currentTimeMillis() + expireTime);
+        long now = System.currentTimeMillis();
+        session.setStartTime(now);
+        session.setLastAccessTime(now);
+        session.setOperateAt(now);
+        session.setExpireAt(now + expireTime);
         session.setStatus(UserStatus.NORMAL.getCode());
         
         sessionDao.create(session);
@@ -61,23 +63,44 @@ public class SessionManager {
     }
     
     /**
-     * 获取用户的所有 Session
+     * 获取用户的所有 Session Key
      */
     public java.util.Set<String> getUserSessionKeys(Long userId) {
         return sessionDao.getUserSessionKeys(userId);
     }
     
     /**
-     * 删除用户的所有 Session（强制下线）
+     * 获取用户的所有 Session
      */
-    public void kickOutUser(Long userId) {
+    public java.util.List<Session> getUserSessions(Long userId) {
         java.util.Set<String> sessionKeys = getUserSessionKeys(userId);
+        java.util.List<Session> sessions = new java.util.ArrayList<>();
         for (String sessionKey : sessionKeys) {
             Session session = getSession(sessionKey);
             if (session != null) {
-                session.modifyStatus(UserStatus.KICK_OUT);
-                sessionDao.update(session);
+                sessions.add(session);
             }
+        }
+        return sessions;
+    }
+    
+    /**
+     * 获取所有 Session
+     */
+    public java.util.List<Session> getAllSessions() {
+        return sessionDao.listAllSessions();
+    }
+    
+    /**
+     * 删除用户的所有 Session（强制下线）
+     */
+    public void kickOutUser(Long userId) {
+        java.util.List<Session> sessions = getUserSessions(userId);
+        long now = System.currentTimeMillis();
+        for (Session session : sessions) {
+            session.modifyStatus(UserStatus.KICK_OUT);
+            session.setOperateAt(now);
+            sessionDao.update(session);
         }
     }
     
@@ -85,14 +108,14 @@ public class SessionManager {
      * 删除指定设备的 Session
      */
     public void kickOutDevice(Long userId, String deviceId) {
-        java.util.Set<String> sessionKeys = getUserSessionKeys(userId);
-        for (String sessionKey : sessionKeys) {
-            Session session = getSession(sessionKey);
-            if (session != null && session.matchDevice(deviceId)) {
+        java.util.List<Session> sessions = getUserSessions(userId);
+        long now = System.currentTimeMillis();
+        for (Session session : sessions) {
+            if (session.matchDevice(deviceId)) {
                 session.modifyStatus(UserStatus.DEVICE_KICK_OUT);
+                session.setOperateAt(now);
                 sessionDao.update(session);
             }
         }
     }
 }
-

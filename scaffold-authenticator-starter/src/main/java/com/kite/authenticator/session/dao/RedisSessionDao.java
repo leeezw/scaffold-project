@@ -133,5 +133,25 @@ public class RedisSessionDao implements SessionDao {
             }
         }
     }
+    
+    @Override
+    public java.util.List<Session> listAllSessions() {
+        java.util.List<Session> sessions = new java.util.ArrayList<>();
+        Set<String> keys = redisTemplate.keys(SESSION_KEY_PREFIX + "*");
+        if (keys == null || keys.isEmpty()) {
+            return sessions;
+        }
+        for (String key : keys) {
+            Object value = redisTemplate.opsForValue().get(key);
+            if (value == null) {
+                continue;
+            }
+            if (value instanceof String) {
+                sessions.add(JsonUtils.parseObject((String) value, DefaultSession.class));
+            } else {
+                sessions.add(JsonUtils.parseObject(JsonUtils.toJsonString(value), DefaultSession.class));
+            }
+        }
+        return sessions;
+    }
 }
-

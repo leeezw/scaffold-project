@@ -52,6 +52,44 @@
   line-height: 34px;
 }
 
+.session-info-cell {
+  min-width: 200px;
+}
+
+.session-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.session-device-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0a1629;
+}
+
+.session-key-text {
+  font-size: 12px;
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: block;
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.session-timeline {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.timeline-label {
+  color: #9ca3af;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .stats-grid {

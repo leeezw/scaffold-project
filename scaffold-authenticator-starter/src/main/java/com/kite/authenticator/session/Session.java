@@ -47,6 +47,11 @@ public interface Session extends SessionKey, SessionStatus, Serializable {
     void setStartTime(Long startTime);
     
     /**
+     * 设置最近操作时间
+     */
+    void setOperateAt(Long operateAt);
+    
+    /**
      * 判断是否过期
      */
     boolean isExpired();
@@ -76,4 +81,3 @@ public interface Session extends SessionKey, SessionStatus, Serializable {
      */
     void modifyStatus(UserStatus status);
 }
-

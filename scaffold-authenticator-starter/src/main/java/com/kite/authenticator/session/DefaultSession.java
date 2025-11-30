@@ -3,7 +3,6 @@ package com.kite.authenticator.session;
 import com.kite.authenticator.session.enums.UserStatus;
 import lombok.Data;
 
-import java.io.Serializable;
 
 /**
  * Session 默认实现
@@ -22,6 +21,7 @@ public class DefaultSession implements Session {
     private Long lastAccessTime;
     private Integer status;
     private Long startTime;
+    private Long operateAt;
     
     @Override
     public boolean isExpired() {
@@ -69,4 +69,3 @@ public class DefaultSession implements Session {
         }
     }
 }
-

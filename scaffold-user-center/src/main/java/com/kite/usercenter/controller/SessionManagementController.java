@@ -4,15 +4,28 @@ import com.kite.authenticator.annotation.RequiresRoles;
 import com.kite.authenticator.context.LoginUserContext;
 import com.kite.authenticator.service.SessionManagementService;
 import com.kite.authenticator.service.TokenBlacklistService;
+import com.kite.authenticator.session.Session;
+import com.kite.authenticator.session.enums.UserStatus;
 import com.kite.common.annotation.OperationLog;
 import com.kite.common.response.Result;
+import com.kite.common.util.PageResult;
+import com.kite.usercenter.dto.SessionListRequest;
+import com.kite.usercenter.dto.UserDTO;
+import com.kite.usercenter.service.UserService;
+import com.kite.usercenter.vo.SessionInfoVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Session 管理控制器
@@ -31,10 +44,13 @@ public class SessionManagementController {
     @Autowired(required = false)
     private TokenBlacklistService tokenBlacklistService;
     
+    @Autowired(required = false)
+    private UserService userService;
+    
     @Operation(summary = "获取当前用户的 Session 列表", description = "获取当前登录用户的所有 Session")
     @GetMapping("/my-sessions")
     @OperationLog(module = "Session管理", operationType = "查询", description = "查询我的Session列表")
-    public Result<Set<String>> getMySessions() {
+    public Result<List<SessionInfoVO>> getMySessions() {
         Long userId = LoginUserContext.getUserId();
         if (userId == null) {
             return Result.fail("用户未登录");
@@ -44,20 +60,20 @@ public class SessionManagementController {
             return Result.fail("Session 管理服务未启用");
         }
         
-        Set<String> sessionKeys = sessionManagementService.getUserSessionKeys(userId);
-        return Result.success(sessionKeys);
+        List<Session> sessions = sessionManagementService.getUserSessions(userId);
+        return Result.success(convertSessions(sessions));
     }
     
     @Operation(summary = "获取指定用户的 Session 列表", description = "管理员查询指定用户的所有 Session")
     @GetMapping("/user/{userId}")
     @OperationLog(module = "Session管理", operationType = "查询", description = "查询用户Session列表")
-    public Result<Set<String>> getUserSessions(@Parameter(description = "用户ID") @PathVariable Long userId) {
+    public Result<List<SessionInfoVO>> getUserSessions(@Parameter(description = "用户ID") @PathVariable Long userId) {
         if (sessionManagementService == null) {
             return Result.fail("Session 管理服务未启用");
         }
         
-        Set<String> sessionKeys = sessionManagementService.getUserSessionKeys(userId);
-        return Result.success(sessionKeys);
+        List<Session> sessions = sessionManagementService.getUserSessions(userId);
+        return Result.success(convertSessions(sessions));
     }
     
     @Operation(summary = "强制用户下线", description = "管理员强制指定用户下线（踢出所有设备）")
@@ -116,5 +132,156 @@ public class SessionManagementController {
         tokenBlacklistService.blacklistToken(token, finalReason);
         return Result.success("Token 已撤销（安全事件）");
     }
-}
+    
+    @Operation(summary = "分页获取 Session 列表", description = "支持按用户、关键字筛选 Session 列表")
+    @PostMapping("/list")
+    @OperationLog(module = "Session管理", operationType = "查询", description = "分页查询Session列表")
+    public Result<PageResult<SessionInfoVO>> listSessions(@RequestBody SessionListRequest request) {
+        if (sessionManagementService == null) {
+            return Result.fail("Session 管理服务未启用");
+        }
+        
+        int pageNum = request.getPageNum() != null && request.getPageNum() > 0 ? request.getPageNum() : 1;
+        int pageSize = request.getPageSize() != null && request.getPageSize() > 0 ? request.getPageSize() : 10;
+        
+        List<Session> sessionList = sessionManagementService.listAllSessions();
+        if (sessionList == null) {
+            sessionList = new ArrayList<>();
+        }
+        
+        Long targetUserId = request.getUserId();
+        if (targetUserId != null) {
+            final Long filterUserId = targetUserId;
+            sessionList = sessionList.stream()
+                    .filter(session -> filterUserId.equals(session.getUserId()))
+                    .collect(Collectors.toList());
+        }
+        
+        Set<Long> userIds = sessionList.stream()
+                .map(Session::getUserId)
+                .filter(id -> id != null && id > 0)
+                .collect(Collectors.toSet());
+        Map<Long, UserDTO> userInfoMap = loadUserInfo(userIds);
+        
+        String keyword = request.getKeyword();
+        if (StringUtils.hasText(keyword)) {
+            String lowerKeyword = keyword.toLowerCase();
+            sessionList = sessionList.stream().filter(session -> {
+                if (session.getSessionKey() != null && session.getSessionKey().toLowerCase().contains(lowerKeyword)) {
+                    return true;
+                }
+                if (session.getDeviceId() != null && session.getDeviceId().toLowerCase().contains(lowerKeyword)) {
+                    return true;
+                }
+                UserDTO user = userInfoMap.get(session.getUserId());
+                if (user != null) {
+                    if (user.getUsername() != null && user.getUsername().toLowerCase().contains(lowerKeyword)) {
+                        return true;
+                    }
+                    if (user.getNickname() != null && user.getNickname().toLowerCase().contains(lowerKeyword)) {
+                        return true;
+                    }
+                }
+                return false;
+            }).collect(Collectors.toList());
+        }
+        
+        sessionList.sort((a, b) -> {
+            long timeA = getSortTime(a);
+            long timeB = getSortTime(b);
+            return Long.compare(timeB, timeA);
+        });
+        
+        List<SessionInfoVO> voList = convertSessions(sessionList, userInfoMap);
+        long total = voList.size();
+        int fromIndex = Math.min((pageNum - 1) * pageSize, voList.size());
+        int toIndex = Math.min(fromIndex + pageSize, voList.size());
+        List<SessionInfoVO> pageList = voList.subList(fromIndex, toIndex);
+        
+        PageResult<SessionInfoVO> pageResult = PageResult.of(pageList, total, pageNum, pageSize);
+        return Result.success(pageResult);
+    }
 
+    private List<SessionInfoVO> convertSessions(List<Session> sessions) {
+        return convertSessions(sessions, null);
+    }
+    
+    private List<SessionInfoVO> convertSessions(List<Session> sessions, Map<Long, UserDTO> userInfoMap) {
+        List<SessionInfoVO> result = new ArrayList<>();
+        if (sessions == null) {
+            return result;
+        }
+        for (Session session : sessions) {
+            SessionInfoVO vo = new SessionInfoVO();
+            vo.setSessionKey(session.getSessionKey());
+            vo.setUserId(session.getUserId());
+            if (userInfoMap != null && session.getUserId() != null) {
+                UserDTO user = userInfoMap.get(session.getUserId());
+                if (user != null) {
+                    vo.setUsername(user.getUsername());
+                    vo.setNickname(user.getNickname());
+                }
+            }
+            vo.setDeviceId(session.getDeviceId());
+            vo.setStatus(session.getStatus());
+            vo.setStatusDesc(resolveStatusDesc(session.getStatus()));
+            vo.setStartTime(session.getStartTime());
+            vo.setLastAccessTime(session.getLastAccessTime());
+            vo.setExpireAt(session.getExpireAt());
+            vo.setOperationTime(session.getOperateAt());
+            result.add(vo);
+        }
+        return result;
+    }
+    
+    private String resolveStatusDesc(Integer statusCode) {
+        UserStatus status = UserStatus.fromCode(statusCode);
+        switch (status) {
+            case NORMAL:
+                return "活跃";
+            case DISABLED:
+                return "已禁用";
+            case KICK_OUT:
+                return "强制下线";
+            case DEVICE_KICK_OUT:
+                return "设备已踢出";
+            case REPLACED:
+                return "已被顶替";
+            default:
+                return "未知";
+        }
+    }
+    
+    private Map<Long, UserDTO> loadUserInfo(Set<Long> userIds) {
+        Map<Long, UserDTO> result = new HashMap<>();
+        if (userService == null || userIds == null || userIds.isEmpty()) {
+            return result;
+        }
+        for (Long userId : userIds) {
+            if (userId == null) {
+                continue;
+            }
+            try {
+                UserDTO user = userService.getUserDetail(userId);
+                if (user != null) {
+                    result.put(userId, user);
+                }
+            } catch (Exception ignore) {
+            }
+        }
+        return result;
+    }
+    
+    private long getSortTime(Session session) {
+        if (session.getOperateAt() != null) {
+            return session.getOperateAt();
+        }
+        if (session.getLastAccessTime() != null) {
+            return session.getLastAccessTime();
+        }
+        if (session.getStartTime() != null) {
+            return session.getStartTime();
+        }
+        return 0L;
+    }
+}

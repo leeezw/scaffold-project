@@ -43,5 +43,9 @@ public interface SessionStatus extends Serializable {
      * 获取开始时间（时间戳）
      */
     Long getStartTime();
+    
+    /**
+     * 获取最近一次操作时间（例如踢出/禁用）
+     */
+    Long getOperateAt();
 }
-

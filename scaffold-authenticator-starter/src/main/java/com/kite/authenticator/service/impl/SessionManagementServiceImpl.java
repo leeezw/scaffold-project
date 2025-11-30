@@ -7,6 +7,7 @@ import com.kite.authenticator.session.enums.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -45,17 +46,32 @@ public class SessionManagementServiceImpl implements SessionManagementService {
     }
     
     @Override
+    public List<Session> getUserSessions(Long userId) {
+        if (sessionManager == null) {
+            return new java.util.ArrayList<>();
+        }
+        return sessionManager.getUserSessions(userId);
+    }
+    
+    @Override
+    public List<Session> listAllSessions() {
+        if (sessionManager == null) {
+            return new java.util.ArrayList<>();
+        }
+        return sessionManager.getAllSessions();
+    }
+    
+    @Override
     public void disableUser(Long userId) {
         if (sessionManager == null) {
             return;
         }
-        Set<String> sessionKeys = getUserSessionKeys(userId);
-        for (String sessionKey : sessionKeys) {
-            Session session = sessionManager.getSession(sessionKey);
-            if (session != null) {
-                session.modifyStatus(UserStatus.DISABLED);
-                sessionManager.updateSession(session);
-            }
+        List<Session> sessions = getUserSessions(userId);
+        long now = System.currentTimeMillis();
+        for (Session session : sessions) {
+            session.modifyStatus(UserStatus.DISABLED);
+            session.setOperateAt(now);
+            sessionManager.updateSession(session);
         }
     }
     
@@ -70,4 +86,3 @@ public class SessionManagementServiceImpl implements SessionManagementService {
         }
     }
 }
-
