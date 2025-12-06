@@ -1,6 +1,7 @@
 -- 用户表
 CREATE TABLE IF NOT EXISTS sys_user (
     id              BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT '主键',
+    tenant_id       BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '租户ID（0 为平台级用户）',
     username        VARCHAR(64)  NOT NULL COMMENT '用户名',
     password        VARCHAR(255) NOT NULL COMMENT '密码（BCrypt）',
     nickname        VARCHAR(64)  DEFAULT NULL COMMENT '昵称',
@@ -13,9 +14,10 @@ CREATE TABLE IF NOT EXISTS sys_user (
     remark          VARCHAR(255) DEFAULT NULL COMMENT '备注',
     create_time     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     update_time     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    UNIQUE KEY uk_username (username),
-    UNIQUE KEY uk_email (email),
-    UNIQUE KEY uk_phone (phone)
+    UNIQUE KEY uk_username (tenant_id, username),
+    UNIQUE KEY uk_email (tenant_id, email),
+    UNIQUE KEY uk_phone (tenant_id, phone),
+    KEY idx_sys_user_tenant (tenant_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
 -- 角色表
@@ -68,8 +70,8 @@ CREATE TABLE IF NOT EXISTS sys_role_permission (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='角色-权限关联';
 
 -- 初始化超级管理员
-INSERT INTO sys_user (username, password, nickname, email, phone, status, remark)
-VALUES ('admin', '$2a$10$Q9uTEt.q6kRXKuX3sI5YbeaUvNbK/C.jYFQki71R.plVQ1BM8DTlC', '超级管理员', 'admin@example.com', '13800000000', 1, '默认管理员')
+INSERT INTO sys_user (tenant_id, username, password, nickname, email, phone, status, remark)
+VALUES (0, 'admin', '$2a$10$Q9uTEt.q6kRXKuX3sI5YbeaUvNbK/C.jYFQki71R.plVQ1BM8DTlC', '超级管理员', 'admin@example.com', '13800000000', 1, '默认管理员')
 ON DUPLICATE KEY UPDATE username = username;
 
 INSERT INTO sys_role (code, name, status, description)

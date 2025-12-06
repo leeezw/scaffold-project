@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
  * @author yourname
  */
 @SpringBootApplication(scanBasePackages = "com.kite")
-@MapperScan("com.kite.usercenter.mapper")
+@MapperScan({"com.kite.usercenter.mapper", "com.kite.organization.mapper"})
 @EnableAsync
 public class Application {
 

@@ -4,6 +4,8 @@ import com.kite.authenticator.service.SessionManagementService;
 import com.kite.common.exception.BusinessException;
 import com.kite.common.response.ResultCode;
 import com.kite.common.util.PageResult;
+import com.kite.organization.config.TenantContextHolder;
+import com.kite.organization.service.UserOrganizationService;
 import com.kite.usercenter.dto.*;
 import com.kite.usercenter.entity.User;
 import com.kite.usercenter.mapper.UserMapper;
@@ -26,18 +28,22 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final UserRoleMapper userRoleMapper;
     private final SessionManagementService sessionManagementService;
+    private final UserOrganizationService userOrganizationService;
     
     @Autowired
     public UserServiceImpl(UserMapper userMapper,
                            UserRoleMapper userRoleMapper,
-                           @Autowired(required = false) SessionManagementService sessionManagementService) {
+                           @Autowired(required = false) SessionManagementService sessionManagementService,
+                           @Autowired(required = false) UserOrganizationService userOrganizationService) {
         this.userMapper = userMapper;
         this.userRoleMapper = userRoleMapper;
         this.sessionManagementService = sessionManagementService;
+        this.userOrganizationService = userOrganizationService;
     }
     
     @Override
     public UserPageResponse pageUsers(UserPageRequest request) {
+        Long tenantId = requireTenantId();
         int pageNum = request.getPageNum() != null && request.getPageNum() > 0 ? request.getPageNum() : 1;
         int pageSize = request.getPageSize() != null && request.getPageSize() > 0 ? request.getPageSize() : 10;
         int offset = (pageNum - 1) * pageSize;
@@ -48,6 +54,7 @@ public class UserServiceImpl implements UserService {
         
         // 查询分页数据
         List<User> list = userMapper.selectPage(
+            tenantId,
             request.getKeyword(), 
             request.getStatus(), 
             sortField,
@@ -55,12 +62,12 @@ public class UserServiceImpl implements UserService {
             offset, 
             pageSize
         );
-        
+
         // 查询总数和统计信息
-        long total = userMapper.count(request.getKeyword(), request.getStatus());
-        long enabledCount = userMapper.countEnabled(request.getKeyword());
-        long disabledCount = userMapper.countDisabled(request.getKeyword());
-        long todayNewCount = userMapper.countTodayNew(request.getKeyword());
+        long total = userMapper.count(tenantId, request.getKeyword(), request.getStatus());
+        long enabledCount = userMapper.countEnabled(tenantId, request.getKeyword());
+        long disabledCount = userMapper.countDisabled(tenantId, request.getKeyword());
+        long todayNewCount = userMapper.countTodayNew(tenantId, request.getKeyword());
         
         // 转换为 DTO
         List<UserDTO> dtoList = list.stream().map(this::convertToDTO).collect(Collectors.toList());
@@ -78,7 +85,7 @@ public class UserServiceImpl implements UserService {
     
     @Override
     public UserDTO getUserDetail(Long id) {
-        User user = userMapper.selectById(id);
+        User user = userMapper.selectById(id, requireTenantId());
         if (user == null) {
             throw new BusinessException(ResultCode.DATA_NOT_EXISTS);
         }
@@ -90,11 +97,13 @@ public class UserServiceImpl implements UserService {
         if (!StringUtils.hasText(request.getUsername()) || !StringUtils.hasText(request.getPassword())) {
             throw new BusinessException(ResultCode.PARAM_ERROR.getCode(), "用户名和密码不能为空");
         }
-        User exist = userMapper.selectByUsername(request.getUsername());
+        Long tenantId = requireTenantId();
+        User exist = userMapper.selectByUsername(request.getUsername(), tenantId);
         if (exist != null) {
             throw new BusinessException(ResultCode.DATA_EXISTS.getCode(), "用户名已存在");
         }
         User user = new User();
+        user.setTenantId(tenantId);
         user.setUsername(request.getUsername());
         user.setPassword(PasswordUtils.hash(request.getPassword()));
         user.setNickname(request.getNickname());
@@ -104,11 +113,14 @@ public class UserServiceImpl implements UserService {
         user.setRemark(request.getRemark());
         userMapper.insert(user);
         assignRoles(user.getId(), request.getRoleIds());
+        bindOrganizations(tenantId, user.getId(), request.getDepartmentIds(), request.getPrimaryDepartmentId(),
+                request.getPositionIds(), request.getPrimaryPositionId());
     }
     
     @Override
     public void updateUser(UserUpdateRequest request) {
-        User user = userMapper.selectById(request.getId());
+        Long tenantId = requireTenantId();
+        User user = userMapper.selectById(request.getId(), tenantId);
         if (user == null) {
             throw new BusinessException(ResultCode.DATA_NOT_EXISTS);
         }
@@ -118,11 +130,13 @@ public class UserServiceImpl implements UserService {
         user.setRemark(request.getRemark());
         userMapper.update(user);
         assignRoles(request.getId(), request.getRoleIds());
+        bindOrganizations(tenantId, request.getId(), request.getDepartmentIds(), request.getPrimaryDepartmentId(),
+                request.getPositionIds(), request.getPrimaryPositionId());
     }
     
     @Override
     public void changeStatus(ChangeStatusRequest request) {
-        User user = userMapper.selectById(request.getId());
+        User user = userMapper.selectById(request.getId(), requireTenantId());
         if (user == null) {
             throw new BusinessException(ResultCode.DATA_NOT_EXISTS);
         }
@@ -135,7 +149,7 @@ public class UserServiceImpl implements UserService {
     
     @Override
     public void resetPassword(ResetPasswordRequest request) {
-        User user = userMapper.selectById(request.getUserId());
+        User user = userMapper.selectById(request.getUserId(), requireTenantId());
         if (user == null) {
             throw new BusinessException(ResultCode.DATA_NOT_EXISTS);
         }
@@ -163,12 +177,16 @@ public class UserServiceImpl implements UserService {
     
     @Override
     public User findByUsername(String username) {
-        return userMapper.selectByUsername(username);
+        Long tenantId = TenantContextHolder.getTenantId();
+        if (tenantId == null) {
+            return userMapper.selectByUsernameGlobal(username);
+        }
+        return userMapper.selectByUsername(username, tenantId);
     }
     
     @Override
     public User getById(Long id) {
-        return userMapper.selectById(id);
+        return userMapper.selectById(id, requireTenantId());
     }
     
     private UserDTO convertToDTO(User user) {
@@ -177,6 +195,7 @@ public class UserServiceImpl implements UserService {
         }
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
+        dto.setTenantId(user.getTenantId());
         dto.setUsername(user.getUsername());
         dto.setNickname(user.getNickname());
         dto.setEmail(user.getEmail());
@@ -187,6 +206,34 @@ public class UserServiceImpl implements UserService {
         dto.setCreateTime(user.getCreateTime());
         dto.setUpdateTime(user.getUpdateTime());
         dto.setRoleIds(listRoleIds(user.getId()));
+        if (userOrganizationService != null) {
+            Long tenantId = user.getTenantId();
+            dto.setDepartmentIds(userOrganizationService.listDepartmentIds(tenantId, user.getId()));
+            dto.setPrimaryDepartmentId(userOrganizationService.getPrimaryDepartmentId(tenantId, user.getId()));
+            dto.setPositionIds(userOrganizationService.listPositionIds(tenantId, user.getId()));
+            dto.setPrimaryPositionId(userOrganizationService.getPrimaryPositionId(tenantId, user.getId()));
+        }
         return dto;
+    }
+
+    private Long requireTenantId() {
+        Long tenantId = TenantContextHolder.getTenantId();
+        if (tenantId == null) {
+            throw new BusinessException(ResultCode.PARAM_ERROR.getCode(), "租户上下文缺失，请在请求头中提供 X-Tenant-Id");
+        }
+        return tenantId;
+    }
+
+    private void bindOrganizations(Long tenantId,
+                                   Long userId,
+                                   List<Long> departmentIds,
+                                   Long primaryDepartmentId,
+                                   List<Long> positionIds,
+                                   Long primaryPositionId) {
+        if (userOrganizationService == null) {
+            return;
+        }
+        userOrganizationService.bindDepartments(tenantId, userId, departmentIds, primaryDepartmentId);
+        userOrganizationService.bindPositions(tenantId, userId, positionIds, primaryPositionId);
     }
 }

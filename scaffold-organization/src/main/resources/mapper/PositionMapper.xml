@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kite.organization.mapper.PositionMapper">
+
+    <resultMap id="PositionResultMap" type="com.kite.organization.entity.Position">
+        <id column="id" property="id"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="category" property="category"/>
+        <result column="rank" property="rank"/>
+        <result column="status" property="status"/>
+        <result column="sort" property="sort"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="PositionColumns">
+        id, tenant_id, name, code, category, rank, status, sort, remark, create_time, update_time
+    </sql>
+
+    <select id="selectById" resultMap="PositionResultMap">
+        SELECT <include refid="PositionColumns"/> FROM org_position WHERE id = #{id}
+    </select>
+
+    <select id="selectByTenantId" resultMap="PositionResultMap">
+        SELECT <include refid="PositionColumns"/>
+        FROM org_position
+        WHERE tenant_id = #{tenantId}
+        ORDER BY sort ASC, id ASC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO org_position(tenant_id, name, code, category, rank, status, sort, remark, create_time, update_time)
+        VALUES (#{tenantId}, #{name}, #{code}, #{category}, #{rank}, #{status}, #{sort}, #{remark}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update">
+        UPDATE org_position
+        <set>
+            <if test="tenantId != null">tenant_id = #{tenantId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="code != null">code = #{code},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="rank != null">rank = #{rank},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM org_position WHERE id = #{id}
+    </delete>
+</mapper>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kite.organization.mapper.TenantMapper">
+
+    <resultMap id="TenantResultMap" type="com.kite.organization.entity.Tenant">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="contact_name" property="contactName"/>
+        <result column="contact_phone" property="contactPhone"/>
+        <result column="contact_email" property="contactEmail"/>
+        <result column="industry" property="industry"/>
+        <result column="level" property="level"/>
+        <result column="status" property="status"/>
+        <result column="expired_at" property="expiredAt"/>
+        <result column="config_json" property="configJson"/>
+        <result column="remark" property="remark"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="TenantColumns">
+        id, code, name, contact_name, contact_phone, contact_email,
+        industry, level, status, expired_at, config_json, remark, created_by,
+        updated_by, create_time, update_time
+    </sql>
+
+    <select id="selectById" resultMap="TenantResultMap">
+        SELECT <include refid="TenantColumns"/> FROM org_tenant WHERE id = #{id}
+    </select>
+
+    <select id="selectByCode" resultMap="TenantResultMap">
+        SELECT <include refid="TenantColumns"/> FROM org_tenant WHERE code = #{code}
+    </select>
+
+    <select id="selectList" resultMap="TenantResultMap">
+        SELECT <include refid="TenantColumns"/>
+        FROM org_tenant
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (name LIKE CONCAT('%', #{keyword}, '%') OR code LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO org_tenant(code, name, contact_name, contact_phone, contact_email, industry, level,
+                               status, expired_at, config_json, remark, created_by, updated_by, create_time, update_time)
+        VALUES (#{code}, #{name}, #{contactName}, #{contactPhone}, #{contactEmail}, #{industry}, #{level},
+                #{status}, #{expiredAt}, #{configJson}, #{remark}, #{createdBy}, #{updatedBy}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update">
+        UPDATE org_tenant
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="code != null">code = #{code},</if>
+            <if test="contactName != null">contact_name = #{contactName},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+            <if test="contactEmail != null">contact_email = #{contactEmail},</if>
+            <if test="industry != null">industry = #{industry},</if>
+            <if test="level != null">level = #{level},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="expiredAt != null">expired_at = #{expiredAt},</if>
+            <if test="configJson != null">config_json = #{configJson},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM org_tenant WHERE id = #{id}
+    </delete>
+</mapper>

@@ -13,34 +13,44 @@ public interface UserMapper {
     
     int update(User user);
     
-    int deleteById(Long id);
+    int deleteById(@Param("id") Long id,
+                   @Param("tenantId") Long tenantId);
     
-    User selectById(Long id);
+    User selectById(@Param("id") Long id,
+                    @Param("tenantId") Long tenantId);
     
-    User selectByUsername(String username);
+    User selectByUsername(@Param("username") String username,
+                          @Param("tenantId") Long tenantId);
+
+    User selectByUsernameGlobal(@Param("username") String username);
     
-    List<User> selectPage(@Param("keyword") String keyword,
+    List<User> selectPage(@Param("tenantId") Long tenantId,
+                          @Param("keyword") String keyword,
                           @Param("status") Integer status,
                           @Param("sortField") String sortField,
                           @Param("sortOrder") String sortOrder,
                           @Param("offset") Integer offset,
                           @Param("limit") Integer limit);
     
-    long count(@Param("keyword") String keyword,
+    long count(@Param("tenantId") Long tenantId,
+               @Param("keyword") String keyword,
                @Param("status") Integer status);
     
     /**
      * 统计启用用户数
      */
-    long countEnabled(@Param("keyword") String keyword);
+    long countEnabled(@Param("tenantId") Long tenantId,
+                      @Param("keyword") String keyword);
     
     /**
      * 统计禁用用户数
      */
-    long countDisabled(@Param("keyword") String keyword);
+    long countDisabled(@Param("tenantId") Long tenantId,
+                       @Param("keyword") String keyword);
     
     /**
      * 统计今日新增用户数
      */
-    long countTodayNew(@Param("keyword") String keyword);
+    long countTodayNew(@Param("tenantId") Long tenantId,
+                       @Param("keyword") String keyword);
 }

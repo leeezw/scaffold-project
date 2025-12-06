@@ -22,6 +22,13 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <!-- 组织租户模块 -->
+            <dependency>
+                <groupId>com.kite</groupId>
+                <artifactId>scaffold-organization</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- 认证框架 Starter -->
             <dependency>
                 <groupId>com.kite</groupId>
@@ -55,4 +62,3 @@
         </plugins>
     </build>
 </project>
-

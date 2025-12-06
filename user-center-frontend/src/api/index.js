@@ -1,4 +1,6 @@
 import axios from 'axios';
+const TENANT_KEY = 'uc_tenant_id';
+
 const request = axios.create({
   // 使用相对路径，通过 Vite 代理转发到后端
   // 代理配置在 vite.config.js 中：/api -> http://localhost:8080
@@ -10,6 +12,10 @@ request.interceptors.request.use((config) => {
   const token = localStorage.getItem('uc_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  const tenantId = localStorage.getItem(TENANT_KEY);
+  if (tenantId) {
+    config.headers['X-Tenant-Id'] = tenantId;
   }
   return config;
 });

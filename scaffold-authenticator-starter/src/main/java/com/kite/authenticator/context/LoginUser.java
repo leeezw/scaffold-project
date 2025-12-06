@@ -19,6 +19,11 @@ public class LoginUser implements Serializable {
      * 用户ID
      */
     private Long userId;
+
+    /**
+     * 所属租户
+     */
+    private Long tenantId;
     
     /**
      * 用户名
@@ -70,4 +75,3 @@ public class LoginUser implements Serializable {
      */
     private String deviceType;
 }
-

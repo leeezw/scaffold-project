@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 
-const STORAGE_KEY = 'uc_token';
+const TOKEN_KEY = 'uc_token';
+const TENANT_KEY = 'uc_tenant_id';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem(STORAGE_KEY));
+  const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));
+  const [tenantId, setTenantId] = useState(() => localStorage.getItem(TENANT_KEY) || '');
   const [user, setUser] = useState(() => {
     const cached = localStorage.getItem('uc_user');
     return cached ? JSON.parse(cached) : null;
@@ -12,11 +14,19 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (token) {
-      localStorage.setItem(STORAGE_KEY, token);
+      localStorage.setItem(TOKEN_KEY, token);
     } else {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(TOKEN_KEY);
     }
   }, [token]);
+
+  useEffect(() => {
+    if (tenantId) {
+      localStorage.setItem(TENANT_KEY, tenantId);
+    } else {
+      localStorage.removeItem(TENANT_KEY);
+    }
+  }, [tenantId]);
 
   useEffect(() => {
     if (user) {
@@ -26,7 +36,10 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
-  const value = useMemo(() => ({ token, setToken, user, setUser }), [token, user]);
+  const value = useMemo(
+    () => ({ token, setToken, user, setUser, tenantId, setTenantId }),
+    [token, user, tenantId]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

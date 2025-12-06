@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kite.organization.mapper.DepartmentMapper">
+
+    <resultMap id="DepartmentResultMap" type="com.kite.organization.entity.Department">
+        <id column="id" property="id"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="path" property="path"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="leader_user_id" property="leaderUserId"/>
+        <result column="leader_name" property="leaderName"/>
+        <result column="sort" property="sort"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="DepartmentColumns">
+        id, tenant_id, parent_id, path, name, code, leader_user_id, leader_name, sort, status, remark,
+        create_time, update_time
+    </sql>
+
+    <select id="selectById" resultMap="DepartmentResultMap">
+        SELECT <include refid="DepartmentColumns"/> FROM org_department WHERE id = #{id}
+    </select>
+
+    <select id="selectByTenantId" resultMap="DepartmentResultMap">
+        SELECT <include refid="DepartmentColumns"/>
+        FROM org_department
+        WHERE tenant_id = #{tenantId}
+        ORDER BY sort ASC, id ASC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO org_department(tenant_id, parent_id, path, name, code, leader_user_id, leader_name,
+                                   sort, status, remark, create_time, update_time)
+        VALUES (#{tenantId}, #{parentId}, #{path}, #{name}, #{code}, #{leaderUserId}, #{leaderName},
+                #{sort}, #{status}, #{remark}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update">
+        UPDATE org_department
+        <set>
+            <if test="tenantId != null">tenant_id = #{tenantId},</if>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="path != null">path = #{path},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="code != null">code = #{code},</if>
+            <if test="leaderUserId != null">leader_user_id = #{leaderUserId},</if>
+            <if test="leaderName != null">leader_name = #{leaderName},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM org_department WHERE id = #{id}
+    </delete>
+</mapper>

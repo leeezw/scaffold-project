@@ -35,6 +35,18 @@ public class UserCreateRequest {
     
     @Schema(description = "角色ID集合")
     private List<Long> roleIds;
+
+    @Schema(description = "部门ID集合")
+    private List<Long> departmentIds;
+
+    @Schema(description = "主部门ID")
+    private Long primaryDepartmentId;
+
+    @Schema(description = "岗位ID集合")
+    private List<Long> positionIds;
+
+    @Schema(description = "主岗位ID")
+    private Long primaryPositionId;
     
     @Schema(description = "备注")
     private String remark;

@@ -5,6 +5,7 @@
 
     <resultMap id="BaseResultMap" type="com.kite.usercenter.entity.User">
         <id column="id" property="id"/>
+        <result column="tenant_id" property="tenantId"/>
         <result column="username" property="username"/>
         <result column="password" property="password"/>
         <result column="nickname" property="nickname"/>
@@ -20,13 +21,13 @@
     </resultMap>
 
     <sql id="BaseColumns">
-        id, username, password, nickname, email, phone, status, avatar,
+        id, tenant_id, username, password, nickname, email, phone, status, avatar,
         last_login_time, pwd_updated_at, remark, create_time, update_time
     </sql>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO sys_user (username, password, nickname, email, phone, status, avatar, remark)
-        VALUES (#{username}, #{password}, #{nickname}, #{email}, #{phone}, #{status}, #{avatar}, #{remark})
+        INSERT INTO sys_user (tenant_id, username, password, nickname, email, phone, status, avatar, remark)
+        VALUES (#{tenantId}, #{username}, #{password}, #{nickname}, #{email}, #{phone}, #{status}, #{avatar}, #{remark})
     </insert>
 
     <update id="update">
@@ -45,21 +46,29 @@
     </update>
 
     <delete id="deleteById">
-        DELETE FROM sys_user WHERE id = #{id}
+        DELETE FROM sys_user WHERE id = #{id} AND tenant_id = #{tenantId}
     </delete>
 
     <select id="selectById" resultMap="BaseResultMap">
-        SELECT <include refid="BaseColumns"/> FROM sys_user WHERE id = #{id}
+        SELECT <include refid="BaseColumns"/> FROM sys_user WHERE id = #{id} AND tenant_id = #{tenantId}
     </select>
 
     <select id="selectByUsername" resultMap="BaseResultMap">
-        SELECT <include refid="BaseColumns"/> FROM sys_user WHERE username = #{username}
+        SELECT <include refid="BaseColumns"/> FROM sys_user WHERE username = #{username} AND tenant_id = #{tenantId}
+    </select>
+
+    <select id="selectByUsernameGlobal" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM sys_user
+        WHERE username = #{username}
+        LIMIT 1
     </select>
 
     <select id="selectPage" resultMap="BaseResultMap">
         SELECT <include refid="BaseColumns"/>
         FROM sys_user
         <where>
+            tenant_id = #{tenantId}
             <if test="keyword != null and keyword != ''">
                 AND (username LIKE CONCAT('%', #{keyword}, '%')
                  OR nickname LIKE CONCAT('%', #{keyword}, '%')
@@ -91,6 +100,7 @@
         SELECT COUNT(1)
         FROM sys_user
         <where>
+            tenant_id = #{tenantId}
             <if test="keyword != null and keyword != ''">
                 AND (username LIKE CONCAT('%', #{keyword}, '%')
                  OR nickname LIKE CONCAT('%', #{keyword}, '%')
@@ -107,7 +117,8 @@
         SELECT COUNT(1)
         FROM sys_user
         <where>
-            status = 1
+            tenant_id = #{tenantId}
+            AND status = 1
             <if test="keyword != null and keyword != ''">
                 AND (username LIKE CONCAT('%', #{keyword}, '%')
                  OR nickname LIKE CONCAT('%', #{keyword}, '%')
@@ -121,7 +132,8 @@
         SELECT COUNT(1)
         FROM sys_user
         <where>
-            status = 0
+            tenant_id = #{tenantId}
+            AND status = 0
             <if test="keyword != null and keyword != ''">
                 AND (username LIKE CONCAT('%', #{keyword}, '%')
                  OR nickname LIKE CONCAT('%', #{keyword}, '%')
@@ -135,7 +147,8 @@
         SELECT COUNT(1)
         FROM sys_user
         <where>
-            DATE(create_time) = CURDATE()
+            tenant_id = #{tenantId}
+            AND DATE(create_time) = CURDATE()
             <if test="keyword != null and keyword != ''">
                 AND (username LIKE CONCAT('%', #{keyword}, '%')
                  OR nickname LIKE CONCAT('%', #{keyword}, '%')

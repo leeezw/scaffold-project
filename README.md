@@ -16,6 +16,12 @@ scaffold-project/
 │       ├── mapper/          # Mapper 接口
 │       ├── service/         # 服务层
 │       └── controller/      # 控制器
+├── scaffold-organization/    # 租户 / 部门 / 岗位模块
+│   └── src/main/java/com/kite/organization/
+│       ├── entity/          # 租户、部门、岗位等实体
+│       ├── mapper/          # MyBatis Mapper
+│       ├── service/         # 组织架构服务
+│       └── controller/      # 管理 API（租户/部门/岗位）
 └── scaffold-app/            # 启动模块
     ├── src/main/java/com/kite/app/
     │   └── Application.java
@@ -145,10 +151,19 @@ knife4j:
   production: false            # 生产环境建议设置为 true 隐藏文档
 ```
 
+## 多租户组织模块
+
+- 初始化脚本：执行 `scaffold-organization/src/main/resources/db/organization.sql` 创建租户、部门、岗位及关联表。
+- 请求头默认使用 `X-Tenant-Id` 传递租户ID，可通过 `kite.tenant.header` 覆盖；若从参数传递可使用 `tenantId`（`kite.tenant.param`）。
+- 可开启 `kite.tenant.required=true` 强制所有 API 必须携带租户ID，`kite.tenant.ignore-uris` 支持 Ant Pattern 用于放行特定路径。
+- 每个请求由 `TenantContextFilter` 写入 `TenantContextHolder`，后续 Service/Mapper 可直接读取当前租户实现 SQL 隔离。
+- 登录与所有需要权限的接口都必须在 Header 中附带 `X-Tenant-Id`，否则会返回“租户ID缺失”的错误提示（平台管理员可使用 `tenant_id=0`）。
+
 ## 下一步
 
 1. ✅ 整合 Swagger 接口文档（已完成）
 2. 创建用户表和相关数据库表
+3. 导入 `scaffold-organization/src/main/resources/db/organization.sql` 初始化租户/组织结构表
 3. 实现登录认证功能
 4. 实现权限认证功能
 5. 实现用户管理功能
@@ -158,4 +173,3 @@ knife4j:
 - 首次运行前请先创建数据库
 - 确保 MySQL 和 Redis 服务已启动
 - 修改配置文件中的数据库连接信息
-

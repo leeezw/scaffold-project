@@ -107,6 +107,10 @@ export default function UserList() {
       nickname: undefined,
       email: undefined,
       status: 1,
+      departmentIds: [],
+      primaryDepartmentId: undefined,
+      positionIds: [],
+      primaryPositionId: undefined,
     });
     setModalVisible(true);
   };
@@ -117,6 +121,10 @@ export default function UserList() {
       username: record.username,
       nickname: record.nickname,
       email: record.email,
+      departmentIds: record.departmentIds || [],
+      primaryDepartmentId: record.primaryDepartmentId,
+      positionIds: record.positionIds || [],
+      primaryPositionId: record.primaryPositionId,
       // 编辑时不设置状态，状态通过独立的状态按钮修改
     });
     setModalVisible(true);
@@ -180,6 +188,10 @@ export default function UserList() {
       nickname: undefined,
       email: undefined,
       status: 1,
+      departmentIds: [],
+      primaryDepartmentId: undefined,
+      positionIds: [],
+      primaryPositionId: undefined,
     });
     setEditingUser(null);
   };

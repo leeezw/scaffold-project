@@ -11,6 +11,7 @@ import com.kite.authenticator.service.SessionManagementService;
 import com.kite.authenticator.service.TokenBlacklistService;
 import com.kite.authenticator.util.JwtUtils;
 import com.kite.common.response.Result;
+import com.kite.organization.config.TenantContextHolder;
 import com.kite.usercenter.dto.LoginRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

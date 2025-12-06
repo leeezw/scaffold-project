@@ -29,6 +29,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- 组织租户模块 -->
+        <dependency>
+            <groupId>com.kite</groupId>
+            <artifactId>scaffold-organization</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- MyBatis -->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>

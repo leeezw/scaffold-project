@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kite.organization.mapper.DepartmentPositionMapper">
+
+    <resultMap id="DepartmentPositionMap" type="com.kite.organization.entity.DepartmentPosition">
+        <id column="id" property="id"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="department_id" property="departmentId"/>
+        <result column="position_id" property="positionId"/>
+        <result column="quota" property="quota"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectByDepartmentId" resultMap="DepartmentPositionMap">
+        SELECT id, tenant_id, department_id, position_id, quota, create_time, update_time
+        FROM org_department_position
+        WHERE department_id = #{departmentId}
+    </select>
+
+    <insert id="batchInsert">
+        INSERT INTO org_department_position(tenant_id, department_id, position_id, quota, create_time, update_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.tenantId}, #{item.departmentId}, #{item.positionId}, #{item.quota}, #{item.createTime}, #{item.updateTime})
+        </foreach>
+    </insert>
+
+    <delete id="deleteByDepartmentId">
+        DELETE FROM org_department_position WHERE department_id = #{departmentId}
+    </delete>
+</mapper>

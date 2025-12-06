@@ -117,6 +117,42 @@
   color: #7d8592;
 }
 
+.tenant-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tenant-modal-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #0a1629;
+}
+
+.tenant-modal-desc {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.tenant-modal-button {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.75rem 0;
+  border: none;
+  border-radius: 0.75rem;
+  background-color: #3f8cff;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tenant-modal-button:hover {
+  background-color: #2e6fd9;
+}
+
 /* 密码输入框包装器 */
 .password-input-wrapper {
   padding: 0.75rem 1.13rem 0.75rem 1.38rem;

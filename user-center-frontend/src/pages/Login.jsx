@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RightOutlined } from '@ant-design/icons';
+import { Modal, Select, message } from 'antd';
 import request from '../api/index.js';
 import { useAuthContext } from '../hooks/AuthProvider.jsx';
 import './Login.css';
@@ -12,8 +13,67 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [tenantModalVisible, setTenantModalVisible] = useState(false);
+  const [tenantOptions, setTenantOptions] = useState([]);
+  const [tenantSelection, setTenantSelection] = useState('');
   const navigate = useNavigate();
-  const { setToken, setUser } = useAuthContext();
+  const tenantResolverRef = useRef(null);
+  const { setToken, setUser, setTenantId } = useAuthContext();
+
+  useEffect(() => {
+    setTenantId('');
+    localStorage.removeItem('uc_tenant_id');
+  }, [setTenantId]);
+
+  useEffect(() => () => {
+    tenantResolverRef.current = null;
+  }, []);
+
+  const applyTenantSelection = (value) => {
+    const finalValue = String(value);
+    setTenantId(finalValue);
+    localStorage.setItem('uc_tenant_id', finalValue);
+  };
+
+  const selectTenantFlow = async () => {
+    const res = await request.get('/tenants/my-options');
+    if (res.code !== 200) {
+      throw new Error(res.message || '获取租户列表失败');
+    }
+    const list = res.data || [];
+    if (!list.length) {
+      throw new Error('当前账号没有可用租户，请联系管理员');
+    }
+    if (list.length === 1) {
+      applyTenantSelection(list[0].id);
+      return;
+    }
+    const options = list.map((item) => ({
+      value: String(item.id),
+      label: item.name || item.code || `租户${item.id}`
+    }));
+    setTenantOptions(options);
+    setTenantSelection('');
+    setTenantModalVisible(true);
+    return new Promise((resolve) => {
+      tenantResolverRef.current = resolve;
+    });
+  };
+
+  const handleTenantModalOk = () => {
+    if (!tenantSelection) {
+      message.warning('请选择要进入的租户');
+      return;
+    }
+    applyTenantSelection(tenantSelection);
+    setTenantModalVisible(false);
+    setTenantOptions([]);
+    setTenantSelection('');
+    if (tenantResolverRef.current) {
+      tenantResolverRef.current();
+      tenantResolverRef.current = null;
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,6 +104,7 @@ export default function Login() {
         throw new Error('登录响应中未找到 token');
       }
       
+      localStorage.setItem('uc_token', token);
       setToken(token);
       
       // 如果响应中包含用户信息，直接使用
@@ -90,7 +151,8 @@ export default function Login() {
       } else {
         localStorage.removeItem('uc_remember');
       }
-      
+
+      await selectTenantFlow();
       navigate('/', { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || err.message || '登录失败，请检查用户名和密码');
@@ -202,6 +264,34 @@ export default function Login() {
           <p>还没有账户？</p>
         </div>
       </div>
+
+      <Modal
+        open={tenantModalVisible}
+        footer={null}
+        closable={false}
+        maskClosable={false}
+        centered
+      >
+        <div className="tenant-modal">
+          <h3 className="tenant-modal-title">选择租户</h3>
+          <p className="tenant-modal-desc">请选择要进入的租户空间</p>
+          <Select
+            placeholder="请选择租户"
+            className="tenant-modal-select"
+            options={tenantOptions}
+            value={tenantSelection || undefined}
+            onChange={(value) => setTenantSelection(value)}
+            style={{ width: '100%' }}
+          />
+          <button
+            type="button"
+            className="tenant-modal-button"
+            onClick={handleTenantModalOk}
+          >
+            进入系统
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
