@@ -72,11 +72,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         loginUser.setTenantId(user.getTenantId());
         List<Long> roleIds = userRoleMapper.listRoleIdsByUserId(user.getId());
         if (!CollectionUtils.isEmpty(roleIds)) {
-            List<Role> roles = roleMapper.selectByIds(roleIds);
+            Long tenantId = user.getTenantId();
+            List<Role> roles = roleMapper.selectByIds(roleIds, tenantId);
             loginUser.setRoles(roles.stream().map(Role::getCode).collect(Collectors.toList()));
             Set<Long> permissionIds = new HashSet<>();
             for (Long roleId : roleIds) {
-                List<Long> ids = rolePermissionMapper.listPermissionIdsByRoleId(roleId);
+                List<Long> ids = rolePermissionMapper.listPermissionIdsByRoleId(roleId, tenantId);
                 if (!CollectionUtils.isEmpty(ids)) {
                     permissionIds.addAll(ids);
                 }

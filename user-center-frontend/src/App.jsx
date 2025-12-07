@@ -5,6 +5,7 @@ import UserList from './pages/UserList.jsx';
 import RoleList from './pages/RoleList.jsx';
 import PermissionList from './pages/PermissionList.jsx';
 import SessionList from './pages/SessionList.jsx';
+import TenantList from './pages/TenantList.jsx';
 import AppLayout from './components/AppLayout.jsx';
 
 function PrivateRoute({ children }) {
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="roles" element={<RoleList />} />
         <Route path="permissions" element={<PermissionList />} />
         <Route path="sessions" element={<SessionList />} />
+        <Route path="tenants" element={<TenantList />} />
       </Route>
     </Routes>
   );

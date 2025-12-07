@@ -8,13 +8,15 @@ import java.util.List;
 @Mapper
 public interface RolePermissionMapper {
     
-    int insertBatch(@Param("roleId") Long roleId, @Param("permissionIds") List<Long> permissionIds);
+    int insertBatch(@Param("tenantId") Long tenantId,
+                    @Param("roleId") Long roleId,
+                    @Param("permissionIds") List<Long> permissionIds);
     
-    int deleteByRoleId(Long roleId);
+    int deleteByRoleId(@Param("roleId") Long roleId, @Param("tenantId") Long tenantId);
     
-    List<Long> listPermissionIdsByRoleId(Long roleId);
+    List<Long> listPermissionIdsByRoleId(@Param("roleId") Long roleId, @Param("tenantId") Long tenantId);
 
-    List<Long> listPermissionIdsByRoleIds(@Param("roleIds") List<Long> roleIds);
+    List<Long> listPermissionIdsByRoleIds(@Param("roleIds") List<Long> roleIds, @Param("tenantId") Long tenantId);
 
     int deleteByPermissionId(Long permissionId);
 }

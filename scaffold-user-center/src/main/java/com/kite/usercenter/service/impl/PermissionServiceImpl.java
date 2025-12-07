@@ -4,6 +4,7 @@ import com.kite.authenticator.context.LoginUser;
 import com.kite.authenticator.context.LoginUserContext;
 import com.kite.common.exception.BusinessException;
 import com.kite.common.response.ResultCode;
+import com.kite.organization.config.TenantContextHolder;
 import com.kite.usercenter.dto.PermissionDTO;
 import com.kite.usercenter.dto.PermissionRequest;
 import com.kite.usercenter.entity.Permission;
@@ -11,6 +12,7 @@ import com.kite.usercenter.mapper.PermissionMapper;
 import com.kite.usercenter.mapper.RolePermissionMapper;
 import com.kite.usercenter.service.PermissionService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -20,6 +22,16 @@ import java.util.stream.Collectors;
 public class PermissionServiceImpl implements PermissionService {
 
     private static final Set<String> SUPPORTED_TYPES = new HashSet<>(Arrays.asList("menu", "button", "api"));
+    private static final Set<String> TENANT_FORBIDDEN_CODES = Collections.unmodifiableSet(
+            new HashSet<>(Arrays.asList(
+                    "menu:tenants",
+                    "tenant:list",
+                    "tenant:create",
+                    "tenant:update",
+                    "tenant:delete",
+                    "tenant:status"
+            ))
+    );
 
     private final PermissionMapper permissionMapper;
     private final RolePermissionMapper rolePermissionMapper;
@@ -49,12 +61,19 @@ public class PermissionServiceImpl implements PermissionService {
         if (permissions == null) {
             return Collections.emptyList();
         }
-        if (permissions.contains("*:*:*")) {
-            return listAll();
-        }
-        Set<String> allowedCodes = new HashSet<>(permissions);
         List<PermissionDTO> tree = listAll();
-        return filterTreeRecursive(tree, allowedCodes);
+        List<PermissionDTO> filtered;
+        if (permissions.contains("*:*:*")) {
+            filtered = tree;
+        } else {
+            Set<String> allowedCodes = new HashSet<>(permissions);
+            filtered = filterTreeRecursive(tree, allowedCodes);
+        }
+        Long tenantId = TenantContextHolder.getTenantId();
+        if (tenantId != null && tenantId != 0L) {
+            filtered = filterForbiddenForTenant(filtered);
+        }
+        return filtered;
     }
 
     @Override
@@ -186,6 +205,21 @@ public class PermissionServiceImpl implements PermissionService {
                 node.setChildren(filteredChildren);
                 result.add(node);
             }
+        }
+        return result;
+    }
+
+    private List<PermissionDTO> filterForbiddenForTenant(List<PermissionDTO> nodes) {
+        if (CollectionUtils.isEmpty(nodes)) {
+            return Collections.emptyList();
+        }
+        List<PermissionDTO> result = new ArrayList<>();
+        for (PermissionDTO node : nodes) {
+            if (TENANT_FORBIDDEN_CODES.contains(node.getCode())) {
+                continue;
+            }
+            node.setChildren(filterForbiddenForTenant(node.getChildren()));
+            result.add(node);
         }
         return result;
     }

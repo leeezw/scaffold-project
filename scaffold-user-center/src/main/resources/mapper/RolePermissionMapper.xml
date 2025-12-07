@@ -4,25 +4,26 @@
 <mapper namespace="com.kite.usercenter.mapper.RolePermissionMapper">
 
     <insert id="insertBatch">
-        INSERT INTO sys_role_permission (role_id, permission_id)
+        INSERT INTO sys_role_permission (tenant_id, role_id, permission_id)
         VALUES
         <foreach collection="permissionIds" item="permissionId" separator=",">
-            (#{roleId}, #{permissionId})
+            (#{tenantId}, #{roleId}, #{permissionId})
         </foreach>
     </insert>
 
     <delete id="deleteByRoleId">
-        DELETE FROM sys_role_permission WHERE role_id = #{roleId}
+        DELETE FROM sys_role_permission WHERE role_id = #{roleId} AND tenant_id = #{tenantId}
     </delete>
 
     <select id="listPermissionIdsByRoleId" resultType="long">
-        SELECT permission_id FROM sys_role_permission WHERE role_id = #{roleId}
+        SELECT permission_id FROM sys_role_permission WHERE role_id = #{roleId} AND tenant_id = #{tenantId}
     </select>
 
     <select id="listPermissionIdsByRoleIds" resultType="long">
         SELECT DISTINCT permission_id
         FROM sys_role_permission
-        WHERE role_id IN
+        WHERE tenant_id = #{tenantId}
+          AND role_id IN
         <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
             #{roleId}
         </foreach>

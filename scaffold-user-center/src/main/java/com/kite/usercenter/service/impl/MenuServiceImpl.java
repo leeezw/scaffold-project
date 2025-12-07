@@ -1,5 +1,8 @@
 package com.kite.usercenter.service.impl;
 
+import com.kite.authenticator.context.LoginUser;
+import com.kite.authenticator.context.LoginUserContext;
+import com.kite.organization.config.TenantContextHolder;
 import com.kite.usercenter.entity.Permission;
 import com.kite.usercenter.mapper.PermissionMapper;
 import com.kite.usercenter.mapper.RolePermissionMapper;
@@ -39,7 +42,8 @@ public class MenuServiceImpl implements MenuService {
         if (CollectionUtils.isEmpty(roleIds)) {
             return Collections.emptyList();
         }
-        List<Long> permissionIds = rolePermissionMapper.listPermissionIdsByRoleIds(roleIds);
+        Long tenantId = resolveTenantId(userId);
+        List<Long> permissionIds = rolePermissionMapper.listPermissionIdsByRoleIds(roleIds, tenantId);
         if (CollectionUtils.isEmpty(permissionIds)) {
             return Collections.emptyList();
         }
@@ -151,5 +155,18 @@ public class MenuServiceImpl implements MenuService {
         vo.setVisible(permission.getVisible() == null ? 1 : permission.getVisible());
         vo.setSort(permission.getSort());
         return vo;
+    }
+
+    private Long resolveTenantId(Long userId) {
+        Long tenantId = TenantContextHolder.getTenantId();
+        LoginUser loginUser = LoginUserContext.getLoginUser();
+        if (tenantId == null && loginUser != null && Objects.equals(loginUser.getUserId(), userId)) {
+            tenantId = loginUser.getTenantId();
+        }
+        if (loginUser != null && Objects.equals(loginUser.getUserId(), userId)
+                && (loginUser.getTenantId() == null || loginUser.getTenantId() == 0L)) {
+            return 0L;
+        }
+        return tenantId == null ? 0L : tenantId;
     }
 }

@@ -17,9 +17,9 @@ public interface RoleMapper {
     
     Role selectById(Long id);
     
-    Role selectByCode(String code);
+    Role selectByCode(@Param("code") String code, @Param("tenantId") Long tenantId);
     
-    List<Role> selectAll(@Param("status") Integer status);
+    List<Role> selectAll(@Param("status") Integer status, @Param("tenantId") Long tenantId);
     
-    List<Role> selectByIds(@Param("ids") List<Long> ids);
+    List<Role> selectByIds(@Param("ids") List<Long> ids, @Param("tenantId") Long tenantId);
 }
