@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RightOutlined } from '@ant-design/icons';
-import { Modal, Select, message } from 'antd';
 import request from '../api/index.js';
 import { useAuthContext } from '../hooks/AuthProvider.jsx';
 import './Login.css';
@@ -13,12 +12,12 @@ export default function Login() {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [tenantModalVisible, setTenantModalVisible] = useState(false);
-  const [tenantOptions, setTenantOptions] = useState([]);
+  const [tenantList, setTenantList] = useState([]);
   const [tenantSelection, setTenantSelection] = useState('');
+  const [showTenantSelector, setShowTenantSelector] = useState(false);
   const navigate = useNavigate();
   const tenantResolverRef = useRef(null);
-  const { setToken, setUser, setTenantId } = useAuthContext();
+  const { setToken, setUser, setTenantId, user: authUser } = useAuthContext();
 
   useEffect(() => {
     setTenantId('');
@@ -35,7 +34,12 @@ export default function Login() {
     localStorage.setItem('uc_tenant_id', finalValue);
   };
 
-  const selectTenantFlow = async () => {
+  const selectTenantFlow = async (loginUserData) => {
+    const currentUser = loginUserData || authUser;
+    if (currentUser && Number(currentUser.tenantId) === 0) {
+      applyTenantSelection(0);
+      return;
+    }
     const res = await request.get('/tenants/my-options');
     if (res.code !== 200) {
       throw new Error(res.message || '获取租户列表失败');
@@ -48,31 +52,29 @@ export default function Login() {
       applyTenantSelection(list[0].id);
       return;
     }
-    const options = list.map((item) => ({
-      value: String(item.id),
-      label: item.name || item.code || `租户${item.id}`
-    }));
-    setTenantOptions(options);
+    setTenantList(list);
     setTenantSelection('');
-    setTenantModalVisible(true);
+    setShowTenantSelector(true);
     return new Promise((resolve) => {
       tenantResolverRef.current = resolve;
     });
   };
 
-  const handleTenantModalOk = () => {
-    if (!tenantSelection) {
-      message.warning('请选择要进入的租户');
-      return;
-    }
-    applyTenantSelection(tenantSelection);
-    setTenantModalVisible(false);
-    setTenantOptions([]);
+  const finishTenantSelection = () => {
+    setShowTenantSelector(false);
+    setTenantList([]);
     setTenantSelection('');
     if (tenantResolverRef.current) {
       tenantResolverRef.current();
       tenantResolverRef.current = null;
     }
+  };
+
+  const handleTenantChoose = (tenantId) => {
+    const finalValue = String(tenantId);
+    setTenantSelection(finalValue);
+    applyTenantSelection(finalValue);
+    finishTenantSelection();
   };
 
   const handleSubmit = async (e) => {
@@ -109,10 +111,10 @@ export default function Login() {
       
       // 如果响应中包含用户信息，直接使用
       // 注意：根据 OpenAPI，data 是 Map<String, Object>，可能需要根据实际返回结构调整
-      let user = data.user || data.userInfo || data.loginUser || data.User;
+      let loginUser = data.user || data.userInfo || data.loginUser || data.User;
       
       // 如果登录响应中没有用户信息，调用 /api/auth/current 获取
-      if (!user) {
+      if (!loginUser) {
         try {
           // 根据 OpenAPI 规范：/api/auth/current GET
           // 需要 loginUser 查询参数，但通常只需要 token 即可
@@ -121,7 +123,7 @@ export default function Login() {
             params: {}
           });
           if (currentUserRes.code === 200 && currentUserRes.data) {
-            user = currentUserRes.data;
+            loginUser = currentUserRes.data;
           }
         } catch (err) {
           console.warn('获取当前用户信息失败:', err);
@@ -131,7 +133,7 @@ export default function Login() {
               params: { loginUser: {} }
             });
             if (currentUserRes.code === 200 && currentUserRes.data) {
-              user = currentUserRes.data;
+              loginUser = currentUserRes.data;
             }
           } catch (err2) {
             console.warn('获取当前用户信息失败（第二次尝试）:', err2);
@@ -140,19 +142,18 @@ export default function Login() {
       }
       
       // 设置用户信息
-      if (user) {
-        setUser(user);
+      if (loginUser) {
+        setUser(loginUser);
       }
       
-      // 如果选择了记住我，可以设置更长的过期时间（前端处理）
       if (rememberMe) {
-        // 前端记住用户信息，但 token 过期时间由后端控制
         localStorage.setItem('uc_remember', 'true');
       } else {
         localStorage.removeItem('uc_remember');
       }
 
-      await selectTenantFlow();
+      setLoading(false);
+      await selectTenantFlow(loginUser);
       navigate('/', { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || err.message || '登录失败，请检查用户名和密码');
@@ -162,8 +163,9 @@ export default function Login() {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-form-container">
+    <div className={`login-page ${showTenantSelector ? 'tenant-select-active' : ''}`}>
+      <div className="login-content">
+        <div className="login-form-container">
         <h1 className="form-title">登录用户中心</h1>
 
         <form className="login-form" onSubmit={handleSubmit}>
@@ -263,35 +265,37 @@ export default function Login() {
         <div className="form-footer">
           <p>还没有账户？</p>
         </div>
-      </div>
-
-      <Modal
-        open={tenantModalVisible}
-        footer={null}
-        closable={false}
-        maskClosable={false}
-        centered
-      >
-        <div className="tenant-modal">
-          <h3 className="tenant-modal-title">选择租户</h3>
-          <p className="tenant-modal-desc">请选择要进入的租户空间</p>
-          <Select
-            placeholder="请选择租户"
-            className="tenant-modal-select"
-            options={tenantOptions}
-            value={tenantSelection || undefined}
-            onChange={(value) => setTenantSelection(value)}
-            style={{ width: '100%' }}
-          />
-          <button
-            type="button"
-            className="tenant-modal-button"
-            onClick={handleTenantModalOk}
-          >
-            进入系统
-          </button>
         </div>
-      </Modal>
+
+        <div className={`tenant-panel ${showTenantSelector ? 'visible' : ''}`}>
+          <div className="tenant-panel-header">
+            <p className="tenant-panel-label">请选择要进入的租户</p>
+            <h3 className="tenant-panel-title">租户空间</h3>
+            <p className="tenant-panel-desc">点击下方租户卡片即可进入对应空间</p>
+          </div>
+          <div className="tenant-card-list">
+            {tenantList.map((tenant) => (
+              <button
+                key={tenant.id}
+                type="button"
+                className={`tenant-card ${tenantSelection === String(tenant.id) ? 'selected' : ''}`}
+                onClick={() => handleTenantChoose(tenant.id)}
+              >
+                <div className="tenant-card-title">{tenant.name || tenant.code}</div>
+                <div className="tenant-card-meta">
+                  <span className="tenant-card-code">{tenant.code}</span>
+                  {tenant.contactName && (
+                    <span className="tenant-card-contact">{tenant.contactName}</span>
+                  )}
+                </div>
+                {tenant.remark && (
+                  <p className="tenant-card-remark">{tenant.remark}</p>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

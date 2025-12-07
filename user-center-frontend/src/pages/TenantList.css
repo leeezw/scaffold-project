@@ -1,0 +1,26 @@
+.tenant-page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tenant-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.tenant-search {
+  width: 320px;
+}
+
+.tenant-table-card {
+  width: 100%;
+}
+
+.tenant-date-picker {
+  width: 100%;
+}

@@ -7,16 +7,32 @@
   margin: 0;
   padding: 0;
   font-family: 'PingFang SC', 'PingFang TC', 'PingFang HK', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-  background-color: #ffffff;
+  background: linear-gradient(135deg, #f5f7fb 0%, #ffffff 60%, #f0f4ff 100%);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding-top: 15vh;
+  overflow: hidden;
+}
+
+.login-content {
+  width: min(90vw, 1100px);
+  min-height: 520px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0;
+  position: relative;
+  transition: transform 0.5s ease;
 }
 
 .login-form-container {
   width: 100%;
   max-width: 25.19rem;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.tenant-select-active .login-form-container {
+  transform: translateX(-32px);
 }
 
 .form-title {
@@ -117,40 +133,147 @@
   color: #7d8592;
 }
 
-.tenant-modal {
+.tenant-panel {
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: #ffffff;
+  border-radius: 1.25rem;
+  padding: 1.75rem;
+  box-shadow: 0 25px 45px rgba(15, 23, 42, 0.08);
+  transform: translateX(40px);
+  transition: all 0.45s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.tenant-panel.visible {
+  width: 28rem;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+  margin-left: 2.5rem;
+}
+
+.tenant-panel-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.tenant-panel-label {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.15rem;
+}
+
+.tenant-panel-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tenant-panel-desc {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.tenant-card-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
 }
 
-.tenant-modal-title {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #0a1629;
-}
-
-.tenant-modal-desc {
-  margin: 0;
-  color: #64748b;
-  font-size: 0.9rem;
-}
-
-.tenant-modal-button {
-  width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.75rem 0;
-  border: none;
-  border-radius: 0.75rem;
-  background-color: #3f8cff;
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 600;
+.tenant-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1.15rem 1.25rem;
+  background: #ffffff;
+  text-align: left;
   cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.tenant-modal-button:hover {
-  background-color: #2e6fd9;
+.tenant-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent 0%, rgba(63, 140, 255, 0.12) 50%, transparent 100%);
+  transition: left 0.4s ease;
+}
+
+.tenant-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 35px rgba(63, 140, 255, 0.18);
+  border-color: #bfd8ff;
+}
+
+.tenant-card:hover::after {
+  left: 100%;
+}
+
+.tenant-card.selected {
+  border-color: #3f8cff;
+  box-shadow: 0 18px 35px rgba(63, 140, 255, 0.25);
+}
+
+.tenant-card-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 0.4rem;
+}
+
+.tenant-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.tenant-card-code {
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+}
+
+.tenant-card-contact {
+  color: #0f172a;
+}
+
+.tenant-card-remark {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 密码输入框包装器 */
